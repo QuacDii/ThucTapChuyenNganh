@@ -38,7 +38,7 @@ namespace TTCN.Controllers
             ModelState.Remove("MaPhimNavigation");
             ModelState.Remove("MaPhongNavigation");
             ModelState.Remove("DonDatVes");
-            ModelState.Remove("ChiTietScGnVes ");
+            ModelState.Remove("ChiTietScGn");
 
             if (sc.MaPhim != null)
             {
@@ -107,6 +107,16 @@ namespace TTCN.Controllers
             if (sc.GioBatDau.HasValue && sc.GioKetThuc.HasValue && sc.GioKetThuc <= sc.GioBatDau)
             {
                 ModelState.AddModelError("GioKetThuc", "Giờ kết thúc phải lớn hơn giờ bắt đầu.");
+            }
+
+            bool ktr=_context.SuatChieus.Any(e=>e.MaPhim==sc.MaPhim
+                                             && e.MaPhong==sc.MaPhong
+                                             && e.GioBatDau==sc.GioBatDau
+                                             && e.GioKetThuc==sc.GioKetThuc);
+
+            if (ktr)
+            {
+                ModelState.AddModelError("","Suất chiếu này đã tồn tại trong hệ thống!");
             }
 
             if (ModelState.IsValid)

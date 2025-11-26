@@ -7,7 +7,7 @@ namespace TTCN.Models
     {
         public GheNgoi()
         {
-            ChiTietScGnVes = new HashSet<ChiTietScGnVe>();
+            ChiTietScGn = new HashSet<ChiTietScGn>();
         }
 
         public int MaGhe { get; set; }
@@ -17,6 +17,6 @@ namespace TTCN.Models
         public int MaPhong { get; set; }
 
         public virtual PhongChieu MaPhongNavigation { get; set; } = null!;
-        public virtual ICollection<ChiTietScGnVe> ChiTietScGnVes { get; set; }
+        public virtual ICollection<ChiTietScGn> ChiTietScGn { get; set; }
     }
 }

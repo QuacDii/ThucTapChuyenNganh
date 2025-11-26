@@ -16,7 +16,7 @@ namespace TTCN.Models
         {
         }
 
-        public virtual DbSet<ChiTietScGnVe> ChiTietScGnVes { get; set; } = null!;
+        public virtual DbSet<ChiTietScGn> ChiTietScGnVes { get; set; } = null!;
         public virtual DbSet<CumRap> CumRaps { get; set; } = null!;
         public virtual DbSet<DoAn> DoAns { get; set; } = null!;
         public virtual DbSet<DonDatVe> DonDatVes { get; set; } = null!;
@@ -29,8 +29,6 @@ namespace TTCN.Models
         public virtual DbSet<TheLoai> TheLoais { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UsersPhim> UsersPhims { get; set; } = null!;
-        public virtual DbSet<Ve> Ves { get; set; } = null!;
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -42,7 +40,7 @@ namespace TTCN.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-             modelBuilder.Entity<ChiTietScGnVe>(entity =>
+             modelBuilder.Entity<ChiTietScGn>(entity =>
             {
                 entity.HasKey(e => e.MaCt);
 
@@ -59,12 +57,12 @@ namespace TTCN.Models
                 entity.Property(e => e.TrangThai).HasColumnName("trangThai");
 
                 entity.HasOne(d => d.MaGheNavigation)
-                    .WithMany(p => p.ChiTietScGnVes)
+                    .WithMany(p => p.ChiTietScGn)
                     .HasForeignKey(d => d.MaGhe)
                     .HasConstraintName("FK_ChiTiet_SC_GN_Ve_gheNgoi");
 
                 entity.HasOne(d => d.MaSuatNavigation)
-                    .WithMany(p => p.ChiTietScGnVes)
+                    .WithMany(p => p.ChiTietScGn)
                     .HasForeignKey(d => d.MaSuat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChiTiet_SC_GN_Ve_suatChieu");
@@ -325,6 +323,10 @@ namespace TTCN.Models
                     .HasColumnType("datetime")
                     .HasColumnName("gioKetThuc");
 
+                entity.Property(e => e.Gia)
+                    .HasColumnType("money")
+                    .HasColumnName("gia");
+
                 entity.Property(e => e.MaPhim).HasColumnName("maPhim");
 
                 entity.Property(e => e.MaPhong).HasColumnName("maPhong");
@@ -426,30 +428,6 @@ namespace TTCN.Models
                     .HasForeignKey(d => d.MaUsers)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Users_Phim_Users");
-            });
-
-            modelBuilder.Entity<Ve>(entity =>
-            {
-                entity.HasKey(e => e.MaVe)
-                    .HasName("PK__Ve__7A2272766F8F46B2");
-
-                entity.ToTable("Ve");
-
-                entity.Property(e => e.MaVe)
-                    .ValueGeneratedNever()
-                    .HasColumnName("maVe");
-
-                entity.Property(e => e.GiaVe)
-                    .HasColumnType("money")
-                    .HasColumnName("giaVe");
-
-                entity.Property(e => e.MaCt).HasColumnName("maCT");
-
-                entity.HasOne(d => d.MaCtNavigation)
-                    .WithMany(p => p.Ves)
-                    .HasForeignKey(d => d.MaCt)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Ve_ChiTiet_SC_GN_Ve");
             });
 
             OnModelCreatingPartial(modelBuilder);

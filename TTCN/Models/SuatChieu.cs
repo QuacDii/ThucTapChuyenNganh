@@ -8,7 +8,7 @@ namespace TTCN.Models
     {
         public SuatChieu()
         {
-            ChiTietScGnVes = new HashSet<ChiTietScGnVe>();
+            ChiTietScGn = new HashSet<ChiTietScGn>();
             DonDatVes = new HashSet<DonDatVe>();
         }
 
@@ -22,13 +22,16 @@ namespace TTCN.Models
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", ApplyFormatInEditMode = true)]
         public DateTime? GioKetThuc { get; set; }
 
+        [Required(ErrorMessage = "Vui lòng chọn giá suất chiếu!")]
+        public decimal Gia { get; set; }
+
         [Required(ErrorMessage = "Vui lòng chọn phim!")]
         public int? MaPhim { get; set; }
         public int MaPhong { get; set; }
 
         public virtual Phim MaPhimNavigation { get; set; } = null!;
         public virtual PhongChieu MaPhongNavigation { get; set; } = null!;
-        public virtual ICollection<ChiTietScGnVe> ChiTietScGnVes { get; set; }
+        public virtual ICollection<ChiTietScGn> ChiTietScGn { get; set; }
         public virtual ICollection<DonDatVe> DonDatVes { get; set; }
     }
 }

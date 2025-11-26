@@ -1,0 +1,100 @@
+﻿@model TTCN.Models.SuatChieu
+
+@{
+    ViewData["Title"] = "Xóa Suất Chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa Suất Chiếu</h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-danger">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Bạn có chắc chắn muốn xóa suất chiếu này không? Hành động này không thể hoàn tác.
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Cột trái: Thông tin chi tiết -->
+                <div class="col-md-8">
+                    <dl class="row" style="font-size: 1.1rem;">
+                        <dt class="col-sm-4 text-primary">Tên Phim:</dt>
+                        <dd class="col-sm-8 font-weight-bold">
+                            @Html.DisplayFor(model => model.MaPhimNavigation.TenPhim)
+                        </dd>
+
+                        <dt class="col-sm-4">Phòng Chiếu:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info text-white p-2">
+                                @Html.DisplayFor(model => model.MaPhongNavigation.TenPhong)
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Giờ Bắt Đầu:</dt>
+                        <dd class="col-sm-8 text-success font-weight-bold">
+                            @(Model.GioBatDau.HasValue? Model.GioBatDau.Value.ToString("dd/MM/yyyy HH:mm") : "---")
+                        </dd>
+
+                        <dt class="col-sm-4">Giờ Kết Thúc:</dt>
+                        <dd class="col-sm-8 text-danger font-weight-bold">
+                            @(Model.GioKetThuc.HasValue? Model.GioKetThuc.Value.ToString("dd/MM/yyyy HH:mm") : "---")
+                        </dd>
+
+                        <!-- Bổ sung hiển thị Giá Vé -->
+                        <dt class="col-sm-4">Giá Vé:</dt>
+                        <dd class="col-sm-8 text-dark font-weight-bold">
+                            @(Model.Gia > 0? Model.Gia.ToString("#,##0") + " VNĐ" : "Chưa cập nhật")
+                        </dd>
+
+                        <dt class="col-sm-4">Mã Suất:</dt>
+                        <dd class="col-sm-8 text-muted">@Model.MaSuat</dd>
+                    </dl>
+                </div>
+
+                <!-- Cột phải: Hiển thị Poster -->
+                <div class="col-md-4 text-center">
+                    <p class="font-weight-bold text-gray-800">Phim đang chiếu</p>
+                    <div class="border rounded p-2 bg-light d-inline-block shadow-sm">
+                        @{
+                            string imgSrc = "";
+                            if (Model.MaPhimNavigation != null && !string.IsNullOrEmpty(Model.MaPhimNavigation.PosterPhim))
+                            {
+                                var poster = Model.MaPhimNavigation.PosterPhim;
+
+                                imgSrc = "/" + poster;
+                            }
+                        }
+                        <img src="@imgSrc" alt="Poster"
+                             style="max-width: 100%; max-height: 300px; object-fit: contain;"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=No+Image';" />
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Form xác nhận xóa -->
+            <form asp-action="xoa" method="post" class="d-flex justify-content-center mt-4">
+                <input type="hidden" asp-for="MaSuat" />
+
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split mr-3 px-4 py-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Hủy bỏ</span>
+                </a>
+
+                <button type="submit" class="btn btn-danger btn-icon-split px-4 py-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span class="text">Xác nhận Xóa</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

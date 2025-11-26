@@ -1,14 +1,13 @@
 ﻿:root {
-    --brand-red: #E50914; /* Đỏ Netflix */
-    --brand-dark: #141414; /* Đen đậm (Header) */
-    --bg-color: #1a1d21; /* Xám đen (Nền chính) */
-    --card-bg: #212529; /* Nền các khối (Card) */
-    --border-color: #373b3e; /* Màu viền nhẹ */
-    /* Màu ghế */
-    --seat-standard: #4a4e53; /* Ghế thường: Xám */
-    --seat-vip: #d4af37; /* Ghế VIP: Vàng Gold */
-    --seat-selected: #E50914; /* Đang chọn: Đỏ */
-    --seat-occupied: #2c2f33; /* Đã bán: Đen chìm */
+    --brand-red: #E50914;
+    --brand-dark: #141414; 
+    --bg-color: #1a1d21; 
+    --card-bg: #212529; 
+    --border-color: #373b3e;                       
+    --seat-standard: #4a4e53; 
+    --seat-vip: #d4af37; 
+    --seat-selected: #E50914;
+    --seat-occupied: #2c2f33;
 
     --text-muted: #adb5bd;
     --text-light: #e9ecef;
@@ -18,7 +17,7 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-light);
-    overflow-x: hidden; /* Ẩn thanh cuộn ngang thừa */
+    overflow-x: hidden;  
 }
 
 /* =========================================

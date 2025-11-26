@@ -42,64 +42,92 @@
                 <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr class="text-center">
-                            <th>Mã Phim</th>
+                            <th style="width: 50px;">Mã Suất</th>
                             <th>Tên Phim</th>
-                            <th>Phòng Chiếu</th>
+                            <th>Phòng</th>
                             <th>Ngày Chiếu</th>
-                            <th>Giờ Bắt Đầu</th>
-                            <th>Giờ Kết Thúc</th>
-                            <th style="width: 120px;">Thao tác</th>
+                            <th>Bắt Đầu</th>
+                            <th>Kết Thúc</th>
+                            <th>Giá Vé</th>
+                            <th>Trạng Thái</th>
+                            <th style="width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- KIỂM TRA NULL AN TOÀN -->
                         @if (Model != null && Model.Any())
                         {
-                            @foreach (var item in Model)
+                            @foreach (var item in Model.OrderByDescending(x => x.GioBatDau))
                             {
                                 <tr>
-                                    <!-- Mã Suất chiếu -->
                                     <td class="text-center font-weight-bold">
                                         @item.MaSuat
                                     </td>
 
-                                    <!-- Tên Phim -->
-                                    <td class="font-weight-bold text-primary">
+                                    <td class="font-weight-bold text-primary text-center">
                                         @Html.DisplayFor(modelItem => item.MaPhimNavigation.TenPhim)
                                     </td>
 
-                                    <!-- Phòng Chiếu -->
                                     <td class="text-center">
                                         <span class="badge bg-info text-white p-2 shadow-sm">
-                                            <i class="fas fa-door-open mr-1"></i>
                                             @Html.DisplayFor(modelItem => item.MaPhongNavigation.TenPhong)
                                         </span>
                                     </td>
 
-                                    <!-- Ngày Chiếu -->
                                     <td class="text-center font-weight-bold">
-                                        @item.GioBatDau.Value.ToString("dd/MM/yyyy")
+                                        @(item.GioBatDau.HasValue ? item.GioBatDau.Value.ToString("dd/MM/yyyy") : "")
                                     </td>
 
-                                    <!-- Giờ Bắt Đầu -->
-                                    <td class="text-center text-success">
-                                        <i class="far fa-play-circle mr-1"></i>
-                                        @item.GioBatDau.Value.ToString("HH:mm")
+                                    <td class="text-center text-success fw-bold">
+                                        @(item.GioBatDau.HasValue ? item.GioBatDau.Value.ToString("HH:mm") : "")
                                     </td>
 
-                                    <!-- Giờ Kết Thúc -->
-                                    <td class="text-center text-danger">
-                                        <i class="far fa-stop-circle mr-1"></i>
-                                        @item.GioKetThuc.Value.ToString("HH:mm")
+                                    <td class="text-center text-muted">
+                                        @(item.GioKetThuc.HasValue ? item.GioKetThuc.Value.ToString("HH:mm") : "")
                                     </td>
 
-                                    <!-- Thao tác -->
+                                    <!-- HIỂN THỊ GIÁ VÉ -->
+                                    <td class="text-center font-weight-bold text-dark">
+                                        @if (item.Gia > 0)
+                                        {
+                                            @item.Gia.ToString("#,##0") <small>VNĐ</small>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small fst-italic">Chưa có</span>
+                                        }
+                                    </td>
+
+                                    <!-- HIỂN THỊ TRẠNG THÁI (Tự động tính) -->
+                                    <td class="text-center">
+                                        @{
+                                            var now = DateTime.Now;
+                                            if (item.GioBatDau.HasValue && item.GioKetThuc.HasValue)
+                                            {
+                                                if (item.GioKetThuc < now)
+                                                {
+                                                    <span class="badge bg-secondary">Đã chiếu</span>
+                                                }
+                                                else if (item.GioBatDau <= now && item.GioKetThuc >= now)
+                                                {
+                                                    <span class="badge bg-danger spinner-grow-sm">
+                                                        <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+                                                        Đang chiếu
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Sắp chiếu</span>
+                                                }
+                                            }
+                                        }
+                                    </td>
+
                                     <td class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a asp-action="Edit" asp-route-id="@item.MaSuat" class="btn btn-outline-warning btn-sm shadow-sm" title="Sửa">
+                                            <a asp-action="sua" asp-route-id="@item.MaSuat" class="btn btn-outline-warning btn-sm shadow-sm" title="Sửa">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a asp-action="Delete" asp-route-id="@item.MaSuat" class="btn btn-outline-danger btn-sm shadow-sm" onclick="return confirm('Bạn có chắc muốn xóa suất chiếu này?');" title="Xóa">
+                                            <a asp-action="xoa" asp-route-id="@item.MaSuat" class="btn btn-outline-danger btn-sm shadow-sm" title="Xóa">
                                                 <i class="fas fa-trash-alt"></i>
                                             </a>
                                         </div>
@@ -110,7 +138,7 @@
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center py-5">
+                                <td colspan="9" class="text-center py-5">
                                     <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" alt="Empty" class="mb-3 opacity-50" />
                                     <p class="text-muted mb-0">Chưa có dữ liệu suất chiếu nào.</p>
                                 </td>
