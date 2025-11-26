@@ -1,0 +1,206 @@
+﻿@using TTCN.Models
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý Người dùng";
+    var danhSachUsers = ViewBag.p as IEnumerable<User>;
+    var roleList = ViewBag.RoleList as List<string>;
+
+    // Lấy Email hiện tại từ Session
+    var currentEmail = HttpContextAccessor.HttpContext?.Session.GetString("UserEmail");
+}
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #4e73df;
+    }
+
+    .user-email {
+        font-style: italic;
+        color: #858796;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+
+        <div class="card-header py-3 bg-white border-bottom-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-users mr-2"></i> Danh sách Tài khoản
+                </h5>
+
+                <a asp-action="them" class="btn btn-primary shadow-sm">
+                    <i class="fas fa-user-plus fa-sm text-white-50 mr-1"></i> Thêm Tài khoản
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="mb-4">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-search text-gray-500"></i></span>
+                            <input type="text" name="search" value="@ViewBag.CurrentFilter" class="form-control bg-light border-0 small" placeholder="Tìm theo tên, Email, SĐT..." aria-label="Search">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="vaiTro" class="form-control form-select bg-light border-0">
+                            <option value="">-- Tất cả vai trò --</option>
+                            @if (roleList != null)
+                            {
+                                foreach (var role in roleList)
+                                {
+                                    if (ViewBag.CurrentRole == role)
+                                    {
+                                        <option value="@role" selected>@role</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@role">@role</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100 shadow-sm">
+                            <i class="fas fa-filter fa-sm text-white-50 mr-1"></i> Lọc
+                        </button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter) || !string.IsNullOrEmpty(ViewBag.CurrentRole))
+                    {
+                        <div class="col-md-2">
+                            <a asp-action="Index" class="btn btn-secondary w-100 shadow-sm">
+                                <i class="fas fa-undo fa-sm text-white-50 mr-1"></i> Đặt lại
+                            </a>
+                        </div>
+                    }
+                </div>
+            </form>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Bảng dữ liệu -->
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th>Mã User</th>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Mật khẩu</th>
+                            <th>Số điện thoại</th>
+                            <th>Vai trò</th>
+                            <th>Ngày tạo</th>
+                            <th style="width: 100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (danhSachUsers != null && danhSachUsers.Any())
+                        {
+                            @foreach (var item in danhSachUsers)
+                            {
+                                <tr>
+                                    <td class="text-center">@item.MaUsers</td>
+
+                                    <td class="user-name">@item.HoTen</td>
+
+                                    <td><span class="user-email">@item.Email</span></td>
+
+                                    <td class="text-center">@item.MatKhau</td>
+
+                                    <td class="text-center">@item.SoDienThoai</td>
+
+                                    <td class="text-center">
+                                        @if (item.VaiTro == "Admin")
+                                        {
+                                            <span class="badge bg-danger py-2 shadow-sm" style="width: 110px;">
+                                                <i class="fas fa-user-shield fa-fw mr-1"></i> @item.VaiTro
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success py-2 shadow-sm" style="width: 110px;">
+                                                <i class="fas fa-user fa-fw mr-1"></i> @item.VaiTro
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @item.NgayTao.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <td class="text-center">
+                                        @{
+                                            bool isCurrentUser = false;
+                                            if (!string.IsNullOrEmpty(currentEmail) && !string.IsNullOrEmpty(item.Email))
+                                            {
+                                                isCurrentUser = item.Email.Trim().Equals(currentEmail.Trim(), StringComparison.OrdinalIgnoreCase);
+                                            }
+                                        }
+
+                                        @if (isCurrentUser)
+                                        {
+                                            <button class="btn btn-secondary btn-sm shadow-sm" disabled title="Bạn đang đăng nhập tài khoản này">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="xoa" asp-route-id="@item.MaUsers" class="btn btn-outline-danger btn-sm shadow-sm">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5">
+                                    <p class="text-muted mb-0">Không tìm thấy tài khoản nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

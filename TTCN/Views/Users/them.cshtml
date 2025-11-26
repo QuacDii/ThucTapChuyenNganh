@@ -1,0 +1,97 @@
+﻿@model TTCN.Models.User
+
+@{
+    ViewData["Title"] = "Thêm Tài khoản mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">Thêm Tài khoản mới</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="them" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="HoTen" class="control-label font-weight-bold">Họ tên</label>
+                            <input asp-for="HoTen" class="form-control" placeholder="Nhập họ tên..." />
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Email" class="control-label font-weight-bold">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="abc@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SoDienThoai" class="control-label font-weight-bold">Số điện thoại</label>
+                            <input asp-for="SoDienThoai" class="form-control" placeholder="09xxxxxxxx" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="MatKhau" class="control-label font-weight-bold">Mật khẩu</label>
+                            <div class="input-group">
+                                <input asp-for="MatKhau" type="password" class="form-control" id="passwordInput" placeholder="Nhập mật khẩu..." />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <span asp-validation-for="MatKhau" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="VaiTro" class="control-label font-weight-bold">Vai trò</label>
+                            <select asp-for="VaiTro" class="form-control form-select">
+                                <option value="User">User (Khách hàng)</option>
+                                <option value="Admin">Admin (Quản trị viên)</option>
+                            </select>
+                            <span asp-validation-for="VaiTro" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="text-center">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const passwordInput = document.getElementById('passwordInput');
+            const icon = this.querySelector('i');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    </script>
+}

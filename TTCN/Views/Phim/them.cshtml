@@ -1,0 +1,151 @@
+﻿@using TTCN.Models
+@model TTCN.Models.Phim
+
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Thêm Phim Mới";
+
+    var allTheLoais = ViewBag.AllTheLoais as List<TheLoai>;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin Phim Mới</h6>
+            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Quay lại Danh sách
+            </a>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="them" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label asp-for="TenPhim" class="form-label">Tên Phim</label>
+                            <input asp-for="TenPhim" class="form-control" placeholder="Tên của bộ phim...">
+                            <span asp-validation-for="TenPhim" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="MoTa" class="form-label">Mô Tả</label>
+                            <textarea asp-for="MoTa" class="form-control" rows="8" placeholder="Nội dung tóm tắt phim..."></textarea>
+                            <span asp-validation-for="MoTa" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PosterPhim" class="form-label">Link Poster Phim (URL)</label>
+                            <input asp-for="PosterPhim" class="form-control" placeholder="https://example.com/image.jpg">
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TrailerPhim" class="form-label">Link Trailer</label>
+                            <input asp-for="TrailerPhim" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="DaoDien" class="form-label">Đạo Diễn</label>
+                            <input asp-for="DaoDien" class="form-control">
+                            <span asp-validation-for="DaoDien" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ThoiLuong" class="control-label font-weight-bold">Thời Lượng</label>
+                            <div class="input-group">
+                                <input asp-for="ThoiLuong" class="form-control" />
+                                <span class="input-group-text">phút</span>
+                            </div>
+                            <span asp-validation-for="ThoiLuong" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NgayPhatHanh" class="form-label">Ngày Phát Hành</label>
+                            <input asp-for="NgayPhatHanh" type="text" class="form-control bg-white" id="ngayPhatHanh" placeholder="Chọn ngày...">
+                            <span asp-validation-for="NgayPhatHanh" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="NgayKetThuc" class="form-label">Ngày Kết Thúc</label>
+                            <input asp-for="NgayKetThuc" type="text" class="form-control bg-white" id="ngayKetThuc" placeholder="Chọn ngày...">
+                            <span asp-validation-for="NgayKetThuc" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Thể Loại (Chọn nhiều)</label>
+
+                            <div class="border rounded p-3 bg-light" style="max-height: 250px; overflow-y: auto;">
+                                @if (allTheLoais != null && allTheLoais.Any())
+                                {
+                                    @foreach (var theLoai in allTheLoais)
+                                    {
+                                        <div class="form-check">
+                                            <input class="form-check-input"
+                                                   type="checkbox"
+                                                   name="select"
+                                                   value="@theLoai.MaTheLoai"
+                                                   id="genre_@theLoai.MaTheLoai">
+
+                                            <label class="form-check-label" for="genre_@theLoai.MaTheLoai">
+                                                @theLoai.TenTheLoai
+                                            </label>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="text-muted fst-italic">Chưa có thể loại nào.</div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i> Lưu Phim
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const config = {
+                dateFormat: "Y-m-d",   
+                altInput: true,         
+                altFormat: "d/m/Y",     
+                allowInput: true        
+            };
+
+            // Khởi tạo lịch cho Ngày Phát Hành
+            const startPicker = flatpickr("#ngayPhatHanh", {
+                ...config,
+                onChange: function (selectedDates, dateStr, instance) {
+                    endPicker.set('minDate', dateStr);
+                }
+            });
+
+            const endPicker = flatpickr("#ngayKetThuc", {
+                ...config
+            });
+        });
+    </script>
+}

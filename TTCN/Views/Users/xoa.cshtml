@@ -1,0 +1,48 @@
+﻿@model TTCN.Models.User
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xác nhận Xóa User";
+}
+
+<div class="container-fluid">
+    <h3 class="text-danger">Bạn có chắc chắn muốn xóa tài khoản này?</h3>
+    <p>Hành động này không thể hoàn tác.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin Tài khoản</h6>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Họ Tên:</dt>
+                <dd class="col-sm-9">@Model.HoTen</dd>
+
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+
+                <dt class="col-sm-3">Mật khẩu:</dt>
+                <dd class="col-sm-9">@Model.MatKhau</dd>
+
+                <dt class="col-sm-3">Số điện thoại:</dt>
+                <dd class="col-sm-9">@Model.SoDienThoai</dd>
+
+                <dt class="col-sm-3">Vai trò:</dt>
+                <dd class="col-sm-9">@Model.VaiTro</dd>
+
+                <dt class="col-sm-3">Ngày tạo:</dt>
+                <dd class="col-sm-9">@Model.NgayTao.ToString("dd/MM/yyyy")</dd>
+
+            </dl>
+            <form asp-action="xoa" method="post">
+                <input type="hidden" value="@Model.MaUsers" name="id" />
+
+                <a asp-action="Index" class="btn btn-secondary ms-2">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xác nhận Xóa
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

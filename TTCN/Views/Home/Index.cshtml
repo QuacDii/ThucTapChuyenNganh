@@ -1,0 +1,132 @@
+﻿@{
+    ViewData["Title"] = "Trang Chủ";
+}
+
+<!-- 2. Main Carousel (Phim nổi bật) -->
+<header>
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            @for (int i = 0; i < ViewBag.PhimHot.Count; i++)
+            {
+                <button type="button"
+                        data-bs-target="#heroCarousel"
+                        data-bs-slide-to="@i"
+                        class="@(i == 0 ? "active" : "")"
+                        aria-current="@(i == 0 ? "true" : "false")">
+                </button>
+            }
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            @{
+                int index = 0;
+            }
+            @foreach (var item in ViewBag.PhimHot)
+            {
+                <div class="carousel-item @(index == 0 ? "active" : "")">
+                    <img src="@item.PosterPhim" class="d-block w-100" alt="@item.TenPhim">
+
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>@item.TenPhim</h5>
+                        @* <p>@item.MoTa</p> *@
+
+                        <a href="javascript:void(0);" class="btn btn-brand"
+                           onclick="openTrailer('@item.TrailerPhim')">
+                            Xem Trailer
+                        </a>
+                    </div>
+                </div>
+                index++;
+            }
+        </div>
+
+        <!-- Prev & Next -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+
+    </div>
+</header>
+
+
+<!-- 3. Movie List (Danh sách phim) -->
+<main class="container my-5">
+    <!-- Tabs Phim -->
+    <nav class="movie-tabs mb-4">
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <button class="nav-link active" id="nav-now-showing-tab" data-bs-toggle="tab" data-bs-target="#nav-now-showing" type="button" role="tab" aria-controls="nav-now-showing" aria-selected="true">Phim Đang Chiếu</button>
+            <button class="nav-link" id="nav-coming-soon-tab" data-bs-toggle="tab" data-bs-target="#nav-coming-soon" type="button" role="tab" aria-controls="nav-coming-soon" aria-selected="false">Phim Sắp Chiếu</button>
+        </div>
+    </nav>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="nav-tabContent">
+
+        <!-- Tab: Phim Đang Chiếu -->
+        <div class="tab-pane fade show active" id="nav-now-showing" role="tabpanel" aria-labelledby="nav-now-showing-tab">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+
+                <!-- Hiển thị dữ liệu thật từ Controller -->
+                @foreach (var item in ViewBag.CongChieu)
+                {
+                    <div class="col">
+                        <div class="card movie-card">
+                            <div class="card-img-wrapper">
+                                <img src="@item.PosterPhim" class="card-img-top" alt="@item.TenPhim">
+                                <span class="rating-badge">@item.DiemTB</span>
+                                <i class="fas fa-play-circle play-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">@item.TenPhim</h5>
+                                <span class="card-text">Thể loại: </span><span class="card-text d-block mb-2">
+                                    @string.Join(", ", item.TenTheLoai)
+                                </span>
+                                <p class="card-text"></p>
+                                <a asp-controller="DatVe" asp-route-maPhim="@item.MaPhim" asp-action="Index" class="btn btn-buy-ticket" tabindex="-1" aria-disabled="true">Đặt vé</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <!-- Tab: Phim Sắp Chiếu -->
+        <div class="tab-pane fade" id="nav-coming-soon" role="tabpanel" aria-labelledby="nav-coming-soon-tab">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
+
+                <!-- Hiển thị dữ liệu thật từ Controller -->
+                @foreach (var item in ViewBag.SapChieu)
+                {
+                    <div class="col">
+                        <div class="card movie-card">
+                            <div class="card-img-wrapper">
+                                <img src="@item.PosterPhim" class="card-img-top" alt="@item.TenPhim">
+                                @* <span class="rating-badge">@item.DiemTB</span> *@
+                                <i class="fas fa-play-circle play-icon"></i>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title">@item.TenPhim</h5>
+                                <span class="card-text">Thể loại: </span><span class="card-text d-block mb-2">
+                                    @string.Join(", ", item.TenTheLoai)
+                                </span>
+                                <p class="card-text"></p>
+                                <a asp-controller="DatVe" asp-action="Index" class="btn btn-buy-ticket" tabindex="-1" aria-disabled="true">Đặt vé</a>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</main>

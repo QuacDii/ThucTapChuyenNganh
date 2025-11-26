@@ -1,0 +1,124 @@
+﻿@model IEnumerable<TTCN.Models.SuatChieu>
+
+@{
+    ViewData["Title"] = "Quản lý Suất Chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-clock mr-2"></i> Danh sách Suất Chiếu
+            </h5>
+            <a asp-action="them" class="btn btn-primary btn-icon-split shadow-sm">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span class="text">Thêm Suất Mới</span>
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th>Mã Phim</th>
+                            <th>Tên Phim</th>
+                            <th>Phòng Chiếu</th>
+                            <th>Ngày Chiếu</th>
+                            <th>Giờ Bắt Đầu</th>
+                            <th>Giờ Kết Thúc</th>
+                            <th style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- KIỂM TRA NULL AN TOÀN -->
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <!-- Mã Suất chiếu -->
+                                    <td class="text-center font-weight-bold">
+                                        @item.MaSuat
+                                    </td>
+
+                                    <!-- Tên Phim -->
+                                    <td class="font-weight-bold text-primary">
+                                        @Html.DisplayFor(modelItem => item.MaPhimNavigation.TenPhim)
+                                    </td>
+
+                                    <!-- Phòng Chiếu -->
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-white p-2 shadow-sm">
+                                            <i class="fas fa-door-open mr-1"></i>
+                                            @Html.DisplayFor(modelItem => item.MaPhongNavigation.TenPhong)
+                                        </span>
+                                    </td>
+
+                                    <!-- Ngày Chiếu -->
+                                    <td class="text-center font-weight-bold">
+                                        @item.GioBatDau.Value.ToString("dd/MM/yyyy")
+                                    </td>
+
+                                    <!-- Giờ Bắt Đầu -->
+                                    <td class="text-center text-success">
+                                        <i class="far fa-play-circle mr-1"></i>
+                                        @item.GioBatDau.Value.ToString("HH:mm")
+                                    </td>
+
+                                    <!-- Giờ Kết Thúc -->
+                                    <td class="text-center text-danger">
+                                        <i class="far fa-stop-circle mr-1"></i>
+                                        @item.GioKetThuc.Value.ToString("HH:mm")
+                                    </td>
+
+                                    <!-- Thao tác -->
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Edit" asp-route-id="@item.MaSuat" class="btn btn-outline-warning btn-sm shadow-sm" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.MaSuat" class="btn btn-outline-danger btn-sm shadow-sm" onclick="return confirm('Bạn có chắc muốn xóa suất chiếu này?');" title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" alt="Empty" class="mb-3 opacity-50" />
+                                    <p class="text-muted mb-0">Chưa có dữ liệu suất chiếu nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

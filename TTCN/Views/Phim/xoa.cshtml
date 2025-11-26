@@ -1,0 +1,106 @@
+﻿@model TTCN.Models.Phim
+
+@{
+    ViewData["Title"] = "Xóa Phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa Phim</h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-danger">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Bạn có chắc chắn muốn xóa phim này không? Hành động này không thể hoàn tác.
+            </h6>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <dl class="row" style="font-size: 1.1rem;">
+                        <dt class="col-sm-4 text-primary">Tên Phim:</dt>
+                        <dd class="col-sm-8 font-weight-bold">@Model.TenPhim</dd>
+
+                        <dt class="col-sm-4">Đạo Diễn:</dt>
+                        <dd class="col-sm-8">@Model.DaoDien</dd>
+
+                        <dt class="col-sm-4">Thời Lượng:</dt>
+                        <dd class="col-sm-8">@Model.ThoiLuong phút</dd>
+
+                        <dt class="col-sm-4">Ngày Phát Hành:</dt>
+                        <dd class="col-sm-8">
+                            @Model.NgayPhatHanh.Value.ToString("dd/MM/yyyy")
+                        </dd>
+
+                        <dt class="col-sm-4">Ngày Kết Thúc:</dt>
+                        <dd class="col-sm-8">
+                            @Model.NgayKetThuc.Value.ToString("dd/MM/yyyy")
+                        </dd>
+
+                        <dt class="col-sm-4">Trạng Thái:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.TrangThai == "Đang công chiếu")
+                            {
+                                <span class="badge bg-success text-white">@Model.TrangThai</span>
+                            }
+                            else if (Model.TrangThai == "Sắp công chiếu")
+                            {
+                                <span class="badge bg-warning text-dark">@Model.TrangThai</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary text-white">@Model.TrangThai</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Mô Tả:</dt>
+                        <dd class="col-sm-8">
+                            <div style="max-height: 150px; overflow-y: auto; background-color: #f8f9fc; padding: 10px; border-radius: 5px;">
+                                @Model.MoTa
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-4 text-center">
+                    <p class="font-weight-bold text-gray-800">Poster Phim</p>
+                    <div class="border rounded p-2 bg-light d-inline-block shadow-sm">
+                        @{
+                            string imgSrc = "";
+                            if (!string.IsNullOrEmpty(Model.PosterPhim))
+                            {
+                                imgSrc = Model.PosterPhim.StartsWith("http") ? Model.PosterPhim : "/" + Model.PosterPhim;
+                            }
+                        }
+                        <img src="@imgSrc" alt="@Model.TenPhim"
+                             style="max-width: 100%; max-height: 350px; object-fit: contain;"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450?text=No+Image';" />
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <form asp-action="xoa" method="post" class="d-flex justify-content-center mt-4">
+                <input type="hidden" asp-for="MaPhim" />
+
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split mr-3 px-4 py-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Quay lại</span>
+                </a>
+
+                <button type="submit" class="btn btn-danger btn-icon-split px-4 py-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-trash"></i>
+                    </span>
+                    <span class="text">Xác nhận Xóa</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

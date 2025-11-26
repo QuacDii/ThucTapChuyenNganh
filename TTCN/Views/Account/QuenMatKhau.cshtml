@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Quên mật khẩu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container" style="max-width: 600px; margin-top: 50px; margin-bottom: 50px;">
+    <h2>Tìm tài khoản</h2>
+    <hr />
+    <p>Vui lòng nhập email để tìm kiếm tài khoản của bạn.</p>
+
+    <form asp-action="QuenMatKhau" method="post">
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="email" required name="email" placeholder="name@example.com">
+            <label for="email">Email</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-secondary ms-2">Hủy</a>
+    </form>
+</div>

@@ -1,0 +1,133 @@
+﻿@model TTCN.Models.User
+
+@{
+    ViewData["Title"] = "Đăng ký";
+    Layout = "~/Views/Shared/_Layout.cshtml"; 
+}
+
+<div class="container" style="max-width: 600px; margin-top: 50px; margin-bottom: 50px;">
+    <h2>Tạo tài khoản mới</h2>
+    <hr />
+
+    <form asp-action="DangKy" method="post">
+
+        <!-- Báo lỗi (Email trùng, OTP sai...) -->
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @ViewBag.Error
+            </div>
+        }
+        <!-- Báo thành công (Gửi OTP) -->
+        <div id="otpSuccessAlert" class="alert alert-success" role="alert" style="display: none;"></div>
+        <div class="mb-3">
+            <label asp-for="HoTen" class="form-label">Họ tên</label>
+            <input asp-for="HoTen" class="form-control">
+            <span asp-validation-for="HoTen" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" type="email" class="form-control" id="emailInput" placeholder="name@example.com">
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="SoDienThoai" class="form-label">Số điện thoại</label>
+            <input asp-for="SoDienThoai" class="form-control">
+            <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="MatKhau" class="form-label">Mật khẩu</label>
+            <input asp-for="MatKhau" type="password" class="form-control" >
+            <span asp-validation-for="MatKhau" class="text-danger small"></span>
+        </div>
+
+        <hr />
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-floating">
+                    <input type="text" class="form-control text-center text-primary fw-bold" id="otpInput" name="otp" required maxlength="4" style="font-size: 1.5rem; letter-spacing: 8px;" " maxlength="4" disabled>
+                    <label for="otpInput">Mã OTP (4 số)</label>
+                </div>
+            </div>
+            <div class="col-md-4 d-grid">
+                <button type="button" class="btn btn-outline-secondary" id="sendOtpButton">
+                    Lấy mã OTP
+                </button>
+            </div>
+        </div>
+        <hr />
+
+        <button type="submit" class="btn btn-primary w-100" id="registerButton" disabled>
+            Đăng Ký
+        </button>
+
+        <div class="text-center mt-3">
+            <span class="text-muted">Đã có tài khoản?</span>
+            <a asp-controller="Home" asp-action="Index"> Đăng nhập ngay</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var sendOtpButton = document.getElementById('sendOtpButton');
+            var otpInput = document.getElementById('otpInput');
+            var registerButton = document.getElementById('registerButton');
+            var emailInput = document.getElementById('emailInput');
+            var otpSuccessAlert = document.getElementById('otpSuccessAlert');
+
+            // 1. Khi nhấn nút "Lấy mã OTP"
+            sendOtpButton.addEventListener('click', function () {
+                var email = emailInput.value;
+
+                if (!email) {
+                    alert('Vui lòng nhập email trước.');
+                    return;
+                }
+
+                sendOtpButton.disabled = true;
+                sendOtpButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang gửi...';
+                otpSuccessAlert.style.display = 'none';
+
+                fetch('@Url.Action("SendOTP", "Account")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'email=' + encodeURIComponent(email)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 3a. THÀNH CÔNG
+                        otpSuccessAlert.innerText = data.message;
+                        otpSuccessAlert.style.display = 'block';
+
+                        // Bật ô nhập OTP và nút Đăng ký
+                        otpInput.disabled = false;
+                        registerButton.disabled = false;
+
+                        sendOtpButton.innerHTML = 'Đã gửi OTP';
+                    } else {
+                        // 3b. THẤT BẠI 
+                        alert(data.message); 
+                        sendOtpButton.disabled = false; 
+                        sendOtpButton.innerText = 'Lấy mã OTP';
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    alert('Không thể gửi OTP. Vui lòng thử lại.');
+                    sendOtpButton.disabled = false;
+                    sendOtpButton.innerText = 'Lấy mã OTP';
+                });
+            });
+
+        });
+    </script>
+}

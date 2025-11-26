@@ -1,0 +1,196 @@
+﻿@model TTCN.Models.Phim
+@{
+    ViewData["Title"] = "Cập nhật Phim";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var allTheLoais = ViewBag.AllTheLoais as List<TTCN.Models.TheLoai>;
+    var selectedTheLoais = ViewBag.Select as List<int>;
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">Cập nhật thông tin Phim</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="sua" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="MaPhim" />
+
+                <div class="row">
+                    <!-- CỘT TRÁI -->
+                    <div class="col-md-8">
+                        <div class="form-group mb-3">
+                            <label asp-for="TenPhim" class="control-label font-weight-bold">Tên Phim</label>
+                            <input asp-for="TenPhim" class="form-control" placeholder="Nhập tên phim..." />
+                            <span asp-validation-for="TenPhim" class="text-danger"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="DaoDien" class="control-label font-weight-bold">Đạo Diễn</label>
+                                    <input asp-for="DaoDien" class="form-control" />
+                                    <span asp-validation-for="DaoDien" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="ThoiLuong" class="control-label font-weight-bold">Thời Lượng</label>
+                                    <div class="input-group">
+                                        <input asp-for="ThoiLuong" class="form-control" />
+                                        <span class="input-group-text">phút</span>
+                                    </div>
+                                    <span asp-validation-for="ThoiLuong" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="NgayPhatHanh" class="control-label font-weight-bold">Ngày Phát Hành</label>
+                                    <input asp-for="NgayPhatHanh" class="form-control bg-white" type="text" id="ngayPhatHanh"
+                                           value="@(Model.NgayPhatHanh?.ToString("yyyy-MM-dd"))" placeholder="Chọn ngày..." />
+                                    <span asp-validation-for="NgayPhatHanh" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="NgayKetThuc" class="control-label font-weight-bold">Ngày Kết Thúc</label>
+                                    <input asp-for="NgayKetThuc" class="form-control bg-white" type="text" id="ngayKetThuc"
+                                           value="@(Model.NgayKetThuc?.ToString("yyyy-MM-dd"))" placeholder="Chọn ngày..." />
+                                    <span asp-validation-for="NgayKetThuc" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="MoTa" class="control-label font-weight-bold">Mô Tả</label>
+                            <textarea asp-for="MoTa" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="MoTa" class="text-danger"></span>
+                        </div>
+
+                        <!-- Chọn Thể loại -->
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold d-block">Thể loại</label>
+                            <div class="card card-body bg-light" style="max-height: 200px; overflow-y: auto;">
+                                <div class="row">
+                                    @if (allTheLoais != null)
+                                    {
+                                        foreach (var item in allTheLoais)
+                                        {
+                                            bool isChecked = selectedTheLoais != null && selectedTheLoais.Contains(item.MaTheLoai);
+
+                                            <div class="col-md-4 col-6 mb-2">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" class="custom-control-input" name="select" value="@item.MaTheLoai" id="genre_@item.MaTheLoai"
+                                                           @(isChecked ? "checked" : "")>
+                                                    <label class="custom-control-label" for="genre_@item.MaTheLoai">@item.TenTheLoai</label>
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CỘT PHẢI -->
+                    <div class="col-md-4">
+                        <div class="form-group mb-3">
+                            <label asp-for="PosterPhim" class="control-label font-weight-bold">Link Poster Phim (URL)</label>
+                            <input asp-for="PosterPhim" class="form-control mb-2" id="imgInput" placeholder="Link ảnh..." oninput="previewImage()" />
+                            <span asp-validation-for="PosterPhim" class="text-danger"></span>
+
+                            <div class="border rounded p-1 text-center bg-light" style="min-height: 200px;">
+                                @{
+                                    string imgSrc = "";
+                                    if (!string.IsNullOrEmpty(Model.PosterPhim))
+                                    {
+                                        imgSrc =  "/" + Model.PosterPhim;
+                                    }
+                                }
+
+                                <img id="imgPreview" src="@imgSrc"
+                                     class="img-fluid" style="max-height: 300px; display: @(string.IsNullOrEmpty(imgSrc) ? "none" : "inline-block")"
+                                     onerror="this.style.display='none'; document.getElementById('noImgText').style.display='block';" />
+
+                                <p id="noImgText" class="text-muted mt-5" style="@(string.IsNullOrEmpty(imgSrc) ? "block" : "none")">
+                                    Xem trước Poster
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="TrailerPhim" class="control-label font-weight-bold">Link Trailer</label>
+                            <input asp-for="TrailerPhim" class="form-control" placeholder="Link Youtube..." />
+                            <span asp-validation-for="TrailerPhim" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Trạng thái hiện tại</label>
+                            <input type="text" class="form-control bg-white" readonly value="@Model.TrangThai" />
+                            <small class="text-muted fst-italic">* Trạng thái sẽ tự động cập nhật sau khi Lưu.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-4 text-center">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save mr-1"></i> Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage() {
+            var url = document.getElementById('imgInput').value;
+            var img = document.getElementById('imgPreview');
+            var txt = document.getElementById('noImgText');
+
+            if (url && url.trim() !== "") {
+                var src = url;
+                if (!src.startsWith("http") && !src.startsWith("/")) {
+                    src = "/" + src;
+                }
+                img.src = src;
+                img.style.display = 'inline-block';
+                txt.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                txt.style.display = 'block';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const config = {
+                dateFormat: "Y-m-d", 
+                altInput: true,      
+                altFormat: "d/m/Y",  
+                allowInput: true
+            };
+
+            const endPicker = flatpickr("#ngayKetThuc", {
+                ...config
+            });
+
+            const startPicker = flatpickr("#ngayPhatHanh", {
+                ...config,
+                onChange: function (selectedDates, dateStr, instance) {
+                    endPicker.set('minDate', dateStr);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,167 @@
+﻿@model TTCN.Models.SuatChieu
+
+@{
+    ViewData["Title"] = "Thêm Suất Chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">Thêm Suất Chiếu Mới</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="them" id="createForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Chọn Phim</label>
+                            <select asp-for="MaPhim" class="form-control" asp-items="ViewBag.MaPhim" id="selectPhim">
+                                <option value="">-- Vui lòng chọn phim --</option>
+                            </select>
+                            <span asp-validation-for="MaPhim" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Chọn Phòng Chiếu</label>
+                            <select asp-for="MaPhong" class="form-control" asp-items="ViewBag.MaPhong"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="GioBatDau" class="control-label font-weight-bold">Giờ Bắt Đầu</label>
+                            <input asp-for="GioBatDau" class="form-control bg-white" type="text" id="gioBatDau" placeholder="Chọn ngày giờ.." />
+                            <span asp-validation-for="GioBatDau" class="text-danger"></span>
+                            <small class="text-muted fst-italic" id="rangeDateHint"></small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="GioKetThuc" class="control-label font-weight-bold">Giờ Kết Thúc</label>
+                            <input asp-for="GioKetThuc" class="form-control bg-light" type="text" id="gioKetThuc" tabindex="-1" />
+                            <span asp-validation-for="GioKetThuc" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+             const config = {
+                enableTime: true,
+                dateFormat: "Y-m-d\\TH:i", // Định dạng gửi về Server
+                altInput: true,
+                altFormat: "d/m/Y H:i",
+                time_24hr: true,
+                allowInput: false // Chặn nhập tay, chỉ cho chọn lịch
+            };
+
+            const startPicker = flatpickr("#gioBatDau", {
+                ...config,
+                onChange: function(selectedDates, dateStr, instance) {
+                    calculateEndTime(selectedDates[0]);
+                }
+            });
+
+            // Cấu hình riêng cho ô Giờ Kết Thúc 
+            const endPicker = flatpickr("#gioKetThuc", {
+                ...config,
+                clickOpens: false // Không cho người dùng mở lịch sửa giờ kết thúc
+            });
+
+            var selectPhim = document.getElementById('selectPhim');
+            var rangeHint = document.getElementById('rangeDateHint');
+            var currentDuration = 0;
+
+            // 1. Khi thay đổi Phim
+            selectPhim.addEventListener('change', function () {
+                var phimId = this.value;
+
+                if (phimId) {
+                    fetch('/SuatChieu/getPhim?id=' + phimId)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                currentDuration = data.thoiLuong || 0;
+
+                                startPicker.set('minDate', data.ngayPhatHanh);
+                                startPicker.set('maxDate', data.ngayKetThuc);
+
+                                let d1 = formatDateVN(data.ngayPhatHanh);
+                                let d2 = formatDateVN(data.ngayKetThuc);
+                                rangeHint.innerText = `* Phim chiếu từ ${d1} đến ${d2} (${currentDuration} phút)`;
+
+                                // Reset nếu ngày cũ không hợp lệ
+                                if (startPicker.selectedDates[0]) {
+                                    let selected = startPicker.selectedDates[0];
+                                    let min = new Date(data.ngayPhatHanh);
+                                    let max = new Date(data.ngayKetThuc);
+
+                                    // Reset giờ về 00:00:00 để so sánh ngày chính xác hơn
+                                    
+
+                                    if (selected < min || selected > max) {
+                                        startPicker.clear();
+                                        endPicker.clear();
+                                    } else {
+                                        calculateEndTime(selected);
+                                    }
+                                }
+                            }
+                        })
+                        .catch(err => console.error(err));
+                } else {
+                    currentDuration = 0;
+                    rangeHint.innerText = "";
+                    startPicker.clear();
+                    endPicker.clear();
+                    startPicker.set('minDate', null);
+                    startPicker.set('maxDate', null);
+                }
+            });
+
+           // Hàm tính giờ kết thúc
+            function calculateEndTime(startDate) {
+                if (startDate && currentDuration > 0) {
+                    var endTimeMs = startDate.getTime() + (currentDuration * 60000);
+                    var endTime = new Date(endTimeMs);
+
+                    endPicker.setDate(endTime);
+                }
+            }
+
+            function formatDateVN(isoString) {
+                if (!isoString) return '...';
+                const date = new Date(isoString);
+                return date.toLocaleDateString('vi-VN');
+            }
+        });
+    </script>
+}

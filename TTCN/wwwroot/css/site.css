@@ -1,0 +1,340 @@
+﻿:root {
+    --brand-red: #E50914;
+    --brand-dark: #141414;
+    --brand-gray: #f8f9fa;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--brand-gray);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex: 1; 
+}
+
+/* --- Navbar --- */
+.navbar {
+    background-color: var(--brand-dark);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.navbar-brand {
+    color: var(--brand-red);
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+    .navbar-brand:hover {
+        color: #ff000d;
+    }
+
+.navbar .nav-link {
+    color: #ffffff;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    transition: color 0.3s;
+}
+
+    .navbar .nav-link:hover, .navbar .nav-link.active {
+        color: var(--brand-red);
+    }
+
+.navbar .btn-login {
+    color: #ffffff;
+    font-size: 1.5rem;
+    border: none;
+    background: none;
+}
+
+    .navbar .btn-login:hover {
+        color: var(--brand-red);
+    }
+
+/* --- Main Carousel --- */
+.carousel-item {
+    height: 550px;
+}
+
+    .carousel-item img {
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(0.6);
+    }
+
+.carousel-caption {
+    bottom: 20%;
+    text-align: left;
+    left: 10%;
+    right: 10%;
+}
+
+    .carousel-caption h5 {
+        font-size: 3rem;
+        font-weight: 700;
+    }
+
+    .carousel-caption p {
+        font-size: 1.1rem;
+        max-width: 60%;
+    }
+
+.btn-brand {
+    background-color: var(--brand-red);
+    border-color: var(--brand-red);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    text-transform: uppercase;
+}
+
+    .btn-brand:hover {
+        background-color: #ff000d;
+        border-color: #ff000d;
+        color: #ffffff;
+    }
+
+/* --- Movie Section --- */
+.movie-tabs .nav-link {
+    color: #000;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+    .movie-tabs .nav-link.active {
+        color: var(--brand-red);
+        border-bottom: 3px solid var(--brand-red);
+        background-color: transparent;
+    }
+
+/* --- Movie Card --- */
+.movie-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+    .movie-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .movie-card .card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .movie-card img {
+        height: 400px;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+    }
+
+    .movie-card:hover img {
+        transform: scale(1.05);
+    }
+
+    .movie-card .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        font-size: 4rem;
+        color: rgba(255, 255, 255, 0.8);
+        opacity: 0;
+        transition: all 0.3s ease;
+        text-shadow: 0 0 15px rgba(0,0,0,0.5);
+        pointer-events: none;
+    }
+
+    .movie-card:hover .play-icon {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .movie-card .card-body {
+        padding: 1rem;
+    }
+
+    .movie-card .card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--brand-dark);
+    }
+
+.rating-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 20;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+    .movie-card .card-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .movie-card .btn-buy-ticket {
+        background-color: var(--brand-red);
+        color: #fff;
+        font-weight: 500;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 5px;
+    }
+
+    .movie-card:hover .btn-buy-ticket {
+        opacity: 1;
+    }
+
+/* --- Footer --- */
+footer {
+    background-color: var(--brand-dark);
+    color: #f8f9fa;
+    width: 100%;
+    position: relative;
+    margin-top: auto;
+}
+
+    footer .footer-link {
+        color: #f8f9fa;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+        footer .footer-link:hover {
+            color: var(--brand-red);
+        }
+
+    footer .social-icon {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+.password-field-wrapper {
+    position: relative;
+}
+
+.form-input-password {
+    padding-right: 2.75rem !important;
+    box-sizing: border-box;
+}
+
+.password-toggle-icon {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    padding-right: 0.75rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #6b7280; 
+}
+
+    .password-toggle-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+.modal-header-custom {
+    background-color: var(--brand-red);
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .modal-header-custom .btn-close-white {
+        color: #fff;
+        opacity: 0.8;
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+    }
+
+        .modal-header-custom .btn-close-white:hover {
+            opacity: 1;
+        }
+
+.form-floating > .form-control:focus {
+    border-color: var(--brand-red);
+    box-shadow: 0 0 0 0.25rem rgba(229, 9, 20, 0.25);
+}
+
+    .form-floating > .form-control:focus ~ label {
+        color: var(--brand-red);
+    }
+
+.btn-login-submit {
+    background-color: var(--brand-red);
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem;
+    border: none;
+    width: 100%;
+    text-transform: uppercase;
+}
+
+    .btn-login-submit:hover {
+        background-color: #b00710;
+    }
+
+.login-links {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+    .login-links a {
+        color: #333;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+        .login-links a:hover {
+            color: var(--brand-red);
+            text-decoration: underline;
+        }
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .carousel-item {
+        height: 400px;
+    }
+
+    .carousel-caption h5 {
+        font-size: 2rem;
+    }
+
+    .carousel-caption p {
+        display: none;
+    }
+
+    .movie-tabs .nav-link {
+        font-size: 1.1rem;
+    }
+}
