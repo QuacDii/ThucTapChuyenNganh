@@ -83,7 +83,7 @@ namespace TTCN.Controllers
             if (suat == null) return NotFound();
 
             // Các ghế đã được đặt (TrangThai = true)
-            var gheDaDat = db.ChiTietScGnVes
+            var gheDaDat = db.ChiTietScGns
                 .Where(ct => ct.MaSuat == maSuat && ct.TrangThai && ct.MaGhe != null)
                 .Select(ct => ct.MaGhe.Value)
                 .ToHashSet();

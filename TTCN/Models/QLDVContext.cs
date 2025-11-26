@@ -16,7 +16,7 @@ namespace TTCN.Models
         {
         }
 
-        public virtual DbSet<ChiTietScGn> ChiTietScGnVes { get; set; } = null!;
+        public virtual DbSet<ChiTietScGn> ChiTietScGns { get; set; } = null!;
         public virtual DbSet<CumRap> CumRaps { get; set; } = null!;
         public virtual DbSet<DoAn> DoAns { get; set; } = null!;
         public virtual DbSet<DonDatVe> DonDatVes { get; set; } = null!;
@@ -44,7 +44,7 @@ namespace TTCN.Models
             {
                 entity.HasKey(e => e.MaCt);
 
-                entity.ToTable("ChiTiet_SC_GN_Ve");
+                entity.ToTable("ChiTiet_SC_GN");
 
                 entity.Property(e => e.MaCt)
                     .ValueGeneratedNever()
@@ -59,13 +59,13 @@ namespace TTCN.Models
                 entity.HasOne(d => d.MaGheNavigation)
                     .WithMany(p => p.ChiTietScGn)
                     .HasForeignKey(d => d.MaGhe)
-                    .HasConstraintName("FK_ChiTiet_SC_GN_Ve_gheNgoi");
+                    .HasConstraintName("FK_ChiTiet_SC_GN_gheNgoi");
 
                 entity.HasOne(d => d.MaSuatNavigation)
                     .WithMany(p => p.ChiTietScGn)
                     .HasForeignKey(d => d.MaSuat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ChiTiet_SC_GN_Ve_suatChieu");
+                    .HasConstraintName("FK_ChiTiet_SC_GN_suatChieu");
             });
             modelBuilder.Entity<CumRap>(entity =>
             {
