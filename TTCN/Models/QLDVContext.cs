@@ -16,7 +16,11 @@ namespace TTCN.Models
         {
         }
 
+<<<<<<< HEAD
         public virtual DbSet<ChiTietScGn> ChiTietScGn { get; set; } = null!;
+=======
+        public virtual DbSet<ChiTietScGn> ChiTietScGns { get; set; } = null!;
+>>>>>>> 2c02a789b188feebfb1af88bc12da9884ebbf044
         public virtual DbSet<CumRap> CumRaps { get; set; } = null!;
         public virtual DbSet<DoAn> DoAns { get; set; } = null!;
         public virtual DbSet<DonDatVe> DonDatVes { get; set; } = null!;
