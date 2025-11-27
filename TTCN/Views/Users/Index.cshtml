@@ -56,48 +56,44 @@
         </div>
 
         <div class="card-body">
-            <form method="get" asp-action="Index" class="mb-4">
-                <div class="row g-2">
-                    <div class="col-md-5">
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-0"><i class="fas fa-search text-gray-500"></i></span>
-                            <input type="text" name="search" value="@ViewBag.CurrentFilter" class="form-control bg-light border-0 small" placeholder="Tìm theo tên, Email, SĐT..." aria-label="Search">
-                        </div>
+            <form asp-action="Index" method="get" class="row mb-3 g-3">
+
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-0">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" name="search" value="@ViewBag.CurrentFilter"
+                               class="form-control bg-light border-0 small"
+                               placeholder="Tìm theo tên, Email, SĐT..." aria-label="Search">
                     </div>
-                    <div class="col-md-3">
-                        <select name="vaiTro" class="form-control form-select bg-light border-0">
-                            <option value="">-- Tất cả vai trò --</option>
-                            @if (roleList != null)
-                            {
-                                foreach (var role in roleList)
-                                {
-                                    if (ViewBag.CurrentRole == role)
-                                    {
-                                        <option value="@role" selected>@role</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@role">@role</option>
-                                    }
-                                }
-                            }
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary w-100 shadow-sm">
-                            <i class="fas fa-filter fa-sm text-white-50 mr-1"></i> Lọc
-                        </button>
-                    </div>
-                    @if (!string.IsNullOrEmpty(ViewBag.CurrentFilter) || !string.IsNullOrEmpty(ViewBag.CurrentRole))
-                    {
-                        <div class="col-md-2">
-                            <a asp-action="Index" class="btn btn-secondary w-100 shadow-sm">
-                                <i class="fas fa-undo fa-sm text-white-50 mr-1"></i> Đặt lại
-                            </a>
-                        </div>
-                    }
                 </div>
+
+                <div class="col-md-4">
+                    <select name="vaiTro" class="form-control form-select bg-light border-0">
+                        <option value="">-- Tất cả vai trò --</option>
+                        @if (roleList != null)
+                        {
+                            foreach (var role in roleList)
+                            {
+                                <option value="@role" selected="@(ViewBag.CurrentRole == role)">@role</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex">
+                    <button type="submit" class="btn btn-primary w-100 flex-grow-1 shadow-sm btn-sm me-2">
+                        <i class="fas fa-filter fa-sm text-white-50 mr-2"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
+
             </form>
+
+        </div>
 
             @if (TempData["Error"] != null)
             {
@@ -133,12 +129,12 @@
                     <tbody>
                         @if (danhSachUsers != null && danhSachUsers.Any())
                         {
-                            @foreach (var item in danhSachUsers)
+                            @foreach (var item in danhSachUsers.OrderByDescending(x=>x.NgayTao))
                             {
                                 <tr>
                                     <td class="text-center">@item.MaUsers</td>
 
-                                    <td class="user-name">@item.HoTen</td>
+                                    <td class="user-name text-center">@item.HoTen</td>
 
                                     <td><span class="user-email">@item.Email</span></td>
 

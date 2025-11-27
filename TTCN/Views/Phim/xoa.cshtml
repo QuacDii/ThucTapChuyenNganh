@@ -72,7 +72,7 @@
                             string imgSrc = "";
                             if (!string.IsNullOrEmpty(Model.PosterPhim))
                             {
-                                imgSrc = Model.PosterPhim.StartsWith("http") ? Model.PosterPhim : "/" + Model.PosterPhim;
+                                imgSrc = "/" + Model.PosterPhim;
                             }
                         }
                         <img src="@imgSrc" alt="@Model.TenPhim"

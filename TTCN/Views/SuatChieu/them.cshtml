@@ -17,8 +17,9 @@
             <form asp-action="them" id="createForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
+                <!-- HÀNG 1: CHỌN PHIM -->
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group mb-3">
                             <label class="control-label font-weight-bold">Chọn Phim</label>
                             <select asp-for="MaPhim" class="form-control" asp-items="ViewBag.MaPhim" id="selectPhim">
@@ -27,14 +28,33 @@
                             <span asp-validation-for="MaPhim" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+
+                <!-- HÀNG 2: CHỌN CỤM RẠP & PHÒNG -->
+                <div class="row">
+                    <!-- 1. Dropdown Cụm Rạp -->
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Chọn Cụm Rạp</label>
+                            <select id="selectCumRap" class="form-control" asp-items="ViewBag.ListCumRap">
+                                <option value="">-- Tất cả cụm rạp --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 2. Dropdown Phòng Chiếu  -->
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="control-label font-weight-bold">Chọn Phòng Chiếu</label>
-                            <select asp-for="MaPhong" class="form-control" asp-items="ViewBag.MaPhong"></select>
+                            <select asp-for="MaPhong" class="form-control" id="selectPhong" asp-items="ViewBag.MaPhong">
+                                <option value="">-- Vui lòng chọn cụm rạp trước --</option>
+                            </select>
+                            <span asp-validation-for="MaPhong" class="text-danger"></span>
                         </div>
                     </div>
                 </div>
 
+                <!-- HÀNG 3: GIÁ VÉ -->
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group mb-3">
@@ -49,6 +69,7 @@
                     </div>
                 </div>
 
+                <!-- HÀNG 4: NGÀY GIỜ -->
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
@@ -87,7 +108,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-
+            // --- CẤU HÌNH FLATPICKR ---
              const config = {
                 enableTime: true,
                 dateFormat: "Y-m-d\\TH:i",
@@ -110,19 +131,20 @@
             });
 
             var selectPhim = document.getElementById('selectPhim');
+            var selectCumRap = document.getElementById('selectCumRap'); 
+            var selectPhong = document.getElementById('selectPhong');   
             var rangeHint = document.getElementById('rangeDateHint');
             var currentDuration = 0;
 
+            // --- LOGIC 1: XỬ LÝ CHỌN PHIM (Lấy thời lượng & ngày chiếu) ---
             selectPhim.addEventListener('change', function () {
                 var phimId = this.value;
-
                 if (phimId) {
                     fetch('/SuatChieu/getPhim?id=' + phimId)
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
                                 currentDuration = data.thoiLuong || 0;
-
                                 startPicker.set('minDate', data.ngayPhatHanh);
                                 startPicker.set('maxDate', data.ngayKetThuc);
 
@@ -131,16 +153,7 @@
                                 rangeHint.innerText = `* Phim chiếu từ ${d1} đến ${d2} (${currentDuration} phút)`;
 
                                 if (startPicker.selectedDates[0]) {
-                                    let selected = startPicker.selectedDates[0];
-                                    let min = new Date(data.ngayPhatHanh);
-                                    let max = new Date(data.ngayKetThuc);
-
-                                    if (selected < min || selected > max) {
-                                        startPicker.clear();
-                                        endPicker.clear();
-                                    } else {
-                                        calculateEndTime(selected);
-                                    }
+                                    calculateEndTime(startPicker.selectedDates[0]);
                                 }
                             }
                         })
@@ -149,12 +162,37 @@
                     currentDuration = 0;
                     rangeHint.innerText = "";
                     startPicker.clear();
-                    endPicker.clear();
-                    startPicker.set('minDate', null);
-                    startPicker.set('maxDate', null);
                 }
             });
 
+            // --- LOGIC 2: XỬ LÝ CHỌN CỤM RẠP (Lọc phòng chiếu) ---
+            selectCumRap.addEventListener('change', function () {
+                var cumRapId = this.value;
+
+                // Xóa danh sách phòng cũ
+                selectPhong.innerHTML = '<option value="">-- Vui lòng chọn phòng --</option>';
+
+                if (cumRapId) {
+                    // Gọi API lấy danh sách phòng theo cụm rạp
+                    fetch('/SuatChieu/GetPhongByCumRap?id=' + cumRapId)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    var option = document.createElement('option');
+                                    option.value = item.maPhong;
+                                    option.text = item.tenPhong;
+                                    selectPhong.appendChild(option);
+                                });
+                            } else {
+                                var option = document.createElement('option');
+                                option.text = "Không có phòng chiếu nào";
+                                selectPhong.appendChild(option);
+                            }
+                        })
+                        .catch(err => console.error(err));
+                }
+            });
             function calculateEndTime(startDate) {
                 if (startDate && currentDuration > 0) {
                     var endTimeMs = startDate.getTime() + (currentDuration * 60000);

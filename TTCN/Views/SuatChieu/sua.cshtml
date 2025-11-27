@@ -16,11 +16,10 @@
         <div class="card-body">
             <form asp-action="sua" id="editForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
                 <input type="hidden" asp-for="MaSuat" />
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group mb-3">
                             <label class="control-label font-weight-bold">Chọn Phim</label>
                             <select asp-for="MaPhim" class="form-control" asp-items="ViewBag.MaPhim" id="selectPhim">
@@ -29,10 +28,21 @@
                             <span asp-validation-for="MaPhim" class="text-danger"></span>
                         </div>
                     </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label class="control-label font-weight-bold">Cụm Rạp</label>
+                            <input type="text" class="form-control bg-light" readonly id="cinemaInput"
+                                   value="@(Model.MaPhongNavigation?.MaCumRapNavigation?.TenCumRap ?? "Chưa chọn")" />
+                        </div>
+                    </div>
+
                     <div class="col-md-6">
                         <div class="form-group mb-3">
                             <label class="control-label font-weight-bold">Chọn Phòng Chiếu</label>
-                            <select asp-for="MaPhong" class="form-control" asp-items="ViewBag.MaPhong"></select>
+                            <select asp-for="MaPhong" class="form-control" asp-items="ViewBag.MaPhong" id="selectPhong"></select>
                             <span asp-validation-for="MaPhong" class="text-danger"></span>
                         </div>
                     </div>
@@ -47,7 +57,6 @@
                                 <span class="input-group-text fw-bold">VNĐ</span>
                             </div>
                             <span asp-validation-for="Gia" class="text-danger"></span>
-                            <small class="text-muted fst-italic">* Đây là giá gốc cho ghế thường.</small>
                         </div>
                     </div>
                 </div>
@@ -92,6 +101,23 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // 1. Lấy dữ liệu Map từ ViewBag (được in ra dưới dạng JSON)
+            var roomMap = @Html.Raw(ViewBag.RoomCinemaJson);
+
+            var selectPhong = document.getElementById('selectPhong');
+            var cinemaInput = document.getElementById('cinemaInput');
+
+            // 2. Sự kiện khi đổi phòng -> Cập nhật tên rạp
+            selectPhong.addEventListener('change', function() {
+                var roomId = this.value;
+                if(roomId && roomMap[roomId]) {
+                    cinemaInput.value = roomMap[roomId];
+                } else {
+                    cinemaInput.value = "Không xác định";
+                }
+            });
+
+            // --- CÁC LOGIC CŨ (LỊCH CHIẾU, PHIM) GIỮ NGUYÊN ---
             const config = {
                 enableTime: true,
                 dateFormat: "Y-m-d\\TH:i",
@@ -117,13 +143,11 @@
             var rangeHint = document.getElementById('rangeDateHint');
             var currentDuration = 0;
 
-            // --- LOGIC 1: Load thông tin phim ngay khi mở trang ---
             var initialPhimId = selectPhim.value;
             if(initialPhimId) {
                 loadPhimInfo(initialPhimId, false);
             }
 
-            // --- LOGIC 2: Khi thay đổi Phim ---
             selectPhim.addEventListener('change', function () {
                 var phimId = this.value;
                 if (phimId) {
@@ -134,12 +158,11 @@
             });
 
             function loadPhimInfo(phimId, shouldResetDate) {
-                fetch('/SuatChieu/getPhim?id=' + phimId)
+                fetch('/SuatChieu/GetThongTinPhim?id=' + phimId)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             currentDuration = data.thoiLuong || 0;
-
                             startPicker.set('minDate', data.ngayPhatHanh);
                             startPicker.set('maxDate', data.ngayKetThuc);
 
@@ -150,18 +173,6 @@
                             if (shouldResetDate) {
                                 startPicker.clear();
                                 endPicker.clear();
-                            } else {
-                                // Kiểm tra nếu ngày cũ không hợp lệ với phim hiện tại
-                                if (startPicker.selectedDates[0]) {
-                                    let selected = startPicker.selectedDates[0];
-                                    let min = new Date(data.ngayPhatHanh);
-                                    let max = new Date(data.ngayKetThuc);
-                                    if (selected < min || selected > max) {
-                                        alert("Ngày chiếu hiện tại không còn hợp lệ với lịch phim này!");
-                                        startPicker.clear();
-                                        endPicker.clear();
-                                    }
-                                }
                             }
                         }
                     })
