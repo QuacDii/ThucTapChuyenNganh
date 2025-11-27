@@ -61,7 +61,63 @@
                 <span class="text">Thêm Phim Mới</span>
             </a>
         </div>
-        <div class="card-body">
+    <div class="card-body">
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="row g-2 align-items-center">
+
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-gray-400"></i></span>
+                            <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control border-left-0 small" placeholder="Tìm tên phim..." style="height: 38px;">
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <select name="trangThai" class="form-control form-select" style="height: 38px;">
+                            <option value="">-- Tất cả trạng thái --</option>
+                            <option value="Đang công chiếu" selected="@(ViewBag.CurrentStatus == "Đang công chiếu")">Đang công chiếu</option>
+                            <option value="Sắp công chiếu" selected="@(ViewBag.CurrentStatus == "Sắp công chiếu")">Sắp công chiếu</option>
+                            <option value="Đã chiếu" selected="@(ViewBag.CurrentStatus == "Đã chiếu")">Đã chiếu</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <select name="maTheLoai" class="form-control select2-multi" multiple="multiple" style="width: 100%">
+                            @if (ViewBag.AllTheLoais != null)
+                            {
+                                var selectedIds = ViewBag.CurrentGenre as List<int> ?? new List<int>();
+                                foreach (var tl in ViewBag.AllTheLoais)
+                                {
+                                    if (selectedIds.Contains(tl.MaTheLoai))
+                                    {
+                                        <option value="@tl.MaTheLoai" selected>@tl.TenTheLoai</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@tl.MaTheLoai">@tl.TenTheLoai</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-flex">
+                        <button type="submit" class="btn btn-primary w-100 me-1" style="height: 38px;">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm" style="height: 38px;">
+                            <i class="fas fa-sync-alt text-gray-500"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             <div class="table-responsive">
                 <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                     <thead>
@@ -83,7 +139,7 @@
                     <tbody>
                         @if (danhSachPhim != null && danhSachPhim.Any())
                         {
-                            @foreach (var item in danhSachPhim)
+                            @foreach (var item in danhSachPhim.OrderByDescending(x=> x.NgayPhatHanh))
                             {
                                 <tr>
                                     <td class="text-center font-weight-bold">@item.MaPhim</td>
@@ -191,3 +247,67 @@
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        /* --- SỬA GIAO DIỆN SELECT2 (BẢN FIX) --- */
+
+        /* 1. Khung của ô nhập liệu chính */
+        .select2-container .select2-selection--multiple {
+            min-height: 38px !important;
+            border: 1px solid #d1d3e2 !important;
+            padding: 4px !important;
+        }
+
+        /* 2. Thẻ Tag (Màu xanh) - Dùng Flexbox để sắp xếp */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #4e73df !important; /* Màu xanh */
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            padding: 3px 8px !important;
+            margin-top: 3px !important;
+            margin-right: 5px !important;
+            /* FLEXBOX QUAN TRỌNG */
+            display: inline-flex !important;
+            flex-direction: row-reverse !important; /* Đảo ngược: Chữ trước - X sau */
+            align-items: center !important;
+            gap: 6px !important; /* Khoảng cách giữa chữ và dấu X */
+        }
+
+        /* 3. Dấu X (Nút xóa) */
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            /* Reset toàn bộ style mặc định gây lỗi */
+            color: rgba(255,255,255,0.8) !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            float: none !important; /* Quan trọng: Tắt chế độ float cũ */
+            background: transparent !important;
+            font-size: 16px !important;
+            font-weight: bold !important;
+            line-height: 1 !important;
+            position: static !important; /* Tránh bị trôi nổi */
+        }
+
+            /* 4. Hiệu ứng khi di chuột vào dấu X */
+            .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+                color: #fff !important;
+                background-color: transparent !important;
+            }
+    </style>
+
+    <script>
+        $(document).ready(function() {
+            $('.select2-multi').select2({
+                placeholder: "Chọn thể loại (có thể chọn nhiều)",
+                allowClear: true,
+                closeOnSelect: false, 
+                width: 'resolve' 
+            });
+        });
+    </script>
+}

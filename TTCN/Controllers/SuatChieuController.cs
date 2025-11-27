@@ -14,21 +14,84 @@ namespace TTCN.Controllers
             this._context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string search, DateTime? ngay, string trangThai, decimal? min, decimal? max)
         {
-            var dsSuat = _context.SuatChieus
+            var query = _context.SuatChieus
                             .Include(s => s.MaPhimNavigation)
                             .Include(s => s.MaPhongNavigation)
-                            .ToList();
-            return View(dsSuat);
+                            .ThenInclude(p => p.MaCumRapNavigation)
+                            .AsQueryable();
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(s => s.MaPhimNavigation.TenPhim.Contains(search));
+            }
+
+            // 3. Lọc theo Ngày Chiếu
+            if (ngay.HasValue)
+            {
+                query = query.Where(s => s.GioBatDau.HasValue && s.GioBatDau.Value.Date == ngay.Value.Date);
+            }
+
+            // 4. Lọc theo Khoảng Giá Vé
+            if (min.HasValue)
+            {
+                query = query.Where(s => s.Gia >= min.Value);
+            }
+            if (max.HasValue)
+            {
+                query = query.Where(s => s.Gia <= max.Value);
+            }
+
+            // 5. Lọc theo Trạng Thái
+            var now = DateTime.Now;
+            if (!string.IsNullOrEmpty(trangThai))
+            {
+                switch (trangThai)
+                {
+                    case "sap_chieu": // Giờ bắt đầu > hiện tại
+                        query = query.Where(s => s.GioBatDau > now);
+                        break;
+                    case "dang_chieu": // Bắt đầu <= hiện tại <= Kết thúc
+                        query = query.Where(s => s.GioBatDau <= now && s.GioKetThuc >= now);
+                        break;
+                    case "da_chieu": // Kết thúc < hiện tại
+                        query = query.Where(s => s.GioKetThuc < now);
+                        break;
+                }
+            }
+
+            // 6. Sắp xếp: Ưu tiên suất chiếu mới nhất lên đầu
+            var result = query.OrderByDescending(s => s.GioBatDau).ToList();
+
+            // 7. Lưu lại giá trị filter để hiển thị lại trên View
+            ViewBag.CurrentSearch = search;
+            ViewBag.CurrentStatus = trangThai;
+            ViewBag.CurrentDate = ngay?.ToString("yyyy-MM-dd"); 
+            ViewBag.CurrentMinPrice = min;
+            ViewBag.CurrentMaxPrice = max;
+            return View(result);
         }
 
         [HttpGet]
         public IActionResult them()
         {
             ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim");
-            ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong");
+            ViewBag.ListCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap");
+            ViewBag.MaPhong = new SelectList(new List<PhongChieu>(), "MaPhong", "TenPhong");
             return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetPhongByCumRap(int id)
+        {
+            var listPhong = _context.PhongChieus
+                                    .Where(p => p.MaCumRap == id)
+                                    .Select(p => new {
+                                        maPhong = p.MaPhong,
+                                        tenPhong = p.TenPhong
+                                    })
+                                    .ToList();
+            return Json(listPhong);
         }
 
         [HttpPost]
@@ -65,18 +128,35 @@ namespace TTCN.Controllers
             }
 
             ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
-            ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong);
+            ViewBag.ListCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap"); 
+            ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong); 
             return View(sc);
         }
 
         [HttpGet]
         public IActionResult sua(int id)
         {
-            var sc = _context.SuatChieus.Find(id);
+            var sc = _context.SuatChieus
+                .Include(s => s.MaPhongNavigation)          // Lấy thông tin Phòng
+                .ThenInclude(p => p.MaCumRapNavigation) // Lấy tiếp thông tin Cụm Rạp từ Phòng
+                .FirstOrDefault(s => s.MaSuat == id);
+
             if (sc == null) return NotFound();
 
             ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
-            ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong);
+            var currentCumRapId = sc.MaPhongNavigation.MaCumRap;
+            var listPhong = _context.PhongChieus
+                                    .Where(p => p.MaCumRap == currentCumRapId)
+                                    .ToList();
+
+            ViewBag.MaPhong = new SelectList(listPhong, "MaPhong", "TenPhong", sc.MaPhong);
+
+            var roomMap = listPhong.ToDictionary(
+                k => k.MaPhong,
+                v => v.MaCumRapNavigation?.TenCumRap ?? sc.MaPhongNavigation.MaCumRapNavigation.TenCumRap
+            );
+            ViewBag.RoomCinemaJson = System.Text.Json.JsonSerializer.Serialize(roomMap);
+
             return View(sc);
         }
 
@@ -89,7 +169,7 @@ namespace TTCN.Controllers
             ModelState.Remove("MaPhimNavigation");
             ModelState.Remove("MaPhongNavigation");
             ModelState.Remove("DonDatVes");
-            ModelState.Remove("ChiTietScGnVes");
+            ModelState.Remove("ChiTietScGn");
 
             if (sc.MaPhim != null)
             {
@@ -112,7 +192,8 @@ namespace TTCN.Controllers
             bool ktr=_context.SuatChieus.Any(e=>e.MaPhim==sc.MaPhim
                                              && e.MaPhong==sc.MaPhong
                                              && e.GioBatDau==sc.GioBatDau
-                                             && e.GioKetThuc==sc.GioKetThuc);
+                                             && e.GioKetThuc==sc.GioKetThuc
+                                             && e.MaSuat != id);
 
             if (ktr)
             {
@@ -135,7 +216,18 @@ namespace TTCN.Controllers
             }
 
             ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
-            ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong);
+
+            // Tìm lại phòng hiện tại để biết nó thuộc rạp nào
+            var currentPhong = _context.PhongChieus.Include(p => p.MaCumRapNavigation).FirstOrDefault(p => p.MaPhong == sc.MaPhong);
+            if (currentPhong != null)
+            {
+                var listPhong = _context.PhongChieus.Where(p => p.MaCumRap == currentPhong.MaCumRap).ToList();
+                ViewBag.MaPhong = new SelectList(listPhong, "MaPhong", "TenPhong", sc.MaPhong);
+
+                var roomMap = listPhong.ToDictionary(k => k.MaPhong, v => currentPhong.MaCumRapNavigation.TenCumRap);
+                ViewBag.RoomCinemaJson = System.Text.Json.JsonSerializer.Serialize(roomMap);
+            }
+
             return View(sc);
         }
 
@@ -147,6 +239,7 @@ namespace TTCN.Controllers
             var sc = _context.SuatChieus
                .Include(s => s.MaPhimNavigation)
                .Include(s => s.MaPhongNavigation)
+               .ThenInclude(p => p.MaCumRapNavigation)
                .FirstOrDefault(m => m.MaSuat == id);
 
             if (sc == null) return NotFound();
@@ -158,13 +251,22 @@ namespace TTCN.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult xoa_Post(int id)
         {
+            bool coDonDat = _context.DonDatVes.Any(s => s.MaDon == id);
+
+            if (coDonDat)
+            {
+                // Nếu có suất chiếu -> Báo lỗi qua TempData để hiển thị ở trang Index
+                TempData["Error"] = "Không thể xóa Suất chiếu này vì đã có đơn đặt vé!";
+                return RedirectToAction("Index");
+            }
+
             var sc = _context.SuatChieus.Find(id);
             if (sc != null)
             {
                 _context.SuatChieus.Remove(sc);
                 _context.SaveChanges();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
         [HttpGet]

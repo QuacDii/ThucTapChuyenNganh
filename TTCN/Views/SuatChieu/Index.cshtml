@@ -5,6 +5,9 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <style>
     .table thead th {
         background-color: #4e73df;
@@ -38,12 +41,61 @@
             </a>
         </div>
         <div class="card-body">
+            <form asp-action="Index" method="get" class="mb-4">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-gray-400"></i></span>
+                    <input type="text" name="search" value="@ViewBag.CurrentSearch" class="form-control bg-light border-0 small" placeholder="Nhập tên phim...">
+                </div>
+            </div>
+
+            <div class="col-md-2">
+                <select name="trangThai" class="form-control form-select bg-light border-0 small">
+                    <option value="">-- Tất cả --</option>
+                    <!option value="sap_chieu" @(ViewBag.CurrentStatus == "sap_chieu" ? "selected" : "")>Sắp chiếu</!option>
+                    <!option value="dang_chieu" @(ViewBag.CurrentStatus == "dang_chieu" ? "selected" : "")>Đang chiếu</!option>
+                    <!option value="da_chieu" @(ViewBag.CurrentStatus == "da_chieu" ? "selected" : "")>Đã chiếu</!option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="text" id="ngayChieuInput" name="ngay" placeholder="Ngày chiếu..." value="@ViewBag.CurrentDate" class="form-control bg-light border-0 small">
+            </div>
+
+            <div class="col-md-3">
+                <div class="input-group">
+                    <input type="number" min="0" step="1000" name="min" value="@ViewBag.CurrentMinPrice" class="form-control bg-light border-0 small" placeholder="VD: 1000">
+                    <span class="input-group-text bg-light border-0">-</span>
+                    <input type="number" step="1000" min="0" name="max" value="@ViewBag.CurrentMaxPrice" class="form-control bg-light border-0 small" placeholder="VD: 50000">
+                </div>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="d-flex w-100">
+                    <button type="submit" class="btn btn-primary w-100 flex-grow-1 shadow-sm btn-sm me-2" style="height: 38px;">
+                        <i class="fas fa-filter mr-1"></i> Lọc 
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary shadow-sm">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+             @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             <div class="table-responsive">
                 <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr class="text-center">
                             <th style="width: 50px;">Mã Suất</th>
-                            <th>Tên Phim</th>
+                            <th class="text-center">Tên Phim</th>
                             <th>Phòng</th>
                             <th>Ngày Chiếu</th>
                             <th>Bắt Đầu</th>
@@ -63,13 +115,21 @@
                                         @item.MaSuat
                                     </td>
 
-                                    <td class="font-weight-bold text-primary text-center">
+                                    <td class="font-weight-bold text-primary text-start">
                                         @Html.DisplayFor(modelItem => item.MaPhimNavigation.TenPhim)
                                     </td>
-
+              
                                     <td class="text-center">
                                         <span class="badge bg-info text-white p-2 shadow-sm">
-                                            @Html.DisplayFor(modelItem => item.MaPhongNavigation.TenPhong)
+                                            @Html.DisplayFor(modelItem => item.MaPhongNavigation.TenPhong) /
+                                            @if (item.MaPhongNavigation?.MaCumRapNavigation != null)
+                                            {
+                                               @item.MaPhongNavigation.MaCumRapNavigation.TenCumRap
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">---</span>
+                                            }
                                         </span>
                                     </td>
 
@@ -81,11 +141,10 @@
                                         @(item.GioBatDau.HasValue ? item.GioBatDau.Value.ToString("HH:mm") : "")
                                     </td>
 
-                                    <td class="text-center text-muted">
+                                    <td class="text-center text-danger fw-bold">
                                         @(item.GioKetThuc.HasValue ? item.GioKetThuc.Value.ToString("HH:mm") : "")
                                     </td>
 
-                                    <!-- HIỂN THỊ GIÁ VÉ -->
                                     <td class="text-center font-weight-bold text-dark">
                                         @if (item.Gia > 0)
                                         {
@@ -97,7 +156,6 @@
                                         }
                                     </td>
 
-                                    <!-- HIỂN THỊ TRẠNG THÁI (Tự động tính) -->
                                     <td class="text-center">
                                         @{
                                             var now = DateTime.Now;
@@ -150,3 +208,17 @@
         </div>
     </div>
 </div>
+
+@section Scripts{
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        flatpickr("#ngayChieuInput", {
+            dateFormat: "Y-m-d",    // Định dạng giá trị gửi về Server
+            altInput: true,         // Bật chế độ hiển thị khác cho người dùng
+            altFormat: "d/m/Y",     // Hiển thị dạng ngày/tháng/năm 
+            allowInput: true,       // Cho phép nhập tay nếu muốn
+            disableMobile: "true"   // Ép buộc dùng giao diện flatpickr trên mobile thay vì native datepicker
+        });
+    });
+</script>
+}

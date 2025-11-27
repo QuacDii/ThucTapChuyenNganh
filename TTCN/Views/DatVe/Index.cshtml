@@ -45,7 +45,7 @@
                     // Logic: Lấy danh sách suất chiếu -> Nhảy sang Phòng -> Nhảy sang Rạp -> Lấy Tên Rạp -> Gom lại
                     var danhSachRap = phim.SuatChieus
                     .GroupBy(sc => sc.MaPhongNavigation.MaCumRapNavigation) // Group theo object CumRap
-                    .Select(g => g.Key) // Lấy ra cái Key (chính là CumRap)
+                    .Select(g => g.Key) 
                     .ToList();
                 }
                 <div class="showtime-selector">

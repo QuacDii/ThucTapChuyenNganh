@@ -30,7 +30,8 @@
                         <dt class="col-sm-4">Phòng Chiếu:</dt>
                         <dd class="col-sm-8">
                             <span class="badge bg-info text-white p-2">
-                                @Html.DisplayFor(model => model.MaPhongNavigation.TenPhong)
+                                @Html.DisplayFor(model => model.MaPhongNavigation.TenPhong) /
+                                @Html.DisplayFor(Model => Model.MaPhongNavigation.MaCumRapNavigation.TenCumRap)
                             </span>
                         </dd>
 

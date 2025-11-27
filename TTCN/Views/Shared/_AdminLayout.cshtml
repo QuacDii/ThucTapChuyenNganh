@@ -21,16 +21,16 @@
         <h4 class="text-center text-white mb-3" style="font-weight: 700;">Quản Lý</h4>
         <nav class="nav flex-column">
 
-            <!-- Link Quản lý Phim -->
-            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Phim" ? "active" : "")"
-               asp-controller="Phim" asp-action="Index">
-                <i class="fas fa-film fa-fw me-2"></i> Quản lý Phim
-            </a>
-
             <!-- Link Quản lý Users -->
             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Users" ? "active" : "")"
                asp-controller="Users" asp-action="Index">
                 <i class="fas fa-users fa-fw me-2"></i> Quản lý User
+            </a>
+
+            <!-- Link Quản lý Phim -->
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Phim" ? "active" : "")"
+               asp-controller="Phim" asp-action="Index">
+                <i class="fas fa-film fa-fw me-2"></i> Quản lý Phim
             </a>
 
             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SuatChieu" ? "active" : "")"
@@ -67,6 +67,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/sb-admin-2.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

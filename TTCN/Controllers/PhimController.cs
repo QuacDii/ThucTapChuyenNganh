@@ -14,13 +14,41 @@ namespace TTCN.Controllers
         {
             this._context = context;
         }
-        public IActionResult Index()
+        public IActionResult Index(string search, string trangThai, List<int> maTheLoai)
         {
-            var dsPhim = _context.Phims
-                            .Include(p => p.PhimTheLoais)
-                            .ThenInclude(pt1 => pt1.MaTheLoaiNavigation)
-                            .ToList();
+            var query = _context.Phims
+                    .Include(p => p.PhimTheLoais)
+                    .ThenInclude(pt1 => pt1.MaTheLoaiNavigation)
+                    .AsQueryable();
+
+            // Lọc theo Tên phim 
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(p => p.TenPhim.Contains(search));
+            }
+
+            // Lọc theo Trạng thái
+            if (!string.IsNullOrEmpty(trangThai))
+            {
+                query = query.Where(p => p.TrangThai == trangThai);
+            }
+
+            // Lọc theo Thể loại 
+            if (maTheLoai != null && maTheLoai.Count > 0)
+            {
+                query = query.Where(p => p.PhimTheLoais.Any(pt => maTheLoai.Contains(pt.MaTheLoai)));
+            }
+
+            var dsPhim = query.OrderByDescending(x => x.NgayPhatHanh).ToList();
+
+            // Gửi danh sách tất cả thể loại để đổ vào Dropdown lọc
             ViewBag.ph = dsPhim;
+            ViewBag.AllTheLoais = _context.TheLoais.ToList();
+
+            // Gửi lại các giá trị đã tìm để giữ trên giao diện sau khi reload
+            ViewBag.CurrentSearch = search;
+            ViewBag.CurrentStatus = trangThai;
+            ViewBag.CurrentGenre = maTheLoai;
             return View();
         }
 
@@ -196,17 +224,30 @@ namespace TTCN.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult xoa_Post(int id)
         {
+            bool coSuatChieu = _context.SuatChieus.Any(s => s.MaPhim == id);
+
+            if (coSuatChieu)
+            {
+                // Nếu có suất chiếu -> Báo lỗi qua TempData để hiển thị ở trang Index
+                TempData["Error"] = "Không thể xóa phim này vì đã có lịch chiếu!";
+                return RedirectToAction("Index");
+            }
+
+            // 2. Nếu không có suất chiếu -> Tiến hành xóa
             Phim ph = _context.Phims
                            .Include(p => p.PhimTheLoais)
                            .FirstOrDefault(p => p.MaPhim == id);
 
             if (ph != null)
             {
-                _context.PhimTheLoais.RemoveRange(ph.PhimTheLoais);
+                // Xóa các dòng trong bảng trung gian trước
+                if (ph.PhimTheLoais != null)
+                {
+                    _context.PhimTheLoais.RemoveRange(ph.PhimTheLoais);
+                }
 
                 _context.Phims.Remove(ph);
-
-                _context.SaveChanges(); 
+                _context.SaveChanges();
             }
             return RedirectToAction("Index");
         }
