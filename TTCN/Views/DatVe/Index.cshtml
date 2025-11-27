@@ -54,7 +54,8 @@
                             <div class="col-md-6">
                                 <label class="filter-label">Khu vực</label>
                                 <div class="select-wrapper">
-                                    <select class="form-select custom-select">
+                                    <select class="form-select custom-select" id="area-select">
+                                        <option value="" selected disabled>Chọn khu vực</option>
                                         @foreach (var rap in danhSachRap.Select(r => r.ThanhPho).Distinct())
                                         {
                                             <option>@rap</option>
@@ -66,6 +67,7 @@
                                 <label class="filter-label">Cụm rạp</label>
                                 <div class="select-wrapper">
                                     <select class="form-select custom-select" id="cinema-select" onchange="updateCinemaInfo()">
+                                        <option value="" data-id="" selected>Chọn cụm rạp</option>
                                         @foreach (var rap in danhSachRap)
                                         {
                                             <option value="@rap.TenCumRap" data-id="@rap.MaCumRap">@rap.TenCumRap</option>
@@ -144,6 +146,7 @@
                     <div id="seat-map-container" class="seat-map mt-4"></div>
                     <div class="legend mt-4">
                         <div class="legend-item"><div class="seat standard"></div><span>Trống</span></div>
+                        <div class="legend-item"><div class="seat sweetbox"></div><span>Sweetbox</span></div>
                         <div class="legend-item"><div class="seat selected"></div><span>Đang chọn</span></div>
                         <div class="legend-item"><div class="seat occupied"></div><span>Đã bán</span></div>
                     </div>
@@ -155,14 +158,18 @@
                 <div class="booking-summary">
                     <!-- Thông tin phim -->
                     <div class="mb-3 clearfix">
-                        <img src="https://placehold.co/100x150/FF5733/FFFFFF?text=L%E1%BA%ADt+M%E1%BA%B7t+7" alt="Poster Phim" class="summary-poster">
-                        <div class="summary-details">
-                            <h4 class="mb-1">@ViewBag.TenPhim</h4>
-                            <p id="sum-cinema"><strong>Rạp:</strong> Chưa chọn</p>
-                            <p id="sum-room"><strong>Phòng:</strong> Chưa chọn</p>
-                            <p id="sum-date"><strong>Ngày:</strong> --/--/----</p>
-                            <p id="sum-time"><strong>Giờ:</strong> --:--</p>
-                        </div>
+                        
+                            <div class="summary-details">
+                                @foreach (var item in ViewBag.dlPhimDaChon)
+                                {
+                                    <h4 class="mb-1">@item.TenPhim</h4>
+                                }
+                                <p id="sum-cinema"><strong>Rạp:</strong> Chưa chọn</p>
+                                <p id="sum-room"><strong>Phòng:</strong> Chưa chọn</p>
+                                <p id="sum-date"><strong>Ngày:</strong> --/--/----</p>
+                                <p id="sum-time"><strong>Giờ:</strong> --:--</p>
+
+                            </div>
                     </div>
 
                     <hr>
@@ -179,11 +186,23 @@
 
                     <!-- Combo -->
                     <div class="mb-3">
+                        <h5>Combo đã chọn</h5>
+                        <ul id="selected-combo-list">
+                            <!-- JS sẽ thêm combo vào đây -->
+                        </ul>
+                    </div>
+
+                    <hr>
+
+                    <!-- Chọn Combo -->
+                    <div class="mb-3">
                         <h5>Chọn Combo</h5>
                         <select class="form-select" id="combo-select">
                             <option value="0">Không chọn combo</option>
-                            <option value="70000">Combo 1 (1 Bắp + 1 Nước) - 70.000đ</option>
-                            <option value="120000">Combo 2 (2 Bắp + 2 Nước) - 120.000đ</option>
+                            @foreach (var item in ViewBag.doAn as SelectList)
+                            {
+                                <option value="@item.Value" data-text="@item.Text">@item.Text</option>
+                            }
                         </select>
                     </div>
 
@@ -234,6 +253,7 @@
         const seatApiUrl = '@Url.Action("GetGheBySuatChieu", "DatVe")';
         let selectedSeats = [];
         let currentMaSuat = 0;
+        let currentSelectedDate = null;
 
         function renderSeatMap(maSuat) {
             currentMaSuat = maSuat;
@@ -275,13 +295,55 @@
                         labelDiv.innerText = hang;
                         rowDiv.appendChild(labelDiv);
 
-                        rows[hang]
+                        const sortedSeats = rows[hang]
                             .sort((a, b) => {
                                 const nameA = (a.tenGhe || a.TenGhe || '').trim();
                                 const nameB = (b.tenGhe || b.TenGhe || '').trim();
                                 return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
-                            })
-                            .forEach(ghe => {
+                            });
+
+                        const isSweetboxRow = sortedSeats.length > 0 &&
+                            sortedSeats.every(ghe => {
+                                const loai = (ghe.loaiGhe || ghe.LoaiGhe || '').toUpperCase();
+                                return loai === 'SWEETBOX';
+                            });
+
+                        if (isSweetboxRow) {
+                            for (let i = 0; i < sortedSeats.length; i += 2) {
+                                const firstSeat = sortedSeats[i];
+                                const secondSeat = sortedSeats[i + 1];
+                                if (!firstSeat || !secondSeat) continue;
+
+                                const seatBtn = document.createElement('button');
+                                seatBtn.className = 'seat sweetbox';
+                                const firstName = (firstSeat.tenGhe || firstSeat.TenGhe || '').trim();
+                                const secondName = (secondSeat.tenGhe || secondSeat.TenGhe || '').trim();
+                                const sweetboxLabel = `${firstName}-${secondName}`;
+                                seatBtn.innerText = sweetboxLabel;
+
+                                const firstOccupied = firstSeat.daDat ?? firstSeat.DaDat;
+                                const secondOccupied = secondSeat.daDat ?? secondSeat.DaDat;
+                                if (firstOccupied || secondOccupied) {
+                                    seatBtn.classList.add('occupied');
+                                    seatBtn.disabled = true;
+                                } else {
+                                    const firstId = firstSeat.maGhe ?? firstSeat.MaGhe;
+                                    const secondId = secondSeat.maGhe ?? secondSeat.MaGhe;
+                                    const firstPrice = Number(firstSeat.giaGhe ?? firstSeat.GiaGhe ?? 0);
+                                    const secondPrice = Number(secondSeat.giaGhe ?? secondSeat.GiaGhe ?? 0);
+                                    const totalPrice = firstPrice + secondPrice;
+                                    seatBtn.addEventListener('click', () => toggleSweetboxSeat(
+                                        seatBtn,
+                                        [firstId, secondId],
+                                        sweetboxLabel,
+                                        totalPrice
+                                    ));
+                                }
+
+                                rowDiv.appendChild(seatBtn);
+                            }
+                        } else {
+                            sortedSeats.forEach(ghe => {
                                 const seatBtn = document.createElement('button');
                                 seatBtn.className = 'seat';
                                 const tenGhe = (ghe.tenGhe || ghe.TenGhe || '').trim();
@@ -301,6 +363,7 @@
 
                                 rowDiv.appendChild(seatBtn);
                             });
+                        }
 
                         container.appendChild(rowDiv);
                     });
@@ -312,14 +375,15 @@
         }
 
         function toggleSeat(btn, maGhe, tenGhe, giaGhe) {
-            const index = selectedSeats.findIndex(s => s.id === maGhe);
+            const seatId = maGhe.toString();
+            const index = selectedSeats.findIndex(s => s.id === seatId);
 
             if (index === -1) {
-                if (selectedSeats.length >= 8) {
+                if (getSelectedSeatCount() >= 8) {
                     alert('Bạn chỉ được chọn tối đa 8 ghế.');
                     return;
                 }
-                selectedSeats.push({ id: maGhe, name: tenGhe, price: giaGhe });
+                selectedSeats.push({ id: seatId, name: tenGhe, price: giaGhe, quantity: 1 });
                 btn.classList.add('selected');
             } else {
                 selectedSeats.splice(index, 1);
@@ -329,12 +393,42 @@
             updateCartUI();
         }
 
+        function toggleSweetboxSeat(btn, seatIds, label, totalPrice) {
+            const groupId = seatIds.join('_');
+            const index = selectedSeats.findIndex(s => s.id === groupId);
+
+            if (index === -1) {
+                if (getSelectedSeatCount() + 2 > 8) {
+                    alert('Bạn chỉ được chọn tối đa 8 ghế.');
+                    return;
+                }
+                selectedSeats.push({
+                    id: groupId,
+                    name: label,
+                    price: totalPrice,
+                    quantity: 2,
+                    seatIds
+                });
+                btn.classList.add('selected');
+            } else {
+                selectedSeats.splice(index, 1);
+                btn.classList.remove('selected');
+            }
+
+            updateCartUI();
+        }
+
+        function getSelectedSeatCount() {
+            return selectedSeats.reduce((total, seat) => total + (seat.quantity || 1), 0);
+        }
+
         function updateCartUI() {
             const listEl = document.getElementById('selected-seats-list');
             const countEl = document.getElementById('seat-count');
             const totalEl = document.getElementById('total-price');
             const modalTotalEl = document.getElementById('modal-total-price');
             const comboSelectEl = document.getElementById('combo-select');
+            const comboListEl = document.getElementById('selected-combo-list');
             const btnCheckout = document.querySelector('.btn-checkout');
 
             if (!listEl || !countEl || !totalEl) return;
@@ -353,14 +447,70 @@
                         </li>`;
                 });
 
+            // Hiển thị combo đã chọn và tính vào tổng
             const comboVal = comboSelectEl ? parseInt(comboSelectEl.value, 10) || 0 : 0;
+            if (comboListEl) {
+                comboListEl.innerHTML = '';
+                if (comboVal > 0 && comboSelectEl) {
+                    const selectedOption = comboSelectEl.options[comboSelectEl.selectedIndex];
+                    const comboText = selectedOption.getAttribute('data-text') || selectedOption.text;
+                    comboListEl.innerHTML += `
+                        <li class="d-flex justify-content-between mb-2 text-white">
+                            <span>${comboText}</span>
+                            <strong>${comboVal.toLocaleString('vi-VN')}đ</strong>
+                        </li>`;
+                } else {
+                    comboListEl.innerHTML = '<li class="text-muted">Chưa chọn combo</li>';
+                }
+            }
             total += comboVal;
 
-            countEl.innerText = selectedSeats.length;
+            const seatCount = getSelectedSeatCount();
+            countEl.innerText = seatCount;
             const formattedTotal = total.toLocaleString('vi-VN') + 'đ';
             totalEl.innerText = formattedTotal;
             if (modalTotalEl) modalTotalEl.innerText = formattedTotal;
-            if (btnCheckout) btnCheckout.disabled = selectedSeats.length === 0;
+            if (btnCheckout) btnCheckout.disabled = seatCount === 0;
+        }
+
+        function updateCinemaInfo() {
+            const cinemaSelect = document.getElementById('cinema-select');
+            if (!cinemaSelect) return;
+
+            const selectedOption = cinemaSelect.options[cinemaSelect.selectedIndex];
+            const selectedName = selectedOption && selectedOption.value ? selectedOption.text : 'Chưa chọn';
+
+            const cinemaEl = document.getElementById('sum-cinema');
+            if (cinemaEl) cinemaEl.innerHTML = `<strong>Rạp:</strong> ${selectedName}`;
+
+            applyShowtimeFilters();
+        }
+
+        function applyShowtimeFilters() {
+            const cinemaSelect = document.getElementById('cinema-select');
+            const selectedOption = cinemaSelect ? cinemaSelect.options[cinemaSelect.selectedIndex] : null;
+            const selectedId = selectedOption ? selectedOption.getAttribute('data-id') : '';
+            const hasCinemaFilter = !!(selectedOption && selectedOption.value);
+
+            document.querySelectorAll('.btn-time-slot').forEach(slot => {
+                const slotDate = slot.getAttribute('data-date');
+                const matchesDate = !currentSelectedDate || slotDate === currentSelectedDate;
+                slot.style.display = matchesDate ? 'inline-block' : 'none';
+                slot.classList.remove('active');
+            });
+
+            document.querySelectorAll('.room-row').forEach(row => {
+                const visibleBtns = Array.from(row.querySelectorAll('.btn-time-slot'))
+                    .filter(btn => btn.style.display !== 'none');
+                row.style.display = visibleBtns.length > 0 ? 'flex' : 'none';
+            });
+
+            document.querySelectorAll('.cinema-block').forEach(block => {
+                const matchesCinema = !hasCinemaFilter || block.getAttribute('data-cinema-id') === selectedId;
+                const visibleRooms = Array.from(block.querySelectorAll('.room-row'))
+                    .filter(row => row.style.display !== 'none');
+                block.style.display = matchesCinema && visibleRooms.length > 0 ? 'block' : 'none';
+            });
         }
 
         function selectShowtime(btnElement, roomName, time, maSuat, ngayChieu) {
@@ -437,38 +587,22 @@
             document.querySelectorAll('.date-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
 
-            document.querySelectorAll('.btn-time-slot').forEach(slot => {
-                const slotDate = slot.getAttribute('data-date');
-                slot.style.display = slotDate === selectedDate ? 'inline-block' : 'none';
-                slot.classList.remove('active');
-            });
-
-            hideEmptySections();
+            currentSelectedDate = selectedDate;
+            applyShowtimeFilters();
             resetSummaryInfo();
             clearSeatMap();
-        }
-
-        function hideEmptySections() {
-            document.querySelectorAll('.room-row').forEach(row => {
-                const visibleBtns = Array.from(row.querySelectorAll('.btn-time-slot'))
-                    .filter(btn => btn.style.display !== 'none');
-                row.style.display = visibleBtns.length > 0 ? 'flex' : 'none';
-            });
-
-            document.querySelectorAll('.cinema-block').forEach(block => {
-                const visibleRooms = Array.from(block.querySelectorAll('.room-row'))
-                    .filter(row => row.style.display !== 'none');
-                block.style.display = visibleRooms.length > 0 ? 'block' : 'none';
-            });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             clearSeatMap();
             updateCartUI();
+            updateCinemaInfo();
 
             const firstDate = document.querySelector('.date-btn');
             if (firstDate) {
                 firstDate.click();
+            } else {
+                applyShowtimeFilters();
             }
         });
     </script>

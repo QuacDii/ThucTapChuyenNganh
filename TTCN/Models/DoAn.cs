@@ -7,5 +7,6 @@ namespace TTCN.Models
     {
         public int MaCombo { get; set; }
         public string MoTa { get; set; } = null!;
+        public decimal Gia { get; set; }
     }
 }

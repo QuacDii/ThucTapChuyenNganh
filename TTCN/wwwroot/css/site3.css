@@ -294,7 +294,17 @@ body {
         box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
     }
 
-    /* Loại 3: Ghế Đang Chọn */
+    /* Loại 3: Sweetbox (ghế đôi) */
+    .seat.sweetbox {
+        width: 70px;
+        padding: 0 6px;
+        background: linear-gradient(135deg, #ff6b6b, #c92a2a);
+        color: #fff;
+        border-bottom-color: #941b1b;
+        box-shadow: 0 0 12px rgba(255, 107, 107, 0.35);
+    }
+
+    /* Loại 4: Ghế Đang Chọn */
     .seat.selected {
         background-color: var(--seat-selected) !important;
         color: #fff !important;
@@ -304,7 +314,7 @@ body {
         z-index: 10;
     }
 
-    /* Loại 4: Ghế Đã Bán */
+    /* Loại 5: Ghế Đã Bán */
     .seat.occupied {
         background-color: var(--seat-occupied);
         color: #555;
@@ -328,18 +338,27 @@ body {
 
 /* Chú thích (Legend) */
 .legend {
-    background-color: #2c3035;
-    padding: 15px 25px;
-    border-radius: 50px;
-    margin-top: 2rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    background-color: var(--brand-dark);
+    border-radius: 8px;
+    margin-top: 1.5rem;
 }
 
-.legend-item span {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    font-weight: 500;
+.legend-item {
+    display: flex;
+    align-items: center;
 }
+
+    .legend-item .seat {
+        height: 25px;
+        width: 25px;
+        margin-right: 10px;
+        cursor: default;
+    }
 
 /* =========================================
    4. CỘT TÓM TẮT (RIGHT COLUMN - STICKY)

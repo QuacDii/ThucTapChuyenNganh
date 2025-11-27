@@ -23,11 +23,11 @@ namespace TTCN.Models
         public DateTime? GioKetThuc { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn giá suất chiếu!")]
-        public decimal Gia { get; set; }
+        public decimal? Gia { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn phim!")]
         public int? MaPhim { get; set; }
-        public int MaPhong { get; set; }
+        public int? MaPhong { get; set; }
 
         public virtual Phim MaPhimNavigation { get; set; } = null!;
         public virtual PhongChieu MaPhongNavigation { get; set; } = null!;

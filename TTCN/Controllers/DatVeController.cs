@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using TTCN.Models;
@@ -70,6 +71,14 @@ namespace TTCN.Controllers
                                       .ThenInclude(cr => cr.MaCumRapNavigation)
                                       .FirstOrDefault();
             ViewBag.dlSuatChieu = dlSuatChieu;
+
+            var doAnList = db.DoAns.ToList().Select(d => new SelectListItem
+            {
+                Value = d.Gia.ToString(),
+                Text = $"{d.MoTa} - {d.Gia:N0}đ"
+            }).ToList();
+            ViewBag.doAn = new SelectList(doAnList, "Value", "Text");
+
             return View();
         }
         [HttpGet]
@@ -98,7 +107,7 @@ namespace TTCN.Controllers
                     g.TenGhe,
                     g.HangGhe,
                     g.LoaiGhe,
-                    GiaGhe = string.Equals(g.LoaiGhe, "VIP", StringComparison.OrdinalIgnoreCase) ? 120000 : 90000,
+                    GiaGhe = g.LoaiGhe.Equals("VIP", StringComparison.OrdinalIgnoreCase) ? suat.Gia*2 : suat.Gia,
                     DaDat = gheDaDat.Contains(g.MaGhe)
                 })
                 .ToList();

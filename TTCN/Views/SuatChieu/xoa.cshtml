@@ -47,7 +47,7 @@
                         <!-- Bổ sung hiển thị Giá Vé -->
                         <dt class="col-sm-4">Giá Vé:</dt>
                         <dd class="col-sm-8 text-dark font-weight-bold">
-                            @(Model.Gia > 0? Model.Gia.ToString("#,##0") + " VNĐ" : "Chưa cập nhật")
+                            @(Model.Gia > 0? Model.Gia.Value.ToString("#,##0") + " VNĐ" : "Chưa cập nhật")
                         </dd>
 
                         <dt class="col-sm-4">Mã Suất:</dt>

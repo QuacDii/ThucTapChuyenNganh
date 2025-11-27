@@ -197,6 +197,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
+        window.desiredRedirectUrl = window.desiredRedirectUrl || null;
 
         const passwordInput = document.getElementById('matKhau');
         const togglePasswordIcon = document.getElementById('togglePasswordIcon');
@@ -238,7 +239,9 @@
                         var result = await response.json();
 
                         if (result.success) {
-                            window.location.href = result.redirectUrl;
+                            const target = window.desiredRedirectUrl || result.redirectUrl;
+                            window.desiredRedirectUrl = null;
+                            window.location.href = target || window.location.href;
                         } else {
                             errorAlert.innerText = result.message;
                             errorAlert.style.display = 'block';
