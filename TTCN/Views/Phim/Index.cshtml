@@ -253,47 +253,39 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
-        /* --- SỬA GIAO DIỆN SELECT2 (BẢN FIX) --- */
-
-        /* 1. Khung của ô nhập liệu chính */
         .select2-container .select2-selection--multiple {
             min-height: 38px !important;
             border: 1px solid #d1d3e2 !important;
             padding: 4px !important;
         }
 
-        /* 2. Thẻ Tag (Màu xanh) - Dùng Flexbox để sắp xếp */
         .select2-container--default .select2-selection--multiple .select2-selection__choice {
-            background-color: #4e73df !important; /* Màu xanh */
+            background-color: #4e73df !important; 
             color: white !important;
             border: none !important;
             border-radius: 4px !important;
             padding: 3px 8px !important;
             margin-top: 3px !important;
             margin-right: 5px !important;
-            /* FLEXBOX QUAN TRỌNG */
             display: inline-flex !important;
-            flex-direction: row-reverse !important; /* Đảo ngược: Chữ trước - X sau */
+            flex-direction: row-reverse !important; 
             align-items: center !important;
-            gap: 6px !important; /* Khoảng cách giữa chữ và dấu X */
+            gap: 6px !important; 
         }
 
-        /* 3. Dấu X (Nút xóa) */
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
-            /* Reset toàn bộ style mặc định gây lỗi */
             color: rgba(255,255,255,0.8) !important;
             margin: 0 !important;
             padding: 0 !important;
             border: none !important;
-            float: none !important; /* Quan trọng: Tắt chế độ float cũ */
+            float: none !important; 
             background: transparent !important;
             font-size: 16px !important;
             font-weight: bold !important;
             line-height: 1 !important;
-            position: static !important; /* Tránh bị trôi nổi */
+            position: static !important; 
         }
 
-            /* 4. Hiệu ứng khi di chuột vào dấu X */
             .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
                 color: #fff !important;
                 background-color: transparent !important;

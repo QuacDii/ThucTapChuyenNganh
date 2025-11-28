@@ -27,11 +27,8 @@ namespace TTCN.Models
 
         [Required(ErrorMessage = "Vui lòng chọn phim!")]
         public int? MaPhim { get; set; }
-<<<<<<< HEAD
-=======
 
         [Required(ErrorMessage = "Vui lòng chọn phòng chiếu phim!")]
->>>>>>> 8663bebea2d063302377d9c2ffdf46bd276789bb
         public int? MaPhong { get; set; }
 
         public virtual Phim MaPhimNavigation { get; set; } = null!;
