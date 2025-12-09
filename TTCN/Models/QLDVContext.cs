@@ -64,7 +64,7 @@ namespace TTCN.Models
                 entity.HasOne(d => d.MaSuatNavigation)
                     .WithMany(p => p.ChiTietDonDat)
                     .HasForeignKey(d => d.MaSuat)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+.OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_chiTietDonDat_suatChieu");
 
                 entity.HasOne(d => d.MaDonNavigation)
@@ -151,11 +151,7 @@ namespace TTCN.Models
                 entity.Property(e => e.MaDon).HasColumnName("maDon");
                 entity.Property(e => e.SoLuong).HasColumnName("soLuong");
 
-                entity.HasOne(d => d.MaDonNavigation)
-                    .WithMany(p => p.DonDatVeDoAns) 
-                    .HasForeignKey(d => d.MaDon)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_donDatVe_doAn_donDatVe");
+            
 
                 entity.HasOne(d => d.MaComboNavigation)
                     .WithMany(p => p.DonDatVeDoAns)
@@ -186,7 +182,7 @@ namespace TTCN.Models
                     .HasColumnName("loaiGhe");
 
                 entity.Property(e => e.MaPhong).HasColumnName("maPhong");
-               
+
                 entity.Property(e => e.TenGhe).HasColumnName("tenGhe");
 
                 entity.HasOne(d => d.MaPhongNavigation)
@@ -230,7 +226,7 @@ namespace TTCN.Models
 
                 entity.Property(e => e.TenPhim)
                     .HasMaxLength(100)
-                    .HasColumnName("tenPhim");
+.HasColumnName("tenPhim");
 
                 entity.Property(e => e.ThoiLuong).HasColumnName("thoiLuong");
 
@@ -312,10 +308,9 @@ namespace TTCN.Models
                     .HasName("PK__suatChie__D4930BB6C3A44A7F");
 
                 entity.ToTable("suatChieu");
-
                 entity.Property(e => e.MaSuat)
-                    .ValueGeneratedNever()
-                    .HasColumnName("maSuat");
+                                    .ValueGeneratedNever()
+                                    .HasColumnName("maSuat");
 
                 entity.Property(e => e.GioBatDau)
                     .HasColumnType("datetime")
@@ -395,7 +390,7 @@ namespace TTCN.Models
                 entity.Property(e => e.SoDienThoai)
                     .HasMaxLength(20)
                     .IsUnicode(false)
-                    .HasColumnName("soDienThoai");
+.HasColumnName("soDienThoai");
 
                 entity.Property(e => e.VaiTro)
                     .HasMaxLength(20)

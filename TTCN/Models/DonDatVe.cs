@@ -9,7 +9,7 @@ namespace TTCN.Models
     {
 
         [Key]
-        [Display(Name ="Mã đơn đặt")]
+        [Display(Name = "Mã đơn đặt")]
         public int MaDon { get; set; }
 
 

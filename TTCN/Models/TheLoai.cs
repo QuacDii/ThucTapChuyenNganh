@@ -12,7 +12,7 @@ namespace TTCN.Models
         }
 
         [Key]
-        [Display(Name ="Mã thể loại")]
+        [Display(Name = "Mã thể loại")]
         public int MaTheLoai { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên thể loại!")]

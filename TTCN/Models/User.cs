@@ -35,9 +35,9 @@ namespace TTCN.Models
         [Phone(ErrorMessage = "Vui lòng nhập đúng định dạng số điện thoại")]
         [Display(Name = "Số điện thoại")]
         public string SoDienThoai { get; set; } = null!;
-         
+
         [Display(Name = "Vai trò")]
-        public string VaiTro { get; set; } = null!;   
+        public string VaiTro { get; set; } = null!;
 
         [Display(Name = "Ngày tạo")]
         public DateTime NgayTao { get; set; }

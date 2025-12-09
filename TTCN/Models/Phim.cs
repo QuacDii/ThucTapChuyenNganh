@@ -13,7 +13,7 @@ namespace TTCN.Models
         }
 
         [Key]
-        [Display(Name ="Mã phim")]
+        [Display(Name = "Mã phim")]
         public int MaPhim { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên phim!")]
