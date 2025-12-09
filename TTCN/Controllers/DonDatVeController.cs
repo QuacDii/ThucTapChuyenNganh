@@ -108,6 +108,35 @@ namespace TTCN.Controllers
 
             return RedirectToAction("Index");
         }
+
+        [HttpGet]
+        public IActionResult chiTiet(int id)
+        {
+            var donDatVe = _context.DonDatVes
+        // 1. Thông tin khách hàng
+        .Include(d => d.MaUsersNavigation)
+
+        // 2. Thông tin Ghế và Phim (Giữ nguyên code cũ của bạn)
+        .Include(d => d.ChiTietDonDat)
+            .ThenInclude(ct => ct.MaGheNavigation) // Lấy tên ghế (A1, A2...) và Loại ghế
+        .Include(d => d.ChiTietDonDat)
+            .ThenInclude(ct => ct.MaSuatNavigation)
+                .ThenInclude(s => s.MaPhimNavigation)
+        .Include(d => d.ChiTietDonDat)
+            .ThenInclude(ct => ct.MaSuatNavigation)
+                .ThenInclude(s => s.MaPhongNavigation)
+                    .ThenInclude(p => p.MaCumRapNavigation)
+
+        // 3. MỚI: Lấy thông tin Combo (Bắp/Nước)
+        .Include(d => d.DonDatVeDoAns)
+            .ThenInclude(c => c.MaComboNavigation) // Lấy tên Combo và Giá tiền
+
+        .FirstOrDefault(d => d.MaDon == id);
+
+            if (donDatVe == null) return NotFound();
+
+            return View(donDatVe);
+        }
     }
 
 }

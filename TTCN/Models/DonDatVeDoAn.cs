@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace TTCN.Models
 {
@@ -7,7 +8,7 @@ namespace TTCN.Models
     {
         public int MaCombo { get; set; }
         public int MaDon { get; set; }
-
+        public int SoLuong { get; set; }
         public virtual DoAn MaComboNavigation { get; set; } = null!;
         public virtual DonDatVe MaDonNavigation { get; set; } = null!;
     }

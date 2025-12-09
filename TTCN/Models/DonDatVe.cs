@@ -31,5 +31,6 @@ namespace TTCN.Models
         public virtual User MaUsersNavigation { get; set; } = null!;
 
         public virtual ICollection<ChiTietDonDat> ChiTietDonDat { get; set; }
+        public virtual ICollection<DonDatVeDoAn> DonDatVeDoAns { get; set; }
     }
 }

@@ -54,6 +54,7 @@ namespace TTCN.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult them(DoAn doAn)
         {
+            ModelState.Remove("DonDatVeDoAns");
             if (ModelState.IsValid)
             {
                 int maxId = _context.DoAns.Any() ? _context.DoAns.Max(s => s.MaCombo) : 0;
@@ -81,6 +82,7 @@ namespace TTCN.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult sua(int id, DoAn doAn)
         {
+            ModelState.Remove("DonDatVeDoAns");
             if (id != doAn.MaCombo) return NotFound();
 
             if (ModelState.IsValid)

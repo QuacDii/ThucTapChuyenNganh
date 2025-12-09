@@ -143,25 +143,25 @@ namespace TTCN.Models
 
             modelBuilder.Entity<DonDatVeDoAn>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(da => new { da.MaDon, da.MaCombo });
 
                 entity.ToTable("donDatVe_doAn");
 
                 entity.Property(e => e.MaCombo).HasColumnName("maCombo");
-
                 entity.Property(e => e.MaDon).HasColumnName("maDon");
-
-                entity.HasOne(d => d.MaComboNavigation)
-                    .WithMany()
-                    .HasForeignKey(d => d.MaCombo)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_donDatVe_doAn_doAn");
+                entity.Property(e => e.SoLuong).HasColumnName("soLuong");
 
                 entity.HasOne(d => d.MaDonNavigation)
-                    .WithMany()
+                    .WithMany(p => p.DonDatVeDoAns) 
                     .HasForeignKey(d => d.MaDon)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_donDatVe_doAn_donDatVe");
+
+                entity.HasOne(d => d.MaComboNavigation)
+                    .WithMany(p => p.DonDatVeDoAns)
+                    .HasForeignKey(d => d.MaCombo)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_donDatVe_doAn_doAn");
             });
 
             modelBuilder.Entity<GheNgoi>(entity =>

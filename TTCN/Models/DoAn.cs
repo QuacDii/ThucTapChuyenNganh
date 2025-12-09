@@ -23,5 +23,7 @@ namespace TTCN.Models
 
         [Display(Name = "Trạng thái")]
         public bool TrangThai { get; set; } = true;
+
+        public virtual ICollection<DonDatVeDoAn> DonDatVeDoAns { get; set; }
     }
 }
