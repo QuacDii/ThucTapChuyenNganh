@@ -329,7 +329,7 @@ namespace TTCN.Controllers
             {
                 // --- KIỂM TRA RÀNG BUỘC DỮ LIỆU ---
                 // Kiểm tra xem ghế này có đang nằm trong bảng ChiTietScGn (Vé đã bán) không?
-                bool daCoVe = _context.ChiTietScGns.Any(ct => ct.MaGhe == id);
+                bool daCoVe = _context.ChiTietDonDat.Any(ct => ct.MaGhe == id);
 
                 if (daCoVe)
                 {
@@ -387,7 +387,7 @@ namespace TTCN.Controllers
                         if (ghe != null)
                         {
                             // Kiểm tra ràng buộc
-                            bool coVe = _context.ChiTietScGns.Any(ct => ct.MaGhe == ghe.MaGhe);
+                            bool coVe = _context.ChiTietDonDat.Any(ct => ct.MaGhe == ghe.MaGhe);
 
                             if (!coVe)
                             {

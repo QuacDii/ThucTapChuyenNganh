@@ -16,7 +16,7 @@ namespace TTCN.Models
         {
         }
 
-        public virtual DbSet<ChiTietScGn> ChiTietScGns { get; set; } = null!;
+        public virtual DbSet<ChiTietDonDat> ChiTietDonDat { get; set; } = null!;
         public virtual DbSet<CumRap> CumRaps { get; set; } = null!;
         public virtual DbSet<DoAn> DoAns { get; set; } = null!;
         public virtual DbSet<DonDatVe> DonDatVes { get; set; } = null!;
@@ -40,11 +40,11 @@ namespace TTCN.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ChiTietScGn>(entity =>
+            modelBuilder.Entity<ChiTietDonDat>(entity =>
             {
                 entity.HasKey(e => e.MaCt);
 
-                entity.ToTable("ChiTiet_SC_GN");
+                entity.ToTable("chiTietDonDat");
 
                 entity.Property(e => e.MaCt)
                     .ValueGeneratedNever()
@@ -57,21 +57,21 @@ namespace TTCN.Models
                 entity.Property(e => e.TrangThai).HasColumnName("trangThai");
 
                 entity.HasOne(d => d.MaGheNavigation)
-                    .WithMany(p => p.ChiTietScGn)
+                    .WithMany(p => p.ChiTietDonDat)
                     .HasForeignKey(d => d.MaGhe)
-                    .HasConstraintName("FK_ChiTiet_SC_GN_gheNgoi");
+                    .HasConstraintName("FK_chiTietDonDat_gheNgoi");
 
                 entity.HasOne(d => d.MaSuatNavigation)
-                    .WithMany(p => p.ChiTietScGn)
+                    .WithMany(p => p.ChiTietDonDat)
                     .HasForeignKey(d => d.MaSuat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ChiTiet_SC_GN_suatChieu");
+                    .HasConstraintName("FK_chiTietDonDat_suatChieu");
 
                 entity.HasOne(d => d.MaDonNavigation)
-                    .WithMany(p => p.ChiTietScGn)
+                    .WithMany(p => p.ChiTietDonDat)
                     .HasForeignKey(d => d.MaDon)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ChiTiet_SC_GN_donDatVe");
+                    .HasConstraintName("FK_chiTietDonDat_donDatVe");
             });
             modelBuilder.Entity<CumRap>(entity =>
             {
@@ -127,8 +127,6 @@ namespace TTCN.Models
                 entity.Property(e => e.MaDon)
                     .ValueGeneratedNever()
                     .HasColumnName("maDon");
-
-                entity.Property(e => e.MaSuat).HasColumnName("maSuat");
 
                 entity.Property(e => e.NgayDat)
                     .HasColumnType("datetime")

@@ -12,8 +12,6 @@ namespace TTCN.Models
         [Display(Name ="Mã đơn đặt")]
         public int MaDon { get; set; }
 
-        [Display(Name = "Mã suất chiếu")]
-        public int MaSuat { get; set; }
 
         [Display(Name = "Ngày đặt vé")]
         public DateTime NgayDat { get; set; }
@@ -32,6 +30,6 @@ namespace TTCN.Models
         [ForeignKey("MaUsers")]
         public virtual User MaUsersNavigation { get; set; } = null!;
 
-        public virtual ICollection<ChiTietScGn> ChiTietScGn { get; set; }
+        public virtual ICollection<ChiTietDonDat> ChiTietDonDat { get; set; }
     }
 }

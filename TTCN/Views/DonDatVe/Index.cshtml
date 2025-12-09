@@ -34,7 +34,7 @@
             <h5 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-file-invoice-dollar mr-2"></i> Danh sách Đơn Đặt Vé
             </h5>
-            <a asp-action="thongKe" class="btn btn-success shadow-sm">
+            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-success shadow-sm">
                 <span class="icon text-white-50">
                     <i class="fas fa-chart-line"></i>
                 </span>
@@ -100,6 +100,21 @@
                 </div>
             </form>
 
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
             <div class="table-responsive">
                 <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                     <thead>
@@ -107,7 +122,7 @@
                             <th>
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().MaDon)
                             </th>
-                            <th class="text-start">Khách Hàng</th>
+                            <th class="text-center">Khách Hàng</th>
                             <th class="text-start">Phim & Suất Chiếu</th>
                             <th>
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().NgayDat)
@@ -119,6 +134,7 @@
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().TrangThai)
                             </th>
                             <th style="width: 100px;">Chi tiết</th>
+                            <th style="width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -137,20 +153,28 @@
                                     </td>
 
                                     <td class="text-start">
-                                        @if (item.MaSuatNavigation != null && item.MaSuatNavigation.MaPhimNavigation != null)
+                                        @{
+                                            var chiTiet = item.ChiTietDonDat.FirstOrDefault();
+                                            var suatChieu = chiTiet?.MaSuatNavigation;
+                                        }
+                                        @if (suatChieu != null && suatChieu.MaPhimNavigation != null)
                                         {
                                             <div class="font-weight-bold text-dark mb-1">
-                                                <i class="fas fa-film mr-1 text-gray-400"></i> @item.MaSuatNavigation.MaPhimNavigation.TenPhim
+                                                <i class="fas fa-film mr-1 text-gray-400"></i>
+                                                @* 3. Hiển thị tên phim *@
+                                                @suatChieu.MaPhimNavigation.TenPhim
                                             </div>
                                             <div class="small text-muted">
                                                 <span>
                                                     <i class="fas fa-building mr-1"></i>
-                                                    @(item.MaSuatNavigation.MaPhongNavigation?.MaCumRapNavigation?.TenCumRap ?? "---")
+                                                    @* 4. Hiển thị Rạp *@
+                                                    @(suatChieu.MaPhongNavigation?.MaCumRapNavigation?.TenCumRap ?? "---")
                                                 </span>
                                                 <br />
                                                 <span class="text-info">
                                                     <i class="far fa-clock mr-1"></i>
-                                                    @item.MaSuatNavigation.GioBatDau?.ToString("HH:mm")
+                                                    @* 5. Hiển thị Giờ *@
+                                                    @(suatChieu.GioBatDau?.ToString("HH:mm") ?? "--:--")
                                                 </span>
                                             </div>
                                         }
@@ -181,8 +205,8 @@
                                             }
                                             else if (item.TrangThai.Contains("hủy") || item.TrangThai.ToLower() == "cancel")
                                             {
-                                                <span class="badge bg-warning text-dark badge-status shadow-sm">
-                                                    <i class="fas fa-hourglass-half mr-1"></i> @item.TrangThai
+                                                <span class="badge bg-secondary badge-status shadow-sm">
+                                                    <i class="fas fa-ban mr-1"></i> @item.TrangThai
                                                 </span>
                                             }
                                             else
@@ -195,9 +219,25 @@
                                     </td>
 
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-outline-info btn-circle btn-sm shadow-sm" title="Xem chi tiết">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                        @if (!item.TrangThai.Contains("Đã hủy")) 
+                                        {
+                                            <a asp-action="chiTiet" asp-route-id="@item.MaDon" class="btn btn-outline-info btn-circle btn-sm shadow-sm" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (!item.TrangThai.Contains("Đã hủy") && suatChieu.GioBatDau > DateTime.Now)
+                                        {
+                                            <form asp-action="huyDon" asp-route-id="@item.MaDon" method="post"
+                                                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn này? Hành động này sẽ trả ghế lại trạng thái trống.');"
+                                                  style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-circle btn-sm shadow-sm" title="Hủy đơn này">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </form>
+                                        }
                                     </td>
                                 </tr>
                             }
