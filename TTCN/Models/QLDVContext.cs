@@ -66,6 +66,12 @@ namespace TTCN.Models
                     .HasForeignKey(d => d.MaSuat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChiTiet_SC_GN_suatChieu");
+
+                entity.HasOne(d => d.MaDonNavigation)
+                    .WithMany(p => p.ChiTietScGn)
+                    .HasForeignKey(d => d.MaDon)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ChiTiet_SC_GN_donDatVe");
             });
             modelBuilder.Entity<CumRap>(entity =>
             {
@@ -105,6 +111,10 @@ namespace TTCN.Models
                 entity.Property(e => e.MoTa)
                     .HasMaxLength(255)
                     .HasColumnName("moTa");
+
+                entity.Property(e => e.TrangThai)
+                    .HasMaxLength(5)
+                    .HasColumnName("trangThai");
             });
 
             modelBuilder.Entity<DonDatVe>(entity =>
@@ -131,12 +141,6 @@ namespace TTCN.Models
                 entity.Property(e => e.TrangThai)
                     .HasMaxLength(20)
                     .HasColumnName("trangThai");
-
-                entity.HasOne(d => d.MaSuatNavigation)
-                    .WithMany(p => p.DonDatVes)
-                    .HasForeignKey(d => d.MaSuat)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_donDatVe_suatChieu");
             });
 
             modelBuilder.Entity<DonDatVeDoAn>(entity =>

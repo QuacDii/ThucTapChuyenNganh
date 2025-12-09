@@ -13,16 +13,21 @@ namespace TTCN.Models
         }
 
         [Key]
+        [Display(Name = "Mã suất")]
         public int MaSuat { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn giờ bắt đầu!")]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Bắt đầu")]
         public DateTime? GioBatDau { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", ApplyFormatInEditMode = true)]
+        [Display(Name = "Kết thúc")]
         public DateTime? GioKetThuc { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng chọn giá suất chiếu!")]
+        [Required(ErrorMessage = "Vui lòng chọn giá cơ bản!")]
+        [Range(1000, 10000000, ErrorMessage = "Giá phải từ 1.000đ trở lên.")]
+        [Display(Name = "Giá ghế cơ bản")]
         public decimal? Gia { get; set; }
 
         [Required(ErrorMessage = "Vui lòng chọn phim!")]
@@ -34,6 +39,5 @@ namespace TTCN.Models
         public virtual Phim MaPhimNavigation { get; set; } = null!;
         public virtual PhongChieu MaPhongNavigation { get; set; } = null!;
         public virtual ICollection<ChiTietScGn> ChiTietScGn { get; set; }
-        public virtual ICollection<DonDatVe> DonDatVes { get; set; }
     }
 }

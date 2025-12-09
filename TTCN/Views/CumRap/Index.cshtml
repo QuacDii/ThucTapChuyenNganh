@@ -1,0 +1,187 @@
+﻿@model IEnumerable<TTCN.Models.CumRap>
+
+@{
+    ViewData["Title"] = "Quản lý Cụm Rạp";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #555;
+    }
+
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        padding: 6px 0px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-building mr-2"></i> Danh sách Cụm Rạp
+            </h5>
+            <a asp-action="them" class="btn btn-primary btn-icon-split shadow-sm">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span class="text">Thêm Cụm Rạp</span>
+            </a>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="d-flex align-items-center">
+
+                    <div class="input-group me-2" style="width: 300px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" name="search" value="@ViewBag.CurrentName"
+                               class="form-control border-start-0"
+                               placeholder="Tìm tên cụm rạp...">
+                    </div>
+
+                    <div class="input-group me-3" style="width: 250px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-map-marker-alt text-gray-400"></i>
+                        </span>
+                        <select name="thanhPho" class="form-control form-select bg-light border-start-0">
+                            <option value="">-- Tất cả thành phố --</option>
+                            @if (ViewBag.DsThanhPho != null)
+                            {
+                                foreach (var city in ViewBag.DsThanhPho as List<string>)
+                                {
+                                    bool isSelected = (string)ViewBag.CurrentCity == city;
+                                    if (isSelected)
+                                    {
+                                        <option value="@city" selected>@city</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@city">@city</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary shadow-sm px-3">
+                        <i class="fas fa-filter fa-sm text-white-50 me-1"></i> Lọc
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-outline-secondary shadow-sm ms-1" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+
+                    <div class="border-end mx-3" style="height: 24px;"></div>
+
+                    <div class="d-flex align-items-center text-nowrap">
+                        <span class="text-muted small">Tổng:</span>
+                        <span class="badge bg-light text-dark border ms-2 me-1 px-2 py-1">
+                            @(Model != null ? Model.Count() : 0)
+                        </span>
+                        <span class="text-muted small">cụm rạp</span>
+                    </div>
+
+                </div>
+            </form>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th class="text-center" style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaCumRap)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TenCumRap)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().DiaChi)
+                            </th>
+                            <th style="width: 150px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().ThanhPho)
+                            </th>
+                            <th class="text-center" style="width: 120px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center font-weight-bold">@item.MaCumRap</td>
+
+                                    <td class="text-center font-weight-bold text-primary">
+                                        @item.TenCumRap
+                                    </td>
+
+                                    <td>
+                                        <i class="fas fa-map-marker-alt text-danger mr-1"></i> @item.DiaChi
+                                    </td>
+
+                                    <td class="text-center">
+                                        <span class="badge bg-info text-white">@item.ThanhPho</span>
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="sua" asp-route-id="@item.MaCumRap" class="btn btn-outline-warning btn-sm shadow-sm" title="Sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="xoa" asp-route-id="@item.MaCumRap" class="btn btn-outline-danger btn-sm shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <img src="https://via.placeholder.com/100x100?text=Empty" class="mb-3 opacity-50" style="width: 60px" />
+                                    <p class="text-muted mb-0">Chưa có dữ liệu cụm rạp nào.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

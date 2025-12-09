@@ -14,10 +14,14 @@
         <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-danger">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
-                Bạn có chắc chắn muốn xóa suất chiếu này không? Hành động này không thể hoàn tác.
+                Bạn có chắc chắn muốn xóa suất chiếu này không?
             </h6>
         </div>
         <div class="card-body">
+            <div class="alert alert-warning shadow-sm border-0 small">
+                <i class="fas fa-info-circle mr-1"></i> Hành động này không thể hoàn tác sau khi xóa.
+            </div>
+
             <div class="row">
                 <!-- Cột trái: Thông tin chi tiết -->
                 <div class="col-md-8">
@@ -50,9 +54,6 @@
                         <dd class="col-sm-8 text-dark font-weight-bold">
                             @(Model.Gia > 0? Model.Gia.Value.ToString("#,##0") + " VNĐ" : "Chưa cập nhật")
                         </dd>
-
-                        <dt class="col-sm-4">Mã Suất:</dt>
-                        <dd class="col-sm-8 text-muted">@Model.MaSuat</dd>
                     </dl>
                 </div>
 
@@ -82,7 +83,7 @@
             <form asp-action="xoa" method="post" class="d-flex justify-content-center mt-4">
                 <input type="hidden" asp-for="MaSuat" />
 
-                <a asp-action="Index" class="btn btn-secondary btn-icon-split mr-3 px-4 py-2">
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split me-2 px-4 py-2">
                     <span class="icon text-white-50">
                         <i class="fas fa-arrow-left"></i>
                     </span>

@@ -9,6 +9,8 @@ namespace TTCN.Models
         public bool TrangThai { get; set; }
         public int? MaGhe { get; set; }
         public int MaSuat { get; set; }
+        public int MaDon { get; set; }
+        public virtual DonDatVe MaDonNavigation { get; set; }
 
         public virtual GheNgoi? MaGheNavigation { get; set; }
         public virtual SuatChieu MaSuatNavigation { get; set; } = null!;

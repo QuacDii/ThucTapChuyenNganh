@@ -34,8 +34,8 @@ namespace TTCN.Controllers
             ViewBag.CurrentRole = vaiTro;
             ViewBag.RoleList = _context.Users.Select(u => u.VaiTro).Distinct().ToList();
 
-            ViewBag.p = query.ToList();
-            return View();
+            var result = query.OrderByDescending(x => x.NgayTao).ToList();
+            return View(result);
         }
 
         [HttpGet]

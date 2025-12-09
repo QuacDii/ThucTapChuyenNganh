@@ -1,0 +1,87 @@
+﻿@model TTCN.Models.PhongChieu
+
+@{
+    ViewData["Title"] = "Xóa Phòng Chiếu";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa Phòng Chiếu</h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-danger">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Bạn có chắc chắn muốn xóa phòng chiếu này không?
+            </h6>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-warning shadow-sm border-0 small">
+                <i class="fas fa-info-circle mr-1"></i> Hành động này không thể hoàn tác sau khi xóa.
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-ban mr-2"></i> @ViewBag.Error
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-12">
+                    <dl class="row" style="font-size: 1.1rem;">
+                        <dt class="col-sm-3 text-primary">Tên Phòng:</dt>
+                        <dd class="col-sm-9 font-weight-bold">@Model.TenPhong</dd>
+
+                        <dt class="col-sm-3">Tổng Số Ghế:</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-info text-white">@Model.TongGhe ghế</span>
+                        </dd>
+
+                        <dt class="col-sm-3">Thuộc Cụm Rạp:</dt>
+                        <dd class="col-sm-9 text-dark">
+                            <i class="fas fa-building text-gray-400 mr-1"></i>
+                            @(Model.MaCumRapNavigation != null ? Model.MaCumRapNavigation.TenCumRap : "---")
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <hr />
+
+            <form asp-action="xoa" method="post">
+                <input type="hidden" asp-for="MaPhong" />
+
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split mr-3 px-4 py-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Quay lại</span>
+                </a>
+
+                @if (ViewBag.Error == null)
+                {
+                    <button type="submit" class="btn btn-danger btn-icon-split px-4 py-2">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        <span class="text">Xác nhận Xóa</span>
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-danger btn-icon-split px-4 py-2" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        <span class="text">Xác nhận Xóa</span>
+                    </button>
+                }
+
+            </form>
+        </div>
+    </div>
+</div>

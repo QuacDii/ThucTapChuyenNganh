@@ -14,7 +14,7 @@ namespace TTCN.Controllers
         {
             this._context = context;
         }
-        public IActionResult Index(string search, string trangThai, List<int> maTheLoai)
+        public IActionResult Index(string search, string trangThai, List<int> maTheLoai, DateTime? ngay)
         {
             var query = _context.Phims
                     .Include(p => p.PhimTheLoais)
@@ -33,23 +33,27 @@ namespace TTCN.Controllers
                 query = query.Where(p => p.TrangThai == trangThai);
             }
 
+            //Lọc theo Ngày khởi chiếu
+            if (ngay.HasValue)
+            {
+                query = query.Where(s => s.NgayPhatHanh == ngay.Value.Date);
+            }
+
             // Lọc theo Thể loại 
             if (maTheLoai != null && maTheLoai.Count > 0)
             {
                 query = query.Where(p => p.PhimTheLoais.Any(pt => maTheLoai.Contains(pt.MaTheLoai)));
             }
 
-            var dsPhim = query.OrderByDescending(x => x.NgayPhatHanh).ToList();
-
-            // Gửi danh sách tất cả thể loại để đổ vào Dropdown lọc
-            ViewBag.ph = dsPhim;
+            var result = query.OrderByDescending(x => x.NgayPhatHanh).ToList();
             ViewBag.AllTheLoais = _context.TheLoais.ToList();
 
             // Gửi lại các giá trị đã tìm để giữ trên giao diện sau khi reload
             ViewBag.CurrentSearch = search;
             ViewBag.CurrentStatus = trangThai;
+            ViewBag.CurrentDate = ngay?.ToString("yyyy-MM-dd");
             ViewBag.CurrentGenre = maTheLoai;
-            return View();
+            return View(result);
         }
 
         [HttpGet]
@@ -62,17 +66,23 @@ namespace TTCN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult them(Phim p, List<int> select)
+        public ActionResult them(Phim p, List<int> select, IFormFile fPoster)
         {
             ModelState.Remove("MaPhim");
             ModelState.Remove("TrangThai");
             ModelState.Remove("PhimTheLoais");
             ModelState.Remove("SuatChieus");
+            ModelState.Remove("fPoster");
+            ModelState.Remove("PosterPhim");
 
             if (p.NgayPhatHanh != default(DateTime) && p.NgayKetThuc != default(DateTime))
             {
                 if (p.NgayKetThuc < p.NgayPhatHanh)
                     ModelState.AddModelError("NgayKetThuc", "Ngày kết thúc không được nhỏ hơn ngày phát hành!");
+            }
+            if (_context.Phims.Any(x => x.TenPhim == p.TenPhim))
+            {
+                ModelState.AddModelError("TenPhim", "Phim này đã tồn tại! Vui lòng chọn tên khác.");
             }
 
             if (ModelState.IsValid)
@@ -80,17 +90,35 @@ namespace TTCN.Controllers
                 int max = 0;
                 if (_context.Phims.Any())
                 {
-                    max=_context.Phims.Max(p=>p.MaPhim);
+                    max = _context.Phims.Max(p => p.MaPhim);
                 }
 
                 p.MaPhim = max + 1;
 
-                DateTime hnay=DateTime.Now;
+                DateTime hnay = DateTime.Now;
                 if (p.NgayPhatHanh > hnay)
                     p.TrangThai = "Sắp công chiếu";
                 else if (p.NgayKetThuc < hnay)
                     p.TrangThai = "Đã chiếu";
                 else p.TrangThai = "Đang công chiếu";
+
+                if (fPoster != null && fPoster.Length > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(fPoster.FileName);
+                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
+                    string filePath = Path.Combine(uploadDir, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        fPoster.CopyTo(stream);
+                    }
+
+                    p.PosterPhim = "images/" + fileName;
+                }
+                else
+                {
+                    p.PosterPhim = "images/default.png";
+                }
 
                 _context.Phims.Add(p);
                 _context.SaveChanges();
@@ -99,7 +127,7 @@ namespace TTCN.Controllers
 
                 if (select != null)
                 {
-                    foreach(var maTheLoai in select)
+                    foreach (var maTheLoai in select)
                     {
                         var theLoaiPhim = new PhimTheLoai
                         {
@@ -110,6 +138,7 @@ namespace TTCN.Controllers
                     }
                     _context.SaveChanges();
                 }
+                TempData["Success"] = "Thêm phim thành công!";
                 return RedirectToAction("Index");
             }
             ViewBag.AllTheLoais = _context.TheLoais.ToList();
@@ -125,9 +154,9 @@ namespace TTCN.Controllers
 
             if (p == null) return NotFound();
 
-            ViewBag.AllTheLoais=_context.TheLoais.ToList();
+            ViewBag.AllTheLoais = _context.TheLoais.ToList();
 
-            ViewBag.Select=p.PhimTheLoais.Select(p1 => p1.MaTheLoai).ToList();
+            ViewBag.Select = p.PhimTheLoais.Select(p1 => p1.MaTheLoai).ToList();
 
             ViewBag.ph = p;
             return View(p);
@@ -135,11 +164,13 @@ namespace TTCN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult sua(Phim ph, List<int> select)
+        public ActionResult sua(Phim ph, int id, List<int> select, IFormFile fPoster)
         {
             ModelState.Remove("TrangThai");
             ModelState.Remove("PhimTheLoais");
             ModelState.Remove("SuatChieus");
+            ModelState.Remove("fPoster");
+            ModelState.Remove("PosterPhim");
 
             if (ph.NgayPhatHanh != default(DateTime) && ph.NgayKetThuc != default(DateTime))
             {
@@ -148,13 +179,18 @@ namespace TTCN.Controllers
                     ModelState.AddModelError("NgayKetThuc", "Ngày kết thúc không được nhỏ hơn ngày phát hành!");
                 }
             }
+            if (_context.Phims.Any(x => x.TenPhim == ph.TenPhim && x.MaPhim != id))
+            {
+    
+                ModelState.AddModelError("TenPhim", "Tên phim này đã tồn tại! Vui lòng chọn tên khác.");
+            }
             if (ModelState.IsValid)
             {
                 Phim p = _context.Phims
                     .Include(ph => ph.PhimTheLoais)
                     .FirstOrDefault(ph1 => ph1.MaPhim == ph.MaPhim);
 
-                if(p == null) return NotFound();
+                if (p == null) return NotFound();
 
                 p.TenPhim = ph.TenPhim;
                 p.MoTa = ph.MoTa;
@@ -164,6 +200,19 @@ namespace TTCN.Controllers
                 p.DaoDien = ph.DaoDien;
                 p.PosterPhim = ph.PosterPhim;
                 p.TrailerPhim = ph.TrailerPhim;
+
+                if (fPoster != null && fPoster.Length > 0)
+                {
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(fPoster.FileName);
+                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                    if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
+                    string filePath = Path.Combine(uploadDir, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        fPoster.CopyTo(stream);
+                    }
+                    p.PosterPhim = "images/" + fileName;
+                }
 
                 DateTime hnay = DateTime.Now;
                 if (p.NgayKetThuc < hnay)
@@ -186,18 +235,19 @@ namespace TTCN.Controllers
                 }
 
                 //Thêm thể loại mới
-                if(select!= null)
+                if (select != null)
                 {
                     select = select.Distinct().ToList();
                     foreach (var maTheLoai in select)
                     {
                         _context.PhimTheLoais.Add(new PhimTheLoai
                         {
-                            MaPhim=p.MaPhim,
-                            MaTheLoai=maTheLoai
+                            MaPhim = p.MaPhim,
+                            MaTheLoai = maTheLoai
                         });
                     }
                 }
+                TempData["Success"] = "Cập nhật phim thành công!";
                 _context.SaveChanges();
                 return RedirectToAction("Index");
             }
@@ -246,8 +296,26 @@ namespace TTCN.Controllers
                     _context.PhimTheLoais.RemoveRange(ph.PhimTheLoais);
                 }
 
+                if (!string.IsNullOrEmpty(ph.PosterPhim))
+                {
+                    string relativePath = ph.PosterPhim.TrimStart('/');
+                    string absolutePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath);
+
+                    if (System.IO.File.Exists(absolutePath))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(absolutePath);
+                        }
+                        catch (Exception)
+                        {
+                        }
+                    }
+
+                }
                 _context.Phims.Remove(ph);
                 _context.SaveChanges();
+                TempData["Success"] = "Đã xóa phim!";
             }
             return RedirectToAction("Index");
         }

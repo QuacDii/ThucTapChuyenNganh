@@ -1,0 +1,227 @@
+﻿@{
+    ViewData["Title"] = "Thêm Ghế Hàng Loạt";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+
+        <div class="card-header py-3 bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                Thêm Ghế Hàng Loạt
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="themNhieu" method="post">
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold">Chọn Cụm Rạp</label>
+                    <select id="ddlCumRap" class="form-control form-select" asp-items="ViewBag.DsCumRap">
+                        <option value="">-- Vui lòng chọn Rạp trước --</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold">Thuộc Phòng Chiếu</label>
+                    <select name="MaPhong" id="ddlPhong" class="form-control form-select" required>
+                        <option value="">-- Chọn Phòng --</option>
+                    </select>
+
+                    <div id="infoGhe" class="alert alert-secondary mt-2 shadow-sm" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-chair text-gray-500"></i> Tổng sức chứa: <strong id="lblTong">0</strong></span>
+                            <span><i class="fas fa-check-circle text-success"></i> Đã có: <strong id="lblDaCo">0</strong></span>
+                            <span class="fw-bold text-primary border rounded px-2 py-1 bg-white">
+                                Còn trống: <strong id="lblConLai" style="font-size: 1.1em;">0</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body p-3">
+                                <h6 class="font-weight-bold text-dark mb-3">Phạm vi Hàng Ghế</h6>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Từ</span>
+                                    <select name="TuHang" class="form-control form-select" asp-items="ViewBag.HangGheList"></select>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Đến</span>
+                                    <select name="DenHang" class="form-control form-select" asp-items="ViewBag.HangGheList"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body p-3">
+                                <h6 class="font-weight-bold text-dark mb-3">Số lượng ghế mỗi hàng</h6>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Từ số</span>
+                                    <input type="number" name="TuSo" class="form-control" value="1" min="1" required />
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Đến số</span>
+                                    <input type="number" name="DenSo" class="form-control" value="10" min="1" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label class="font-weight-bold">Loại Ghế</label>
+                    <div class="d-flex gap-3 p-2 border rounded">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="LoaiGhe" id="l1" value="Thường" checked>
+                            <label class="form-check-label" for="l1">Thường</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="LoaiGhe" id="l2" value="VIP">
+                            <label class="form-check-label text-warning fw-bold" for="l2">VIP</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="LoaiGhe" id="l3" value="Sweetbox">
+                            <label class="form-check-label text-danger fw-bold" for="l3">Sweetbox</label>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="text-center">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-magic mr-2"></i> Tạo Dãy Ghế
+                    </button>
+                </div>
+
+                <div id="duplicateWarning" class="alert alert-warning mt-3 shadow-sm" style="display: none;">
+                    <i class="fas fa-exclamation-triangle mr-1"></i> <span id="duplicateMsg"></span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+              $('#ddlCumRap').change(function () {
+                var cumRapId = $(this).val();
+                var ddlPhong = $('#ddlPhong');
+
+                // Xóa danh sách phòng cũ
+                ddlPhong.empty();
+                ddlPhong.append('<option value="">-- Tất cả Phòng --</option>');
+
+                if (cumRapId) {
+                    // Gọi API lấy danh sách phòng mới
+                    $.ajax({
+                        url: '/GheNgoi/GetPhongByCumRap',
+                        type: 'GET',
+                        data: { cumRapId: cumRapId },
+                        success: function (data) {
+                            $.each(data, function (index, item) {
+                                ddlPhong.append('<option value="' + item.id + '">' + item.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+            // 1. Khi đổi PHÒNG -> Gọi API lấy Sức Chứa (GetThongTinGhe)
+            $('#ddlPhong').change(function () {
+                var maPhong = $(this).val();
+
+                // Reset các thông báo
+                $('#infoGhe').hide();
+                $('#duplicateWarning').hide();
+
+                if (maPhong) {
+                    $.ajax({
+                        url: '/GheNgoi/GetThongTinGhe',
+                        type: 'GET',
+                        data: { maPhong: maPhong },
+                        success: function (data) {
+                            if (data.success) {
+                                $('#lblTong').text(data.tongGhe);
+                                $('#lblDaCo').text(data.daCo);
+                                $('#lblConLai').text(data.conLai);
+
+                                // Logic đổi màu cảnh báo sức chứa
+                                var lblConLai = $('#lblConLai');
+                                if(data.conLai <= 0) {
+                                    lblConLai.parent().removeClass('text-success').addClass('text-danger');
+                                    lblConLai.text("HẾT CHỖ (0)");
+                                } else {
+                                    lblConLai.parent().removeClass('text-danger').addClass('text-success');
+                                }
+                                $('#infoGhe').slideDown();
+
+                                // Sau khi đổi phòng, kiểm tra trùng lại ngay lập tức
+                                checkDuplicates();
+                            }
+                        }
+                    });
+                }
+            });
+
+            // 2. Hàm kiểm tra Trùng (CheckGheTrung)
+            function checkDuplicates() {
+                var maPhong = $('#ddlPhong').val();
+                var tuHang = $('select[name="TuHang"]').val();
+                var denHang = $('select[name="DenHang"]').val();
+                var tuSo = $('input[name="TuSo"]').val();
+                var denSo = $('input[name="DenSo"]').val();
+
+                if (maPhong && tuHang && denHang && tuSo && denSo) {
+                    $.ajax({
+                        url: '/GheNgoi/CheckGheTrung',
+                        type: 'GET',
+                        data: { maPhong: maPhong, tuHang: tuHang, denHang: denHang, tuSo: tuSo, denSo: denSo },
+                        success: function (data) {
+                           if (data.valid) {
+        var box = $('#duplicateWarning');
+        var msg = $('#duplicateMsg');
+        var btnSubmit = $('button[type="submit"]'); // Lấy nút Lưu để khóa lại nếu lỗi
+
+        // 1. Lấy số ghế còn trống hiện tại từ giao diện 
+        var gheConLai = parseInt($('#lblConLai').text()) || 0;
+
+        // 2. Logic kiểm tra chi tiết
+        if (data.validToAdd > gheConLai) {
+            // --- TRƯỜNG HỢP 1: QUÁ SỨC CHỨA (LỖI ĐỎ) ---
+            box.removeClass('alert-warning alert-success').addClass('alert-danger').show();
+            msg.html(`<strong>Không thể thêm:</strong> Bạn định thêm <b>${data.validToAdd}</b> ghế mới, nhưng phòng chỉ còn trống <b>${gheConLai}</b> chỗ.`);
+
+            btnSubmit.prop('disabled', true); // Khóa nút Lưu
+        }
+        else if (data.duplicate > 0) {
+            // --- TRƯỜNG HỢP 2: CÓ GHẾ TRÙNG (CẢNH BÁO VÀNG) ---
+            box.removeClass('alert-danger alert-success').addClass('alert-warning').show();
+            msg.html(`<strong>Lưu ý:</strong> Có ${data.duplicate} ghế đã tồn tại. Hệ thống sẽ bỏ qua và chỉ thêm <b>${data.validToAdd}</b> ghế mới.`);
+
+            btnSubmit.prop('disabled', false); // Mở nút Lưu (Vẫn cho phép lưu phần hợp lệ)
+        } else {
+                                    box.hide();
+
+                                    btnSubmit.prop('disabled', false);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Gắn sự kiện kích hoạt hàm checkDuplicates
+            $('select[name="TuHang"], select[name="DenHang"], input[name="TuSo"], input[name="DenSo"]').change(checkDuplicates);
+            $('input[name="TuSo"], input[name="DenSo"]').on('input', checkDuplicates);
+        });
+    </script>
+}

@@ -1,9 +1,11 @@
-﻿@using TTCN.Models
+﻿@model IEnumerable<TTCN.Models.Phim>
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["Title"] = "Quản lý Phim";
-    var danhSachPhim = ViewBag.ph as IEnumerable<Phim>;
 }
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <style>
     .desc-truncate {
@@ -63,26 +65,39 @@
         </div>
     <div class="card-body">
             <form asp-action="Index" method="get" class="mb-4">
-                <div class="row g-2 align-items-center">
+                <div class="d-flex align-items-center flex-wrap">
 
-                    <div class="col-md-3">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white border-right-0"><i class="fas fa-search text-gray-400"></i></span>
-                            <input type="text" name="searchString" value="@ViewBag.CurrentSearch" class="form-control border-left-0 small" placeholder="Tìm tên phim..." style="height: 38px;">
-                        </div>
+
+                    <div class="input-group me-2" style="width: 200px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                               class="form-control border-start-0"
+                               placeholder="Tìm tên phim...">
                     </div>
 
-                    <div class="col-md-3">
-                        <select name="trangThai" class="form-control form-select" style="height: 38px;">
-                            <option value="">-- Tất cả trạng thái --</option>
+                    <div class="input-group me-2" style="width: 180px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="far fa-calendar-alt text-gray-400"></i>
+                        </span>
+                        <input type="text" id="ngayChieuInput" name="ngay"
+                               value="@ViewBag.CurrentDate"
+                               class="form-control text-center"
+                               placeholder="Ngày chiếu...">
+                    </div>
+
+                    <div class="me-2" style="width: 180px;">
+                        <select name="trangThai" class="form-control form-select bg-light">
+                            <option value="">-- Trạng thái --</option>
                             <option value="Đang công chiếu" selected="@(ViewBag.CurrentStatus == "Đang công chiếu")">Đang công chiếu</option>
                             <option value="Sắp công chiếu" selected="@(ViewBag.CurrentStatus == "Sắp công chiếu")">Sắp công chiếu</option>
                             <option value="Đã chiếu" selected="@(ViewBag.CurrentStatus == "Đã chiếu")">Đã chiếu</option>
                         </select>
                     </div>
 
-                    <div class="col-md-4">
-                        <select name="maTheLoai" class="form-control select2-multi" multiple="multiple" style="width: 100%">
+                    <div class="me-2" style="width: 300px;">
+                        <select name="maTheLoai" class="form-control bg-light select2-multi" multiple="multiple" style="width: 100%">
                             @if (ViewBag.AllTheLoais != null)
                             {
                                 var selectedIds = ViewBag.CurrentGenre as List<int> ?? new List<int>();
@@ -101,14 +116,23 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 d-flex">
-                        <button type="submit" class="btn btn-primary w-100 me-1" style="height: 38px;">
-                            <i class="fas fa-filter"></i> Lọc
-                        </button>
-                        <a asp-action="Index" class="btn btn-outline-secondary shadow-sm" style="height: 38px;">
-                            <i class="fas fa-sync-alt text-gray-500"></i>
-                        </a>
+                    <button type="submit" class="btn btn-primary shadow-sm px-3">
+                        <i class="fas fa-filter text-white-50"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary border shadow-sm ms-2" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+
+                    <div class="border-end mx-3" style="height: 24px;"></div>
+
+                    <div class="d-flex align-items-center text-nowrap">
+                        <span class="text-muted small">Tổng:</span>
+                        <span class="badge bg-light text-dark border ms-2 me-1 px-2 py-1">
+                            @(Model != null ? Model.Count() : 0)
+                        </span>
+                        <span class="text-muted small">phim</span>
                     </div>
+
                 </div>
             </form>
             @if (TempData["Error"] != null)
@@ -118,31 +142,67 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
             <div class="table-responsive">
                 <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr class="text-center">
-                            <th style="width: 50px;">Mã</th>
-                            <th>Tên phim</th>
-                            <th>Mô tả</th>
-                            <th style="width: 80px;">Thời lượng (phút)</th>
-                            <th>Ngày phát hành</th>
-                            <th>Ngày kết thúc</th>
-                            <th>Đạo diễn</th>
+                            <th style="width: 50px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaPhim)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TenPhim)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MoTa)
+                            </th>
+
+                            <th style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().ThoiLuong)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().NgayPhatHanh)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().NgayKetThuc)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().DaoDien)
+                            </th>
+
                             <th>Thể loại</th>
-                            <th style="width: 80px;">Poster</th>
-                            <th style="width: 60px;">Trailer</th>
-                            <th style="width: 120px;">Trạng thái</th>
+                            <th style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().PosterPhim)
+                            </th>
+                            <th style="width: 60px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TrailerPhim)
+                            </th>
+                            <th style="width: 120px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TrangThai)
+                            </th>
                             <th style="width: 100px;">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @if (danhSachPhim != null && danhSachPhim.Any())
+                        @if (Model != null && Model.Any())
                         {
-                            @foreach (var item in danhSachPhim.OrderByDescending(x=> x.NgayPhatHanh))
+                            @foreach (var item in Model.OrderByDescending(x=> x.NgayPhatHanh))
                             {
                                 <tr>
-                                    <td class="text-center font-weight-bold">@item.MaPhim</td>
+                                    <td class="text-center font-weight-bold">
+                                        @item.MaPhim
+                                    </td>
 
                                     <td class="title-truncate">
                                         @item.TenPhim
@@ -299,6 +359,17 @@
                 allowClear: true,
                 closeOnSelect: false, 
                 width: 'resolve' 
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            flatpickr("#ngayChieuInput", {
+                dateFormat: "Y-m-d", 
+                altInput: true,        
+                altFormat: "d/m/Y",    
+                allowInput: true,       
+                disableMobile: "true"   
             });
         });
     </script>
