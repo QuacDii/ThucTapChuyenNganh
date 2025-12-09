@@ -1,8 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TTCN.Models;
+using TTCN.Models.Momo;
 using TTCN.Services;
+using TTCN.Services.Momo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoService, MomoService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

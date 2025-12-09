@@ -158,7 +158,7 @@
             });
 
             function loadPhimInfo(phimId, shouldResetDate) {
-                fetch('/SuatChieu/GetThongTinPhim?id=' + phimId)
+                fetch('/SuatChieu/getPhim?id=' + phimId)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {

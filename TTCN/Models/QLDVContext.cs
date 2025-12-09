@@ -16,11 +16,7 @@ namespace TTCN.Models
         {
         }
 
-<<<<<<< HEAD
-        public virtual DbSet<ChiTietScGn> ChiTietScGn { get; set; } = null!;
-=======
-        public virtual DbSet<ChiTietScGn> ChiTietScGns { get; set; } = null!;
->>>>>>> 2c02a789b188feebfb1af88bc12da9884ebbf044
+        public virtual DbSet<ChiTietDonDat> ChiTietDonDats { get; set; } = null!;
         public virtual DbSet<CumRap> CumRaps { get; set; } = null!;
         public virtual DbSet<DoAn> DoAns { get; set; } = null!;
         public virtual DbSet<DonDatVe> DonDatVes { get; set; } = null!;
@@ -33,6 +29,7 @@ namespace TTCN.Models
         public virtual DbSet<TheLoai> TheLoais { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<UsersPhim> UsersPhims { get; set; } = null!;
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -44,15 +41,18 @@ namespace TTCN.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ChiTietScGn>(entity =>
+            modelBuilder.Entity<ChiTietDonDat>(entity =>
             {
-                entity.HasKey(e => e.MaCt);
+                entity.HasKey(e => e.MaCt)
+                    .HasName("PK_ChiTiet_SC_GN_Ve");
 
-                entity.ToTable("ChiTiet_SC_GN");
+                entity.ToTable("chiTietDonDat");
 
                 entity.Property(e => e.MaCt)
                     .ValueGeneratedNever()
                     .HasColumnName("maCT");
+
+                entity.Property(e => e.MaDon).HasColumnName("maDon");
 
                 entity.Property(e => e.MaGhe).HasColumnName("maGhe");
 
@@ -60,21 +60,28 @@ namespace TTCN.Models
 
                 entity.Property(e => e.TrangThai).HasColumnName("trangThai");
 
+                entity.HasOne(d => d.MaDonNavigation)
+                    .WithMany(p => p.ChiTietDonDats)
+                    .HasForeignKey(d => d.MaDon)
+                    .HasConstraintName("FK_chiTietDonDat_donDatVe");
+
                 entity.HasOne(d => d.MaGheNavigation)
-                    .WithMany(p => p.ChiTietScGn)
+                    .WithMany(p => p.ChiTietDonDats)
                     .HasForeignKey(d => d.MaGhe)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChiTiet_SC_GN_gheNgoi");
 
                 entity.HasOne(d => d.MaSuatNavigation)
-                    .WithMany(p => p.ChiTietScGn)
+                    .WithMany(p => p.ChiTietDonDats)
                     .HasForeignKey(d => d.MaSuat)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ChiTiet_SC_GN_suatChieu");
             });
+
             modelBuilder.Entity<CumRap>(entity =>
             {
                 entity.HasKey(e => e.MaCumRap)
-                    .HasName("PK__cumRap__988740F1A1C7DB6D");
+                    .HasName("PK__cumRap__988740F1C3B5FD9B");
 
                 entity.ToTable("cumRap");
 
@@ -98,13 +105,17 @@ namespace TTCN.Models
             modelBuilder.Entity<DoAn>(entity =>
             {
                 entity.HasKey(e => e.MaCombo)
-                    .HasName("PK__doAn__CF0375EC9D3FD968");
+                    .HasName("PK__doAn__CF0375EC9072CE84");
 
                 entity.ToTable("doAn");
 
                 entity.Property(e => e.MaCombo)
                     .ValueGeneratedNever()
                     .HasColumnName("maCombo");
+
+                entity.Property(e => e.Gia)
+                    .HasColumnType("money")
+                    .HasColumnName("gia");
 
                 entity.Property(e => e.MoTa)
                     .HasMaxLength(255)
@@ -114,7 +125,7 @@ namespace TTCN.Models
             modelBuilder.Entity<DonDatVe>(entity =>
             {
                 entity.HasKey(e => e.MaDon)
-                    .HasName("PK__donDatVe__2431086D439285FE");
+                    .HasName("PK__donDatVe__2431086D62BD34A5");
 
                 entity.ToTable("donDatVe");
 
@@ -122,7 +133,7 @@ namespace TTCN.Models
                     .ValueGeneratedNever()
                     .HasColumnName("maDon");
 
-                entity.Property(e => e.MaSuat).HasColumnName("maSuat");
+                entity.Property(e => e.MaUsers).HasColumnName("maUsers");
 
                 entity.Property(e => e.NgayDat)
                     .HasColumnType("datetime")
@@ -136,11 +147,11 @@ namespace TTCN.Models
                     .HasMaxLength(20)
                     .HasColumnName("trangThai");
 
-                entity.HasOne(d => d.MaSuatNavigation)
+                entity.HasOne(d => d.MaUsersNavigation)
                     .WithMany(p => p.DonDatVes)
-                    .HasForeignKey(d => d.MaSuat)
+                    .HasForeignKey(d => d.MaUsers)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_donDatVe_suatChieu");
+                    .HasConstraintName("FK_donDatVe_Users");
             });
 
             modelBuilder.Entity<DonDatVeDoAn>(entity =>
@@ -168,8 +179,7 @@ namespace TTCN.Models
 
             modelBuilder.Entity<GheNgoi>(entity =>
             {
-                entity.HasKey(e => e.MaGhe)
-                    .HasName("PK__gheNgoi__2D87404CE1D3E68B");
+                entity.HasKey(e => e.MaGhe);
 
                 entity.ToTable("gheNgoi");
 
@@ -188,8 +198,12 @@ namespace TTCN.Models
                     .HasColumnName("loaiGhe");
 
                 entity.Property(e => e.MaPhong).HasColumnName("maPhong");
-               
-                entity.Property(e => e.TenGhe).HasColumnName("tenGhe");
+
+                entity.Property(e => e.TenGhe)
+                    .HasMaxLength(3)
+                    .IsUnicode(false)
+                    .HasColumnName("tenGhe")
+                    .IsFixedLength();
 
                 entity.HasOne(d => d.MaPhongNavigation)
                     .WithMany(p => p.GheNgois)
@@ -201,7 +215,7 @@ namespace TTCN.Models
             modelBuilder.Entity<Phim>(entity =>
             {
                 entity.HasKey(e => e.MaPhim)
-                    .HasName("PK__Phim__9F38F630C7CE2A4C");
+                    .HasName("PK__Phim__9F38F6305A944CFA");
 
                 entity.ToTable("Phim");
 
@@ -272,7 +286,7 @@ namespace TTCN.Models
             modelBuilder.Entity<PhongChieu>(entity =>
             {
                 entity.HasKey(e => e.MaPhong)
-                    .HasName("PK__phongChi__4CD55E10A76D886B");
+                    .HasName("PK__phongChi__4CD55E1062137F59");
 
                 entity.ToTable("phongChieu");
 
@@ -295,29 +309,20 @@ namespace TTCN.Models
                     .HasConstraintName("FK_phongChieu_cumRap");
             });
 
-            modelBuilder.Entity<PhimTheLoai>()
-               .HasKey(pt => new { pt.MaPhim, pt.MaTheLoai });
-
-            modelBuilder.Entity<PhimTheLoai>()
-                .HasOne(pt => pt.MaPhimNavigation)
-                .WithMany(p => p.PhimTheLoais)
-                .HasForeignKey(pt => pt.MaPhim);
-
-            modelBuilder.Entity<PhimTheLoai>()
-                .HasOne(pt => pt.MaTheLoaiNavigation)
-                .WithMany(t => t.PhimTheLoais)
-                .HasForeignKey(pt => pt.MaTheLoai);
-
             modelBuilder.Entity<SuatChieu>(entity =>
             {
                 entity.HasKey(e => e.MaSuat)
-                    .HasName("PK__suatChie__D4930BB6C3A44A7F");
+                    .HasName("PK__suatChie__D4930BB6753597A9");
 
                 entity.ToTable("suatChieu");
 
                 entity.Property(e => e.MaSuat)
                     .ValueGeneratedNever()
                     .HasColumnName("maSuat");
+
+                entity.Property(e => e.Gia)
+                    .HasColumnType("money")
+                    .HasColumnName("gia");
 
                 entity.Property(e => e.GioBatDau)
                     .HasColumnType("datetime")
@@ -326,10 +331,6 @@ namespace TTCN.Models
                 entity.Property(e => e.GioKetThuc)
                     .HasColumnType("datetime")
                     .HasColumnName("gioKetThuc");
-
-                entity.Property(e => e.Gia)
-                    .HasColumnType("money")
-                    .HasColumnName("gia");
 
                 entity.Property(e => e.MaPhim).HasColumnName("maPhim");
 
@@ -351,7 +352,7 @@ namespace TTCN.Models
             modelBuilder.Entity<TheLoai>(entity =>
             {
                 entity.HasKey(e => e.MaTheLoai)
-                    .HasName("PK__theLoai__2E9E267E8130A079");
+                    .HasName("PK__theLoai__2E9E267E639A3F12");
 
                 entity.ToTable("theLoai");
 
@@ -367,9 +368,9 @@ namespace TTCN.Models
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.MaUsers)
-                    .HasName("PK__Users__B5C2199E670CC393");
+                    .HasName("PK__Users__B5C2199E7D207965");
 
-                entity.HasIndex(e => e.SoDienThoai, "UQ__Users__06ACB9A25E115FD5")
+                entity.HasIndex(e => e.SoDienThoai, "UQ__Users__06ACB9A2E0B84736")
                     .IsUnique();
 
                 entity.Property(e => e.MaUsers)

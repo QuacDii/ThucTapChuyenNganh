@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace TTCN.Models
 {
@@ -8,35 +7,18 @@ namespace TTCN.Models
     {
         public SuatChieu()
         {
-            ChiTietScGn = new HashSet<ChiTietScGn>();
-            DonDatVes = new HashSet<DonDatVe>();
+            ChiTietDonDats = new HashSet<ChiTietDonDat>();
         }
 
-        [Key]
         public int MaSuat { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng chọn giờ bắt đầu!")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime? GioBatDau { get; set; }
-
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy HH:mm}", ApplyFormatInEditMode = true)]
-        public DateTime? GioKetThuc { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng chọn giá suất chiếu!")]
-        public decimal? Gia { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng chọn phim!")]
-        public int? MaPhim { get; set; }
-<<<<<<< HEAD
-=======
-
-        [Required(ErrorMessage = "Vui lòng chọn phòng chiếu phim!")]
->>>>>>> 8663bebea2d063302377d9c2ffdf46bd276789bb
-        public int? MaPhong { get; set; }
+        public DateTime GioBatDau { get; set; }
+        public DateTime GioKetThuc { get; set; }
+        public decimal Gia { get; set; }
+        public int MaPhim { get; set; }
+        public int MaPhong { get; set; }
 
         public virtual Phim MaPhimNavigation { get; set; } = null!;
         public virtual PhongChieu MaPhongNavigation { get; set; } = null!;
-        public virtual ICollection<ChiTietScGn> ChiTietScGn { get; set; }
-        public virtual ICollection<DonDatVe> DonDatVes { get; set; }
+        public virtual ICollection<ChiTietDonDat> ChiTietDonDats { get; set; }
     }
 }
