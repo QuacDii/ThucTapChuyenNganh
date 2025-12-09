@@ -1,0 +1,112 @@
+﻿@{
+    ViewData["Title"] = "Xóa Ghế Hàng Loạt";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-left-danger" style="max-width: 800px; margin: 0 auto;">
+
+        <div class="card-header py-3 bg-white">
+            <h5 class="m-0 font-weight-bold text-danger">
+               Xóa Ghế Hàng Loạt
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-warning small">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                <strong>Lưu ý:</strong> Hành động này sẽ xóa vĩnh viễn các ghế trong phạm vi đã chọn. Những ghế đã có lịch sử đặt vé sẽ tự động được bỏ qua để bảo toàn dữ liệu.
+            </div>
+
+            <form asp-action="xoaNhieu" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold">Chọn Cụm Rạp</label>
+                    <select id="ddlCumRap" class="form-control form-select" asp-items="ViewBag.DsCumRap">
+                        <option value="">-- Chọn Rạp --</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold">Thuộc Phòng Chiếu</label>
+                    <select name="MaPhong" id="ddlPhong" class="form-control form-select" required>
+                        <option value="">-- Vui lòng chọn Rạp trước --</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body p-3">
+                                <h6 class="font-weight-bold text-dark mb-3">Phạm vi Hàng Ghế (Cần xóa)</h6>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Từ Hàng</span>
+                                    <select name="TuHang" class="form-control form-select" asp-items="ViewBag.HangGheList"></select>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Đến Hàng</span>
+                                    <select name="DenHang" class="form-control form-select" asp-items="ViewBag.HangGheList"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body p-3">
+                                <h6 class="font-weight-bold text-dark mb-3">Phạm vi Số Ghế (Cần xóa)</h6>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Từ Số</span>
+                                    <input type="number" name="TuSo" class="form-control" value="1" min="1" required />
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text">Đến Số</span>
+                                    <input type="number" name="DenSo" class="form-control" value="10" min="1" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr />
+
+                <div class="text-center">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">Hủy bỏ</a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="fas fa-trash mr-2"></i> Tiến hành Xóa
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#ddlCumRap').change(function () {
+                var cumRapId = $(this).val();
+                var ddlPhong = $('#ddlPhong');
+                ddlPhong.empty().append('<option value="">-- Đang tải... --</option>');
+
+                if (cumRapId) {
+                    $.ajax({
+                        url: '/GheNgoi/GetPhongByCumRap',
+                        type: 'GET',
+                        data: { cumRapId: cumRapId },
+                        success: function (data) {
+                            ddlPhong.empty().append('<option value="">-- Chọn Phòng --</option>');
+                            $.each(data, function (index, item) {
+                                ddlPhong.append('<option value="' + item.id + '">' + item.name + '</option>');
+                            });
+                        }
+                    });
+                } else {
+                    ddlPhong.empty().append('<option value="">-- Vui lòng chọn Rạp trước --</option>');
+                }
+            });
+        });
+    </script>
+}

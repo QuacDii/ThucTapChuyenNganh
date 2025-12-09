@@ -11,7 +11,9 @@
 <div class="container-fluid">
     <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
         <div class="card-header py-3 bg-white border-bottom-primary">
-            <h5 class="m-0 font-weight-bold text-primary">Cập nhật Suất Chiếu</h5>
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-edit mr-2"></i> Cập nhật Suất Chiếu
+            </h5>
         </div>
         <div class="card-body">
             <form asp-action="sua" id="editForm">
@@ -53,7 +55,7 @@
                         <div class="form-group mb-3">
                             <label asp-for="Gia" class="control-label font-weight-bold">Giá Suất Cơ Bản</label>
                             <div class="input-group">
-                                <input asp-for="Gia" class="form-control" type="number" min="0" step="1000" placeholder="Ví dụ: 50000" />
+                                <input asp-for="Gia" asp-format="{0:0}" class="form-control" type="number" min="0" step="1000" placeholder="Ví dụ: 50000" />
                                 <span class="input-group-text fw-bold">VNĐ</span>
                             </div>
                             <span asp-validation-for="Gia" class="text-danger"></span>

@@ -12,10 +12,16 @@ namespace TTCN.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string search)
         {
-            var ds = _context.TheLoais.ToList();
-            return View(ds);
+            var query = _context.TheLoais.AsQueryable();
+
+            if (!string.IsNullOrEmpty(search))
+            {
+                query = query.Where(x => x.TenTheLoai.Contains(search));
+                ViewBag.CurrentFilter = search;
+            }
+            return View(query.ToList());
         }
 
         [HttpGet]
@@ -33,7 +39,8 @@ namespace TTCN.Controllers
 
             if (_context.TheLoais.Any(t => t.TenTheLoai == tl.TenTheLoai))
             {
-                ModelState.AddModelError("TenTheLoai", "Tên thể loại này đã tồn tại!");
+                ModelState.AddModelError("TenTheLoai", "Thể loại này đã tồn tại!");
+                return View(tl);
             }
 
             if (ModelState.IsValid)
@@ -58,8 +65,56 @@ namespace TTCN.Controllers
             return View(tl);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
- 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult sua(int id, TheLoai theLoai)
+        {
+            if (id != theLoai.MaTheLoai) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                if (_context.TheLoais.Any(x => x.TenTheLoai == theLoai.TenTheLoai && x.MaTheLoai != id))
+                {
+                    ModelState.AddModelError("TenTheLoai", "Thể loại này đã tồn tại!");
+                    return View(theLoai);
+                }
+
+                _context.TheLoais.Update(theLoai);
+                _context.SaveChanges(); 
+                TempData["Success"] = "Cập nhật thể loại thành công!";
+                return RedirectToAction("Index");
+            }
+            return View(theLoai);
+        }
+
+        [HttpGet]
+        public IActionResult xoa(int id)
+        {
+            if (id == null) return NotFound();
+            var theLoai = _context.TheLoais.Find(id);
+            if (theLoai == null) return NotFound();
+            return View(theLoai);
+        }
+
+        [HttpPost, ActionName("xoa")]
+        [ValidateAntiForgeryToken]
+        public IActionResult xoa_Post(int id)
+        {
+            var theLoai = _context.TheLoais.Find(id);
+            if (theLoai != null)
+            {
+                // Kiểm tra ràng buộc: Nếu thể loại đang được dùng cho Phim thì không cho xóa
+                if (_context.PhimTheLoais.Any(x => x.MaTheLoai == id))
+                {
+                    TempData["Error"] = "Không thể xóa! Thể loại này đang được gắn cho phim.";
+                    return RedirectToAction("Index");
+                }
+
+                _context.TheLoais.Remove(theLoai);
+                _context.SaveChanges();
+                TempData["Success"] = "Đã xóa thể loại!";
+            }
+            return RedirectToAction("Index");
+        }
     }
 }

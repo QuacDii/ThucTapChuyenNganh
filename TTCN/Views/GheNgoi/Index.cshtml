@@ -1,0 +1,265 @@
+﻿@model IEnumerable<TTCN.Models.GheNgoi>
+
+@{
+    ViewData["Title"] = "Quản lý Ghế Ngồi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    // Lấy danh sách Phòng để đổ vào Dropdown lọc
+    var dsPhong = ViewBag.DsPhong as SelectList;
+}
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fc;
+    }
+
+    /* Style cho badge loại ghế */
+    .badge-vip {
+        background-color: #f6c23e;
+        color: #fff;
+    }
+
+    .badge-thuong {
+        background-color: #4e73df;
+        color: #fff;
+    }
+
+    .badge-sweetbox {
+        background-color: #e74a3b;
+        color: #fff;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-chair mr-2"></i> Danh sách Ghế Ngồi
+            </h5>
+
+            <div>
+                <a asp-action="xoaNhieu" class="btn btn-danger btn-icon-split shadow-sm me-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-trash-alt"></i>
+                    </span>
+                    <span class="text">Xóa Hàng Loạt</span>
+                </a>
+
+                <a asp-action="themNhieu" class="btn btn-info btn-icon-split shadow-sm me-2">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-layer-group"></i>
+                    </span>
+                    <span class="text">Thêm Hàng Loạt</span>
+                </a>
+
+                <a asp-action="them" class="btn btn-primary btn-icon-split shadow-sm">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-plus"></i>
+                    </span>
+                    <span class="text">Thêm Ghế Lẻ</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="d-flex align-items-center">
+
+                    <div class="input-group me-2" style="width: 180px;">
+                        <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-gray-400"></i></span>
+                        <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                               class="form-control border-start-0" placeholder="Tìm số ghế...">
+                    </div>
+
+                    <div class="me-2" style="width: 220px;">
+                        <select name="maCumRap" id="ddlCumRap" class="form-control form-select bg-light"
+                                asp-items="ViewBag.DsCumRap">
+                            <option value="">-- Tất cả Cụm Rạp --</option>
+                        </select>
+                    </div>
+
+                    <div class="me-3" style="width: 200px;">
+                        <select name="maPhong" id="ddlPhong" class="form-control form-select bg-light"
+                                asp-items="ViewBag.DsPhong">
+                            <option value="">-- Tất cả Phòng --</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary shadow-sm px-3 me-2">
+                        <i class="fas fa-filter fa-sm text-white-50"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary border shadow-sm" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+
+                    <div class="border-end mx-3" style="height: 24px;"></div>
+
+                    <div class="d-flex align-items-center text-nowrap">
+                        <span class="text-muted small">Tổng:</span>
+                        <span class="badge bg-white text-dark border ms-2 me-1 px-2 py-1">
+                            @(Model != null ? Model.Count() : 0)
+                        </span>
+                        <span class="text-muted small">ghế</span>
+                    </div>
+                </div>
+            </form>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaGhe)
+                            </th>
+
+                            <th class="text-center" style="width: 100px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TenGhe)
+                            </th>
+
+                            <th class="text-center" style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().HangGhe)
+                            </th>
+
+                            <th class="text-center" style="width: 120px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().LoaiGhe)
+                            </th>
+
+                            <th class="text-center">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaPhong) 
+                            </th>
+
+                            <th style="width: 100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center text-secondary small">
+                                        @item.MaGhe
+                                    </td>
+
+                                    <td class="text-center font-weight-bold text-dark" style="font-size: 1.1rem;">
+                                        @item.TenGhe
+                                    </td>
+
+                                    <td class="text-center font-weight-bold text-secondary">
+                                        @item.HangGhe
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.LoaiGhe == "VIP")
+                                        {
+                                            <span class="badge badge-vip p-2 shadow-sm">VIP</span>
+                                        }
+                                        else if (item.LoaiGhe == "Sweetbox")
+                                        {
+                                            <span class="badge badge-sweetbox p-2 shadow-sm">Sweetbox</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-thuong p-2 shadow-sm">Thường</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.MaPhongNavigation != null)
+                                        {
+                                            <span class="text-primary fw-bold">
+                                                <i class="fas fa-door-open mr-1"></i> @item.MaPhongNavigation.TenPhong
+                                            </span>
+                                            <small class="d-block text-muted">
+                                                @item.MaPhongNavigation.MaCumRapNavigation?.TenCumRap
+                                            </small>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center">
+                                            <a asp-action="xoa" asp-route-id="@item.MaGhe" class="btn btn-outline-danger btn-sm shadow-sm" title="Xóa">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/7486/7486754.png" width="60" alt="Empty" class="mb-3 opacity-50" />
+                                    <p class="text-muted mb-0">Chưa có dữ liệu ghế nào.</p>
+                                    <p class="small text-muted">Hãy chọn phòng và nhấn "Thêm Hàng Loạt" để tạo nhanh.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khi thay đổi Cụm Rạp
+            $('#ddlCumRap').change(function () {
+                var cumRapId = $(this).val();
+                var ddlPhong = $('#ddlPhong');
+
+                // Xóa danh sách phòng cũ
+                ddlPhong.empty();
+                ddlPhong.append('<option value="">-- Tất cả Phòng --</option>');
+
+                if (cumRapId) {
+                    // Gọi API lấy danh sách phòng mới
+                    $.ajax({
+                        url: '/GheNgoi/GetPhongByCumRap',
+                        type: 'GET',
+                        data: { cumRapId: cumRapId },
+                        success: function (data) {
+                            $.each(data, function (index, item) {
+                                ddlPhong.append('<option value="' + item.id + '">' + item.name + '</option>');
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+}

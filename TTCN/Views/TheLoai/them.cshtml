@@ -1,0 +1,52 @@
+﻿@model TTCN.Models.TheLoai
+
+@{
+    ViewData["Title"] = "Thêm Thể Loại Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 600px; margin: 0 auto;">
+        
+        <div class="card-header py-3 bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary text-center">
+                Thêm Thể Loại Mới
+            </h5>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="them" method="post">
+                
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="TenTheLoai" class="form-label font-weight-bold"></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-secondary border-end-0">
+                            <i class="fas fa-tag"></i>
+                        </span>
+                        <input asp-for="TenTheLoai" class="form-control border-start-0" placeholder="Ví dụ: Hành động, Kinh dị, Tình cảm..." autofocus />
+                    </div>
+                    <span asp-validation-for="TenTheLoai" class="text-danger small mt-1"></span>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="d-flex justify-content-center gap-3">
+                    <a asp-action="Index" class="btn btn-secondary px-4 shadow-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

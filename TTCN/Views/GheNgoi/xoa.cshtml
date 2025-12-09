@@ -1,0 +1,109 @@
+﻿@model TTCN.Models.GheNgoi
+
+@{
+    ViewData["Title"] = "Xóa Ghế Ngồi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Xóa Ghế Ngồi</h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-danger" style="max-width: 600px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Bạn có chắc chắn muốn xóa ghế này không?
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="fas fa-ban mr-2"></i> @ViewBag.Error
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning shadow-sm border-0 small">
+                    <i class="fas fa-info-circle mr-1"></i> Hành động này không thể hoàn tác.
+                </div>
+            }
+
+            <div class="border rounded p-3 bg-light mb-4">
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-secondary font-weight-bold">Số ghế:</div>
+                    <div class="col-sm-8 text-dark font-weight-bold" style="font-size: 1.2rem;">@Model.TenGhe</div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-secondary font-weight-bold">Thuộc Phòng:</div>
+                    <div class="col-sm-8 text-primary">
+                        <i class="fas fa-door-open mr-1"></i> @Model.MaPhongNavigation.TenPhong
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-4 text-secondary font-weight-bold">Thuộc Rạp:</div>
+                    <div class="col-sm-8 text-muted">
+                        <i class="fas fa-building mr-1"></i>
+                        @(Model.MaPhongNavigation.MaCumRapNavigation?.TenCumRap ?? "---")
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4 text-secondary font-weight-bold">Loại ghế:</div>
+                    <div class="col-sm-8">
+                        @if (Model.LoaiGhe == "VIP")
+                        {
+                            <span class="badge bg-warning text-dark">VIP</span>
+                        }
+                        else if (Model.LoaiGhe == "Sweetbox")
+                        {
+                            <span class="badge bg-danger">Sweetbox</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-primary">Thường</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <form asp-action="xoa" method="post" class="d-flex justify-content-center gap-3">
+                <input type="hidden" asp-for="MaGhe" />
+
+                <a asp-action="Index" class="btn btn-secondary btn-icon-split px-4">
+                    <span class="icon text-white-50">
+                        <i class="fas fa-arrow-left"></i>
+                    </span>
+                    <span class="text">Quay lại</span>
+                </a>
+
+                @if (ViewBag.Error == null)
+                {
+                    <button type="submit" class="btn btn-danger btn-icon-split px-4">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        <span class="text">Xác nhận Xóa</span>
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-danger btn-icon-split px-4" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <span class="icon text-white-50">
+                            <i class="fas fa-trash"></i>
+                        </span>
+                        <span class="text">Xác nhận Xóa</span>
+                    </button>
+                }
+            </form>
+        </div>
+    </div>
+</div>

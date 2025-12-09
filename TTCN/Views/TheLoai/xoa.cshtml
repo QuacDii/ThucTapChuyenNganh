@@ -1,0 +1,55 @@
+﻿@model TTCN.Models.TheLoai
+
+@{
+    ViewData["Title"] = "Xóa Thể Loại";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <div class="text-center mb-4">
+        <h1 class="h4 text-gray-800">Xóa Thể Loại</h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-danger" style="max-width: 600px; margin: 0 auto;">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-danger">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                Bạn có chắc chắn muốn xóa thể loại này không?
+            </h6>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-warning shadow-sm border-0 small">
+                <i class="fas fa-info-circle mr-1"></i> Hành động này không thể hoàn tác sau khi xóa.
+            </div>
+
+            <div class="border rounded p-3 bg-light mb-4">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-secondary">Mã Thể Loại:</dt>
+                    <dd class="col-sm-8 font-weight-bold">@Model.MaTheLoai</dd>
+
+                    <dt class="col-sm-4 text-primary">Tên Thể Loại:</dt>
+                    <dd class="col-sm-8 font-weight-bold" style="font-size: 1.1rem;">
+                        @Model.TenTheLoai
+                    </dd>
+                </dl>
+            </div>
+
+            <hr />
+
+            <form asp-action="xoa" method="post" class="d-flex justify-content-center gap-3">
+                <input type="hidden" asp-for="MaTheLoai" />
+
+                <a asp-action="Index" class="btn btn-secondary px-4 shadow-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                </a>
+                <button type="submit" class="btn btn-danger px-4 shadow-sm">
+                    <i class="fas fa-trash-alt mr-1"></i> Xác nhận Xóa
+                </button>
+
+            </form>
+        </div>
+    </div>
+</div>

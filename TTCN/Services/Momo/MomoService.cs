@@ -69,7 +69,7 @@ namespace TTCN.Services.Momo
             // Chỉ tạo OrderId mới nếu chưa có
             if (string.IsNullOrWhiteSpace(model.OrderId))
             {
-                model.OrderId = DateTime.UtcNow.Ticks.ToString();
+            model.OrderId = DateTime.UtcNow.Ticks.ToString();
             }
             model.OrderInfo = string.IsNullOrWhiteSpace(model.OrderInfo)
                                 ? "Thanh toán vé xem phim"

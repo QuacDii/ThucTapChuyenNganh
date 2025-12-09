@@ -1,0 +1,273 @@
+﻿@model IEnumerable<TTCN.Models.DonDatVe>
+
+@{
+    ViewData["Title"] = "Quản lý Đơn đặt vé";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .badge-status {
+        font-size: 0.85rem;
+        padding: 0.5em 0.8em;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-file-invoice-dollar mr-2"></i> Danh sách Đơn Đặt Vé
+            </h5>
+            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-success shadow-sm">
+                <span class="icon text-white-50">
+                    <i class="fas fa-chart-line"></i>
+                </span>
+                <span class="text">Xem thống kê & báo cáo</span>
+            </a>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+
+                    <div class="input-group me-2 mb-2" style="width: 210px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="number" name="searchMa" value="@ViewBag.CurrentMa"
+                               class="form-control border-start-0"
+                               placeholder="Tìm theo mã đơn...">
+                    </div>
+
+                    <div class="input-group me-2 mb-2" style="width: 180px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="far fa-calendar-alt text-gray-400"></i>
+                        </span>
+                        <input type="text" id="ngayDatInput" name="ngayDat"
+                               value="@ViewBag.CurrentDate"
+                               class="form-control border-start-0"
+                               placeholder="Ngày đặt...">
+                    </div>
+
+                    <div class="me-2 mb-2" style="width: 180px;">
+                        <select name="trangThai" class="form-control form-select bg-light">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="Đã thanh toán" selected="@(ViewBag.CurrentStatus == "Đã thanh toán")">Đã thanh toán</option>
+                            <option value="Chờ thanh toán" selected="@(ViewBag.CurrentStatus == "Chờ thanh toán")">Chờ thanh toán</option>
+                            <option value="Đã hủy" selected="@(ViewBag.CurrentStatus == "Đã hủy")">Đã hủy</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group me-2 mb-2" style="width: 220px;">
+                        <input type="number" name="min" value="@Context.Request.Query["min"]"
+                               class="form-control text-center px-1" placeholder="Min" min="0" step="1000">
+                        <span class="input-group-text bg-light px-2">-</span>
+                        <input type="number" name="max" value="@Context.Request.Query["max"]"
+                               class="form-control text-center px-1" placeholder="Max" min="0" step="1000">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary shadow-sm px-3 mb-2">
+                        <i class="fas fa-filter text-white-50"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary shadow-sm ms-1 mb-2" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+                    <div class="border-end mx-3" style="height: 24px;"></div>
+
+                    <div class="d-flex align-items-center text-nowrap">
+                        <span class="text-muted small">Tổng:</span>
+                        <span class="badge bg-light text-dark border ms-2 me-1 px-2 py-1">
+                            @(Model != null ? Model.Count() : 0)
+                        </span>
+                        <span class="text-muted small">đơn đặt</span>
+                    </div>
+                </div>
+            </form>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaDon)
+                            </th>
+                            <th class="text-center">Khách Hàng</th>
+                            <th class="text-start">Phim & Suất Chiếu</th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().NgayDat)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TongTien)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TrangThai)
+                            </th>
+                            <th style="width: 100px;">Chi tiết</th>
+                            <th style="width: 100px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center font-weight-bold text-primary">
+                                        @item.MaDon
+                                    </td>
+
+                                    <td class="text-start">
+                                            <div class="font-weight-bold">@item.MaUsersNavigation.HoTen</div>
+                                            <small class="text-muted"><i class="fas fa-envelope mr-1"></i> @item.MaUsersNavigation.Email</small>
+                                    </td>
+
+                                    <td class="text-start">
+                                        @{
+                                            var chiTiet = item.ChiTietDonDat.FirstOrDefault();
+                                            var suatChieu = chiTiet?.MaSuatNavigation;
+                                        }
+                                        @if (suatChieu != null && suatChieu.MaPhimNavigation != null)
+                                        {
+                                            <div class="font-weight-bold text-dark mb-1">
+                                                <i class="fas fa-film mr-1 text-gray-400"></i>
+                                                @* 3. Hiển thị tên phim *@
+                                                @suatChieu.MaPhimNavigation.TenPhim
+                                            </div>
+                                            <div class="small text-muted">
+                                                <span>
+                                                    <i class="fas fa-building mr-1"></i>
+                                                    @* 4. Hiển thị Rạp *@
+                                                    @(suatChieu.MaPhongNavigation?.MaCumRapNavigation?.TenCumRap ?? "---")
+                                                </span>
+                                                <br />
+                                                <span class="text-info">
+                                                    <i class="far fa-clock mr-1"></i>
+                                                    @* 5. Hiển thị Giờ *@
+                                                    @(suatChieu.GioBatDau?.ToString("HH:mm") ?? "--:--")
+                                                </span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span>---</span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @item.NgayDat.ToString("dd/MM/yyyy")
+                                        <br />
+                                        <small class="text-muted">@item.NgayDat.ToString("HH:mm")</small>
+                                    </td>
+
+                                    <td class="text-center font-weight-bold text-dark">
+                                        @item.TongTien.ToString("#,##0") <small>VNĐ</small>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.TrangThai))
+                                        {
+                                            if (item.TrangThai.Contains("Đã thanh toán") || item.TrangThai.ToLower() == "paid")
+                                            {
+                                                <span class="badge bg-success badge-status shadow-sm">
+                                                    <i class="fas fa-check-circle mr-1"></i> @item.TrangThai
+                                                </span>
+                                            }
+                                            else if (item.TrangThai.Contains("hủy") || item.TrangThai.ToLower() == "cancel")
+                                            {
+                                                <span class="badge bg-secondary badge-status shadow-sm">
+                                                    <i class="fas fa-ban mr-1"></i> @item.TrangThai
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark badge-status shadow-sm">
+                                                    <i class="fas fa-hourglass-half mr-1"></i> @item.TrangThai
+                                                </span>
+                                            }
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (!item.TrangThai.Contains("Đã hủy")) 
+                                        {
+                                            <a asp-action="chiTiet" asp-route-id="@item.MaDon" class="btn btn-outline-info btn-circle btn-sm shadow-sm" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (!item.TrangThai.Contains("Đã hủy") && suatChieu.GioBatDau > DateTime.Now)
+                                        {
+                                            <form asp-action="huyDon" asp-route-id="@item.MaDon" method="post"
+                                                  onsubmit="return confirm('Bạn có chắc muốn hủy đơn này? Hành động này sẽ trả ghế lại trạng thái trống.');"
+                                                  style="display:inline;">
+                                                <button type="submit" class="btn btn-danger btn-circle btn-sm shadow-sm" title="Hủy đơn này">
+                                                    <i class="fas fa-ban"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076432.png" width="60" alt="Empty" class="mb-3 opacity-50" />
+                                    <p class="text-muted mb-0">Không tìm thấy đơn đặt vé nào phù hợp.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Cấu hình lịch chọn ngày (Filter)
+            flatpickr("#ngayDatInput", {
+                dateFormat: "Y-m-d", // Format gửi về Controller
+                altInput: true,
+                altFormat: "d/m/Y",  // Format hiển thị đẹp
+                allowInput: true
+            });
+        });
+    </script>
+}

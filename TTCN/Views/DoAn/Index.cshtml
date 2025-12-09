@@ -1,0 +1,197 @@
+﻿@model IEnumerable<TTCN.Models.DoAn>
+
+@{
+    ViewData["Title"] = "Quản lý Combo/Đồ ăn";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    .table thead th {
+        background-color: #4e73df;
+        color: white;
+        border: none;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .table tbody td {
+        vertical-align: middle;
+        color: #5a5c69;
+    }
+
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        padding: 6px 0px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">
+                <i class="fas fa-utensils mr-2"></i> Danh sách Combo & Đồ ăn
+            </h5>
+            <a asp-action="them" class="btn btn-primary btn-icon-split shadow-sm">
+                <span class="icon text-white-50">
+                    <i class="fas fa-plus"></i>
+                </span>
+                <span class="text">Thêm Combo Mới</span>
+            </a>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="d-flex align-items-center flex-wrap">
+
+                    <div class="input-group me-2 mb-2" style="width: 300px;">
+                        <span class="input-group-text bg-light border-end-0">
+                            <i class="fas fa-search text-gray-400"></i>
+                        </span>
+                        <input type="text" name="search" value="@ViewBag.CurrentSearch"
+                               class="form-control border-start-0"
+                               placeholder="Tìm tên combo/món ăn...">
+                    </div>
+
+                    <div class="input-group me-2 mb-2" style="width: 180px;">
+                        <select name="trangThai" class="form-control form-select bg-light">
+                            <option value="">-- Trạng thái --</option>
+                            <option value="true" selected="@(ViewBag.CurrentStatus == true)">Đang bán</option>
+                            <option value="false" selected="@(ViewBag.CurrentStatus == false)">Ngưng bán</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group me-3 mb-2" style="width: 250px;">
+                        <input type="number" name="min" value="@ViewBag.CurrentMinPrice"
+                               class="form-control text-center px-1" placeholder="Min" min="0" step="1000">
+                        <span class="input-group-text bg-light px-2">-</span>
+                        <input type="number" name="max" value="@ViewBag.CurrentMaxPrice"
+                               class="form-control text-center px-1" placeholder="Max" min="0" step="1000">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary shadow-sm px-3 mb-2">
+                        <i class="fas fa-filter text-white-50"></i> Lọc
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary shadow-sm ms-1 mb-2" title="Tải lại">
+                        <i class="fas fa-sync-alt"></i>
+                    </a>
+
+                    <div class="border-end mx-3 mb-2" style="height: 24px;"></div>
+
+                    <div class="d-flex align-items-center text-nowrap mb-2">
+                        <span class="text-muted small">Tổng:</span>
+                        <span class="badge bg-light text-dark border ms-2 me-1 px-2 py-1">
+                            @(Model != null ? Model.Count() : 0)
+                        </span>
+                        <span class="text-muted small">món</span>
+                    </div>
+
+                </div>
+            </form>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr class="text-center">
+                            <th width="10%">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MaCombo)
+                            </th>
+                            <th class="text-center" width="40%">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().MoTa)
+                            </th>
+                            <th width="20%">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().Gia)
+                            </th>
+                            <th width="15%">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().TrangThai)
+                            </th>
+                            <th width="15%">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="text-center font-weight-bold">
+                                        @item.MaCombo
+                                    </td>
+
+                                    <td class="font-weight-bold text-primary text-start">
+                                        @Html.DisplayFor(modelItem => item.MoTa)
+                                    </td>
+
+                                    <td class="text-center font-weight-bold text-dark">
+                                        @item.Gia.ToString("#,##0") <small>VNĐ</small>
+                                    </td>
+
+                                    <td class="text-center">
+                                        @if (item.TrangThai)
+                                        {
+                                            <span class="badge bg-success shadow-sm">
+                                                <i class="fas fa-check mr-1"></i> Đang bán
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary shadow-sm">
+                                                <i class="fas fa-pause mr-1"></i> Ngừng bán
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="sua" asp-route-id="@item.MaCombo" class="btn btn-outline-warning btn-sm shadow-sm" title="Sửa thông tin">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+
+                                            @if (!item.TrangThai)
+                                            {
+                                                <a asp-action="Restore" asp-route-id="@item.MaCombo"
+                                                   class="btn btn-outline-success btn-sm shadow-sm"
+                                                   title="Mở bán lại"
+                                                   onclick="return confirm('Bạn có chắc muốn mở bán lại combo này không?');">
+                                                    <i class="fas fa-trash-restore"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/135/135620.png" width="60" alt="Empty" class="mb-3 opacity-50" />
+                                    <p class="text-muted mb-0">Chưa có combo/đồ ăn nào được tìm thấy.</p>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

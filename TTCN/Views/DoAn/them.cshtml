@@ -1,0 +1,69 @@
+﻿@model TTCN.Models.DoAn
+
+@{
+    ViewData["Title"] = "Thêm Combo Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header py-3 bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">Thêm Combo / Đồ Ăn Mới</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="them">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="MoTa" class="control-label font-weight-bold"></label>
+                            <textarea asp-for="MoTa" class="form-control" rows="3" placeholder="Nhập tên combo và chi tiết các món (VD: 1 Bắp + 2 Nước)..."></textarea>
+                            <span asp-validation-for="MoTa" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Gia" class="control-label font-weight-bold"></label>
+                            <div class="input-group">
+                                <input asp-for="Gia" class="form-control" type="number" min="1000" step="1000" placeholder="Nhập giá bán..." />
+                                <span class="input-group-text fw-bold">VNĐ</span>
+                            </div>
+                            <span asp-validation-for="Gia" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="TrangThai" class="control-label font-weight-bold d-block">Trạng thái kinh doanh</label>
+                            <div class="form-check form-switch mt-2">
+                                <input class="form-check-input" type="checkbox" asp-for="TrangThai" id="flexSwitchCheckChecked" checked>
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Đang bán</label>
+                            </div>
+                            <small class="text-muted fst-italic">Nếu tắt, món này sẽ tạm ẩn khỏi menu đặt vé.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2 shadow-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+}

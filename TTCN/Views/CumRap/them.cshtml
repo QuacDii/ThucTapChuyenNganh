@@ -1,0 +1,74 @@
+﻿@model TTCN.Models.CumRap
+
+@{
+    ViewData["Title"] = "Thêm Cụm Rạp Mới";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var dsThanhPho = ViewBag.DsThanhPho as List<string>;
+}
+
+<div class="container-fluid">
+    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+
+        <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white border-bottom-primary">
+            <h5 class="m-0 font-weight-bold text-primary">Thêm Cụm Rạp Mới</h5>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="them" method="post">
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="TenCumRap" class="control-label font-weight-bold"></label>
+                            <input asp-for="TenCumRap" class="form-control" placeholder="Nhập tên cụm rạp..." />
+                            <span asp-validation-for="TenCumRap" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="ThanhPho" class="control-label font-weight-bold"></label>
+                            <select asp-for="ThanhPho" class="form-control form-select">
+                                <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                                @if (dsThanhPho != null)
+                                {
+                                    foreach (var tp in dsThanhPho)
+                                    {
+                                        <option value="@tp">@tp</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="ThanhPho" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="DiaChi" class="control-label font-weight-bold"></label>
+                            <textarea asp-for="DiaChi" class="form-control" rows="5" placeholder="Nhập địa chỉ chi tiết ( đường, phường, quận)..."></textarea>
+                            <span asp-validation-for="DiaChi" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" />
+
+                <div class="text-center">
+                    <a asp-action="Index" class="btn btn-secondary px-4 mr-2">
+                        <i class="fas fa-arrow-left mr-1"></i> Quay lại
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -120,10 +120,29 @@ namespace TTCN.Controllers
 
             if (ModelState.IsValid)
             {
+                int thoiGianDonDep = 20;
+
+                bool biTrungLich = _context.SuatChieus.Any(s =>
+                    s.MaPhong == sc.MaPhong &&
+                    // So sánh thời gian có cộng thêm phút dọn dẹp
+                    s.GioBatDau < sc.GioKetThuc.Value.AddMinutes(thoiGianDonDep) &&
+                    sc.GioBatDau < s.GioKetThuc.Value.AddMinutes(thoiGianDonDep) 
+                );
+                if(biTrungLich)
+                {
+                    ModelState.AddModelError("GioBatDau", $"Bị trùng lịch hoặc chưa đủ {thoiGianDonDep} phút dọn dẹp!");
+
+                    ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
+                    ViewBag.ListCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap");
+                    ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong);
+                    return View(sc);
+                }
+
                 int maxId = _context.SuatChieus.Any() ? _context.SuatChieus.Max(s => s.MaSuat) : 0;
                 sc.MaSuat = maxId + 1;
                 _context.Add(sc);
                 _context.SaveChanges();
+                TempData["Success"] = "Thêm Suất chiếu thành công!";
                 return RedirectToAction("Index");
             }
 
@@ -212,6 +231,7 @@ namespace TTCN.Controllers
                     if (!kiemTra(sc.MaSuat)) return NotFound();
                     else throw;
                 }
+                TempData["Success"] = "Cập nhật Suất chiếu thành công!";
                 return RedirectToAction("Index");
             }
 
@@ -256,7 +276,7 @@ namespace TTCN.Controllers
             if (coDonDat)
             {
                 // Nếu có suất chiếu -> Báo lỗi qua TempData để hiển thị ở trang Index
-                TempData["Error"] = "Không thể xóa Suất chiếu này vì đã có đơn đặt vé!";
+                TempData["Error"] = "Không thể xóa Suất chiếu này vì suất chiếu đã có vé được bán!";
                 return RedirectToAction("Index");
             }
 
@@ -265,6 +285,7 @@ namespace TTCN.Controllers
             {
                 _context.SuatChieus.Remove(sc);
                 _context.SaveChanges();
+                TempData["Success"] = "Đã xóa Suất chiếu!";
             }
             return RedirectToAction("Index");
         }
