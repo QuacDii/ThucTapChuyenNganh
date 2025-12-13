@@ -27,7 +27,7 @@ namespace TTCN.Controllers
         }
 
         [HttpPost]
-        public IActionResult Login(string email, string matKhau)
+        public IActionResult Login(string email, string matKhau, string returnUrl = null)
         {
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(matKhau))
             {
@@ -44,16 +44,20 @@ namespace TTCN.Controllers
             HttpContext.Session.SetString("UserEmail", user.Email);
             HttpContext.Session.SetString("UserHoTen", user.HoTen);
             HttpContext.Session.SetString("UserVaiTro", user.VaiTro);
-            HttpContext.Session.SetString("SessionStartTime", DateTime.UtcNow.ToString("o"));
 
-            if (user.VaiTro == "Admin")
-            {
-                return Json(new { success = true, redirectUrl = Url.Action("Index", "Users") });
-            }
-            else
-            {
-                return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
-            }
+            HttpContext.Session.SetInt32("UserID", user.MaUsers);
+            HttpContext.Session.SetString("SessionStartTime", DateTime.UtcNow.ToString("o"));
+                string urlChuyenHuong;
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    urlChuyenHuong = returnUrl;
+                }
+                else
+                {
+                    urlChuyenHuong = Url.Action("Index", "Home");
+                }
+
+                return Json(new { success = true, redirectUrl = urlChuyenHuong });
         }
 
         [HttpGet]
@@ -198,6 +202,10 @@ namespace TTCN.Controllers
         [HttpPost]
         public IActionResult DangKy(User us, string otp)
         {
+            ModelState.Remove("VaiTro");
+            ModelState.Remove("MaUsers");
+            ModelState.Remove("NgayTao");
+
             var otpSession = HttpContext.Session.GetString("RegisterOtpCode");
             var emailSession = HttpContext.Session.GetString("RegisterOtpEmail");
             var expirySession = HttpContext.Session.GetString("RegisterOtpExpiry");
@@ -240,15 +248,14 @@ namespace TTCN.Controllers
 
             var newUser = new User
             {
-                MaUsers = (_context.Users.Select(u => (int?)u.MaUsers).Max() ?? 0) + 1,
                 HoTen = us.HoTen,
                 Email = us.Email,
-                MatKhau = us.MatKhau,
+                MatKhau = us.MatKhau, 
                 SoDienThoai = us.SoDienThoai,
                 NgayTao = DateTime.Now,
                 VaiTro = "User"
             };
-                
+
             _context.Users.Add(newUser);
             _context.SaveChanges();
 

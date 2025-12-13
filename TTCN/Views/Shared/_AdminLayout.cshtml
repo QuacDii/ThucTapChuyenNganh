@@ -36,11 +36,6 @@
                 <i class="fas fa-tags fa-fw me-2"></i> Quản lý Thể Loại phim
             </a>
 
-            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SuatChieu" ? "active" : "")"
-               asp-controller="SuatChieu" asp-action="Index">
-                <i class="fas fa-clock fa-fw me-2"></i> Quản lý Suất Chiếu
-            </a>
-
             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "CumRap" ? "active" : "")"
                asp-controller="CumRap" asp-action="Index">
                 <i class="fas fa-building fa-fw me-2"></i> Quản lý Cụm Rạp
@@ -56,6 +51,11 @@
                 <i class="fas fa-chair fa-fw me-2"></i> Quản lý Ghế Ngồi
             </a>
 
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "SuatChieu" ? "active" : "")"
+               asp-controller="SuatChieu" asp-action="Index">
+                <i class="fas fa-clock fa-fw me-2"></i> Quản lý Suất Chiếu
+            </a>
+
             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DoAn" ? "active" : "")"
                asp-controller="DoAn" asp-action="Index">
                 <i class="fas fa-utensils fa-fw me-2"></i> Quản lý Combo (Đồ ăn)
@@ -64,6 +64,12 @@
             <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DonDatVe" ? "active" : "")"
                asp-controller="DonDatVe" asp-action="Index">
                 <i class="fas fa-file-invoice-dollar fa-fw me-2"></i> Quản lý Đơn Vé
+            </a>
+            <hr class="text-secondary">
+
+            <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "ThongKe" ? "active" : "")"
+               asp-controller="ThongKe" asp-action="Index">
+                <i class="fas fa-chart-line fa-fw me-2"></i> Thống kê & báo cáo
             </a>
 
             <hr class="text-secondary">

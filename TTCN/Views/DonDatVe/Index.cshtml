@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <style>
     .table thead th {
@@ -34,19 +35,13 @@
             <h5 class="m-0 font-weight-bold text-primary">
                 <i class="fas fa-file-invoice-dollar mr-2"></i> Danh sách Đơn Đặt Vé
             </h5>
-            <a asp-controller="ThongKe" asp-action="Index" class="btn btn-success shadow-sm">
-                <span class="icon text-white-50">
-                    <i class="fas fa-chart-line"></i>
-                </span>
-                <span class="text">Xem thống kê & báo cáo</span>
-            </a>
         </div>
 
         <div class="card-body">
             <form asp-action="Index" method="get" class="mb-4">
                 <div class="d-flex align-items-center flex-wrap gap-2">
 
-                    <div class="input-group me-2 mb-2" style="width: 210px;">
+                    <div class="input-group me-2 mb-2" style="width: 230px;">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="fas fa-search text-gray-400"></i>
                         </span>
@@ -172,9 +167,9 @@
                                                 </span>
                                                 <br />
                                                 <span class="text-info">
-                                                    <i class="far fa-clock mr-1"></i>
+                                                    <i class="far fa-calendar mr-1"></i>
                                                     @* 5. Hiển thị Giờ *@
-                                                    @(suatChieu.GioBatDau?.ToString("HH:mm") ?? "--:--")
+                                                    @(suatChieu.GioBatDau?.ToString("dd/MM/yyyy") ?? "--:--")
                                                 </span>
                                             </div>
                                         }
@@ -233,7 +228,7 @@
                                             <form asp-action="huyDon" asp-route-id="@item.MaDon" method="post"
                                                   onsubmit="return confirm('Bạn có chắc muốn hủy đơn này? Hành động này sẽ trả ghế lại trạng thái trống.');"
                                                   style="display:inline;">
-                                                <button type="submit" class="btn btn-danger btn-circle btn-sm shadow-sm" title="Hủy đơn này">
+                                                <button type="submit" class="btn btn-outline-danger btn-circle btn-sm shadow-sm" title="Hủy đơn này">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             </form>
@@ -263,9 +258,10 @@
         document.addEventListener("DOMContentLoaded", function () {
             // Cấu hình lịch chọn ngày (Filter)
             flatpickr("#ngayDatInput", {
+                locale: "vn",
                 dateFormat: "Y-m-d", // Format gửi về Controller
                 altInput: true,
-                altFormat: "d/m/Y",  // Format hiển thị đẹp
+                altFormat: "d/m/Y", 
                 allowInput: true
             });
         });

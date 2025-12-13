@@ -1,0 +1,179 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model IEnumerable<TTCN.Models.Phim>
+
+@{
+    ViewData["Title"] = "Danh sách phim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Nhận dữ liệu điểm đánh giá từ Controller
+    var mapDiem = ViewBag.DiemDanhGia as Dictionary<int, double?>;
+}
+
+<div class="container mt-5" style="padding-bottom: 170px; min-height: 600px;">
+    <h3 class="mb-4 text-white border-start border-4 border-danger ps-3">
+        DANH SÁCH PHIM
+    </h3>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-5">
+            @foreach (var phim in Model)
+            {
+                if (phim.TrangThai != "Đã chiếu")
+                {
+                    // Lấy điểm trung bình của phim này (nếu có)
+                    double diemTB = 0;
+                    if (mapDiem != null && mapDiem.ContainsKey(phim.MaPhim))
+                    {
+                        diemTB = mapDiem[phim.MaPhim] ?? 0;
+                    }
+
+                    <div class="col">
+                        <div class="card movie-card h-100">
+                            <div class="card-img-wrapper">
+                                <img src="/@phim.PosterPhim"
+                                     class="card-img-top"
+                                     alt="@phim.TenPhim"
+                                     loading="lazy"
+                                     style="cursor: pointer;"
+                                     onclick="openTrailer('@phim.TrailerPhim')">
+
+                                <i class="fas fa-play-circle play-icon"></i>
+
+                                @if (diemTB > 0)
+                                {
+                                    <span class="rating-badge">
+                                        <i class="fas fa-star me-1 text-warning"></i>@diemTB.ToString("0.#")
+                                    </span>
+                                }
+
+                                @if (phim.TrangThai == "Sắp công chiếu")
+                                {
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-2 text-center bg-dark bg-opacity-75 text-white fw-bold" style="font-size: 0.8rem;">
+                                        Sắp Khởi Chiếu
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="card-body px-0 pt-3">
+                                <h5 class="card-title text-truncate">
+                                    <a asp-controller="Phim" asp-action="chiTiet" asp-route-id="@phim.MaPhim" class="movie-title">
+                                        @phim.TenPhim
+                                    </a>
+                                </h5>
+
+                                <div class="movie-meta mb-3 text-truncate">
+                                    <div class="d-flex align-items-center gap-3 text-white-50 small">
+                                        <div>
+                                            <i class="far fa-clock text-danger me-1"></i>
+                                            <span class="text-light">@(phim.ThoiLuong > 0 ? phim.ThoiLuong : 0) phút</span>
+                                        </div>
+                                        <div>
+                                            <i class="far fa-calendar-alt text-danger me-1"></i>
+                                            <span class="text-light">
+                                                @(phim.NgayPhatHanh.HasValue? phim.NgayPhatHanh.Value.ToString("dd/MM/yyyy") : "Đang cập nhật")
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-column gap-2 mt-auto">
+                                    <a asp-controller="Phim" asp-action="chiTiet" asp-route-id="@phim.MaPhim"
+                                       class="btn btn-custom-outline w-100 shadow-sm">
+                                        <i class="fas fa-info-circle me-2"></i> XEM CHI TIẾT
+                                    </a>
+
+                                    @if (phim.TrangThai == "Đang công chiếu")
+                                    {
+                                        <a href="javascript:void(0);"
+                                           class="btn btn-custom-red w-100 shadow-sm"
+                                           onclick="handleBookingClick('@Url.Action("Index", "DatVe", new { maPhim = phim.MaPhim })')">
+                                            <i class="fas fa-ticket-alt me-2"></i> ĐẶT VÉ
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-search fa-4x text-muted opacity-25"></i>
+            </div>
+            <h4 class="text-white">Không tìm thấy phim nào phù hợp!</h4>
+            <p class="text-white-50">Vui lòng thử lại với từ khóa khác.</p>
+            <a href="/" class="btn btn-outline-danger mt-3 px-4">
+                <i class="fas fa-arrow-left me-2"></i>Về trang chủ
+            </a>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #000; border: 1px solid #333;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">Trailer</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center" style="min-height: 400px; background: black;">
+                <div id="trailerModalBody" class="w-100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openTrailer(trailerUrl) {
+            if (!trailerUrl || trailerUrl.trim() === "") {
+                alert("Phim này chưa cập nhật trailer!");
+                return;
+            }
+            if (!trailerUrl.startsWith("http") && !trailerUrl.startsWith("/")) {
+                trailerUrl = "/" + trailerUrl;
+            }
+            var modalBody = document.getElementById('trailerModalBody');
+            var videoHtml = `
+                <video width="100%" controls autoplay style="max-height: 80vh; outline: none;">
+                    <source src="${trailerUrl}" type="video/mp4">
+                    Trình duyệt không hỗ trợ video.
+                </video>
+            `;
+            modalBody.innerHTML = videoHtml;
+            var myModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+            myModal.show();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var trailerModalEl = document.getElementById('trailerModal');
+            if (trailerModalEl) {
+                trailerModalEl.addEventListener('hidden.bs.modal', function () {
+                    document.getElementById('trailerModalBody').innerHTML = '';
+                });
+            }
+        });
+
+        const isUserLoggedIn = @((Context.Session.GetString("UserEmail") != null).ToString().ToLower());
+
+        function handleBookingClick(targetUrl) {
+            if (!targetUrl) return;
+            if (isUserLoggedIn) {
+                window.location.href = targetUrl;
+                return;
+            }
+            window.desiredRedirectUrl = targetUrl;
+            const loginModalEl = document.getElementById('loginModal');
+            if (loginModalEl) {
+                const loginModal = bootstrap.Modal.getOrCreateInstance(loginModalEl);
+                loginModal.show();
+            }
+        }
+    </script>
+}

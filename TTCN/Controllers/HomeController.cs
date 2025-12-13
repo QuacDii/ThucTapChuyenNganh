@@ -34,7 +34,8 @@ namespace TTCN.Controllers
             var phimCongChieu = (from tbPhim in db.Phims
                                  join tbPhimTheLoai in db.PhimTheLoais on tbPhim.MaPhim equals tbPhimTheLoai.MaPhim
                                  join tbTheLoai in db.TheLoais on tbPhimTheLoai.MaTheLoai equals tbTheLoai.MaTheLoai
-                                 join tbUsersPhim in db.UsersPhims on tbPhim.MaPhim equals tbUsersPhim.MaPhim
+                                 join tbUsersPhim in db.UsersPhims on tbPhim.MaPhim equals tbUsersPhim.MaPhim into reviews
+                                 from review in reviews.Where(r => r.TrangThai != true).DefaultIfEmpty()
                                  where tbPhim.TrangThai == "Đang công chiếu"
                                  select new
                                  {
@@ -42,7 +43,7 @@ namespace TTCN.Controllers
                                      tbPhim.TenPhim,
                                      tbPhim.PosterPhim,
                                      tbPhim.TrailerPhim,
-                                     tbUsersPhim.Diem,
+                                     Diem = (int?)review.Diem ?? 0,
                                      tbTheLoai.TenTheLoai
                                  }).ToList();
 
@@ -82,9 +83,15 @@ namespace TTCN.Controllers
             //---------------------------------------------
 
             lsHot = lsCongChieu
+                        .Where(p => p.DiemTB >= 8) // Lọc phim >= 8 điểm
                         .OrderByDescending(p => p.DiemTB)
-                        .Take(3)
+                        .Take(5)
                         .ToList();
+
+            if (lsHot.Count == 0)
+            {
+                lsHot = lsCongChieu.OrderByDescending(p => p.DiemTB).Take(3).ToList();
+            }
 
             ViewBag.PhimHot = lsHot;
 
@@ -125,6 +132,10 @@ namespace TTCN.Controllers
 
             lsSapChieu = nhomPhimSapChieu.ToList();
             ViewBag.SapChieu = lsSapChieu;
+
+            ViewBag.ThoiLuongMap = db.Phims.ToDictionary(x => x.MaPhim, x => x.ThoiLuong);
+
+            ViewBag.ngayBDC = db.Phims.ToDictionary(x => x.MaPhim, x => x.NgayPhatHanh);
 
             return View();
         }

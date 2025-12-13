@@ -9,6 +9,9 @@ namespace TTCN.Models
         public int MaUsers { get; set; }
         public string? BinhLuan { get; set; }
         public int? Diem { get; set; }
+        public DateTime NgayBL { get; set; }
+
+        public bool TrangThai { get; set; }
 
         public virtual Phim MaPhimNavigation { get; set; } = null!;
         public virtual User MaUsersNavigation { get; set; } = null!;

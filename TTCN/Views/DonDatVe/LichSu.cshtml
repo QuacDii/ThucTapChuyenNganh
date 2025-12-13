@@ -1,0 +1,151 @@
+﻿@model IEnumerable<TTCN.Models.DonDatVe>
+@{
+    ViewData["Title"] = "Vé Của Tôi";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .history-card {
+        background-color: #1a1a1a;
+        border-radius: 12px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        border: 1px solid #333;
+    }
+
+    .table-dark-custom {
+        background-color: transparent;
+        color: #e0e0e0;
+    }
+
+        .table-dark-custom thead th {
+            background-color: #252525;
+            color: #999;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border-bottom: 2px solid #444;
+            padding: 15px;
+        }
+
+        .table-dark-custom tbody td {
+            padding: 15px;
+            border-bottom: 1px solid #333;
+            vertical-align: middle;
+        }
+
+        .table-dark-custom tbody tr:hover {
+            background-color: rgba(229, 9, 20, 0.05); /* Hiệu ứng hover đỏ nhẹ */
+        }
+
+    .movie-thumb {
+        width: 50px;
+        height: 75px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 15px;
+    }
+</style>
+
+<div class="container py-5" style="min-height: 80vh;">
+    <div class="d-flex justify-content-between align-items-end mb-4 border-bottom border-secondary pb-3">
+        <div>
+            <h2 class="text-white fw-bold mb-1 border-start border-4 border-danger ps-3">Vé Của Tôi</h2>
+            <p class="text-white-50 mb-0 ms-4 small">Quản lý lịch sử đặt vé và trạng thái thanh toán</p>
+        </div>
+        <div class="text-white">
+            Tổng số đơn: <span class="fw-bold text-danger fs-5">@(Model?.Count() ?? 0)</span>
+        </div>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="history-card overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-dark-custom mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-start">Mã Đơn</th>
+                            <th class="text-center">Thông Tin Phim</th>
+                            <th class="text-start">Thời Gian Đặt</th>
+                            <th class="text-center">Tổng Tiền</th>
+                            <th class="text-center">Trạng Thái</th>
+                            <th class="text-end">Thao Tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var chiTiet = item.ChiTietDonDat.FirstOrDefault();
+                            var phim = chiTiet?.MaSuatNavigation?.MaPhimNavigation;
+                            var tenPhim = phim?.TenPhim ?? "Không xác định";
+                            var poster = phim?.PosterPhim ?? "images/default.png";
+                            var suatChieu = chiTiet?.MaSuatNavigation?.GioBatDau?.ToString("HH:mm dd/MM") ?? "...";
+
+                            <tr>
+                                <td>
+                                    <span class="text-muted">#@item.MaDon</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex align-items-center">
+                                        <img src="/@poster" class="movie-thumb shadow-sm" alt="poster">
+                                        <div>
+                                            <div class="fw-bold text-dark mb-1">@tenPhim</div>
+                                            <div class="small text-muted"><i class="far fa-clock me-1"></i> Suất: @suatChieu</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-muted text-start">
+                                    @item.NgayDat.ToString("dd/MM/yyyy") <br>
+                                    <small>@item.NgayDat.ToString("HH:mm")</small>
+                                </td>
+                                <td class="fw-bold text-warning fs-6 text-center">
+                                    @string.Format("{0:n0}", item.TongTien) VNĐ
+                                </td>
+                                <td class="text-center">
+                                    @if (item.TrangThai == "Đã thanh toán")
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+                                            <i class="fas fa-check-circle me-1"></i> @item.TrangThai
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Đã hủy")
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 rounded-pill">
+                                            <i class="fas fa-times-circle me-1"></i> @item.TrangThai
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2 rounded-pill">
+                                            <i class="fas fa-spinner me-1"></i> @item.TrangThai
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <a asp-controller="DonDatVe" asp-action="chiTietDon" asp-route-id="@item.MaDon"
+                                       class="btn btn-sm btn-outline-danger px-3 py-1 rounded-pill" title="Xem chi tiết vé">
+                                        Chi tiết <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <div class="bg-dark d-inline-block rounded-circle p-4 border border-secondary">
+                    <i class="fas fa-ticket-alt fa-3x text-white-50"></i>
+                </div>
+            </div>
+            <h4 class="text-white fw-bold">Chưa có vé nào</h4>
+            <p class="text-white-50 mb-4">Bạn chưa thực hiện giao dịch đặt vé nào gần đây.</p>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-danger btn-lg px-5 rounded-pill shadow">
+                <i class="fas fa-play me-2"></i> Đặt Vé Ngay
+            </a>
+        </div>
+    }
+</div>

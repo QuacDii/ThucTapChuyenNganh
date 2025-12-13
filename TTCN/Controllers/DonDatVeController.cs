@@ -96,7 +96,6 @@ namespace TTCN.Controllers
             donDatVe.TongTien = 0;
 
             // 5. Nhả ghế
-            // Xóa các dòng trong bảng ChiTietScGn thuộc đơn này.
             // Khi xóa đi, ghế đó sẽ không còn tồn tại trong bảng đặt ghế => Trạng thái ghế trở lại là trống.
             if (listChiTiet.Any())
             {
@@ -116,7 +115,7 @@ namespace TTCN.Controllers
         // 1. Thông tin khách hàng
         .Include(d => d.MaUsersNavigation)
 
-        // 2. Thông tin Ghế và Phim (Giữ nguyên code cũ của bạn)
+        // 2. Thông tin Ghế và Phim 
         .Include(d => d.ChiTietDonDat)
             .ThenInclude(ct => ct.MaGheNavigation) // Lấy tên ghế (A1, A2...) và Loại ghế
         .Include(d => d.ChiTietDonDat)
@@ -127,7 +126,7 @@ namespace TTCN.Controllers
                 .ThenInclude(s => s.MaPhongNavigation)
                     .ThenInclude(p => p.MaCumRapNavigation)
 
-        // 3. MỚI: Lấy thông tin Combo (Bắp/Nước)
+        // 3. Lấy thông tin Combo (Bắp/Nước)
         .Include(d => d.DonDatVeDoAns)
             .ThenInclude(c => c.MaComboNavigation) // Lấy tên Combo và Giá tiền
 
@@ -136,6 +135,51 @@ namespace TTCN.Controllers
             if (donDatVe == null) return NotFound();
 
             return View(donDatVe);
+        }
+
+        [HttpGet]
+        public IActionResult chiTietDon(int id)
+        {
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail)) return RedirectToAction("Index", "Login");
+
+            var donVe = _context.DonDatVes
+                .Include(d => d.ChiTietDonDat)
+                    .ThenInclude(ct => ct.MaGheNavigation) // Lấy tên ghế
+                .Include(d => d.ChiTietDonDat)
+                    .ThenInclude(ct => ct.MaSuatNavigation)
+                    .ThenInclude(s => s.MaPhimNavigation) // Lấy tên phim, poster
+                .Include(d => d.ChiTietDonDat)
+                    .ThenInclude(ct => ct.MaSuatNavigation)
+                    .ThenInclude(s => s.MaPhongNavigation)
+                    .ThenInclude(p => p.MaCumRapNavigation) // Lấy tên rạp
+                .Include(d => d.DonDatVeDoAns)
+                    .ThenInclude(da => da.MaComboNavigation) // Lấy combo bắp nước
+                .FirstOrDefault(d => d.MaDon == id);
+
+            if (donVe == null) return NotFound();
+
+            return View(donVe);
+        }
+
+        [HttpGet]
+        public IActionResult LichSu()
+        {
+            // 1. Lấy Email user từ Session
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToAction("Index", "Login", new { area = "Account" }); // Điều hướng về trang login
+            }
+
+            var listVe = _context.DonDatVes
+                .Include(d => d.ChiTietDonDat).ThenInclude(ct => ct.MaSuatNavigation).ThenInclude(s => s.MaPhimNavigation)
+                .Include(d => d.ChiTietDonDat).ThenInclude(ct => ct.MaGheNavigation)
+                .Where(d => d.MaUsersNavigation.Email == userEmail)
+                .OrderByDescending(d => d.NgayDat)
+                .ToList();
+
+            return View(listVe);
         }
     }
 

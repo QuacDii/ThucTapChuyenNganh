@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="TenGhe" class="control-label font-weight-bold">Tên Ghế</label>
+                            <label asp-for="TenGhe" class="control-label font-weight-bold"></label>
                             <input asp-for="TenGhe" class="form-control" placeholder="Ví dụ: A1, B5..." />
                             <span asp-validation-for="TenGhe" class="text-danger"></span>
                             <small class="text-muted fst-italic">Nhập đúng định dạng: Hàng + Số</small>
@@ -48,7 +48,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="HangGhe" class="control-label font-weight-bold">Hàng Ghế</label>
+                            <label asp-for="HangGhe" class="control-label font-weight-bold"></label>
                             <select asp-for="HangGhe" class="form-control form-select" asp-items="ViewBag.HangGheList">
                                 <option value="">-- Chọn Hàng --</option>
                             </select>
@@ -57,7 +57,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group mb-3">
-                            <label asp-for="LoaiGhe" class="control-label font-weight-bold">Loại Ghế</label>
+                            <label asp-for="LoaiGhe" class="control-label font-weight-bold"></label>
                             <select asp-for="LoaiGhe" class="form-control form-select" asp-items="ViewBag.LoaiGheList">
                                 <option value="">-- Chọn Loại --</option>
                             </select>

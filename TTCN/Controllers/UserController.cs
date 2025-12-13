@@ -84,8 +84,6 @@ namespace TTCN.Controllers
             if (ModelState.IsValid)
             {
                 user.NgayTao = DateTime.Now;
-                int maxId = _context.Users.Any() ? _context.Users.Max(u => u.MaUsers) : 0;
-                user.MaUsers = maxId + 1;
 
                 _context.Users.Add(user);
                 _context.SaveChanges();

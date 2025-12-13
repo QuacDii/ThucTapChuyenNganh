@@ -30,10 +30,10 @@ namespace TTCN.Models
         [Display(Name = "Thời lượng")]
         public int ThoiLuong { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng chọn ngày phát hành!")]
+        [Required(ErrorMessage = "Vui lòng chọn ngày công chiếu!")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Ngày phát hành")]
+        [Display(Name = "Ngày công chiếu")]
         public DateTime? NgayPhatHanh { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên đạo diễn!")]

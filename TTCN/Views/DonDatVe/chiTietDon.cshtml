@@ -1,0 +1,229 @@
+﻿@model TTCN.Models.DonDatVe
+
+@{
+    ViewData["Title"] = "Chi Tiết Vé";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var chiTietDau = Model.ChiTietDonDat.FirstOrDefault();
+    var suatChieu = chiTietDau?.MaSuatNavigation;
+    var phim = suatChieu?.MaPhimNavigation;
+    var phong = suatChieu?.MaPhongNavigation;
+    var rap = phong?.MaCumRapNavigation;
+}
+
+<style>
+    .ticket-container {
+        max-width: 900px;
+        margin: 50px auto;
+        background-color: #1a1a1a;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        overflow: hidden;
+        border: 1px solid #333;
+    }
+
+    .ticket-header {
+        background: linear-gradient(45deg, #b20710, #e50914);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: white;
+    }
+
+    .ticket-body {
+        padding: 30px;
+        color: #e0e0e0;
+    }
+
+    .poster-img {
+        width: 100%;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .info-label {
+        color: #999;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        letter-spacing: 1px;
+    }
+
+    .info-value {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .seat-badge {
+        display: inline-block;
+        background-color: #333;
+        border: 1px solid #555;
+        color: #fff;
+        padding: 5px 12px;
+        border-radius: 6px;
+        margin-right: 5px;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .divider {
+        height: 1px;
+        background-color: #333;
+        margin: 20px 0;
+        border-bottom: 1px dashed #555; /* Đường đứt nét giống vé thật */
+    }
+
+    .total-price {
+        color: #e50914;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .qr-placeholder {
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .status-paid {
+        background-color: #00CD66;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+
+    .status-pending {
+        background-color: #ffc107;
+        color: black;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container">
+    <div class="ticket-container">
+        <div class="ticket-header">
+            <div>
+                <h4 class="mb-0 fw-bold"><i class="fas fa-ticket-alt me-2"></i> VÉ ĐIỆN TỬ</h4>
+                <small style="opacity: 0.8;">Mã đơn: #@Model.MaDon</small>
+            </div>
+            <div>
+                @if (Model.TrangThai == "Đã thanh toán")
+                {
+                    <span class="status-paid"><i class="fas fa-check-circle me-1"></i> @Model.TrangThai</span>
+                }
+                else
+                {
+                    <span class="status-pending"><i class="fas fa-clock me-1"></i> @Model.TrangThai</span>
+                }
+            </div>
+        </div>
+
+        <div class="ticket-body">
+            <div class="row">
+                <div class="col-md-4 text-center border-end border-secondary">
+                    @if (phim != null)
+                    {
+                        <img src="/@phim.PosterPhim" alt="@phim.TenPhim" class="poster-img mb-4" />
+                    }
+
+                    <div class="mt-3">
+                        <div class="qr-placeholder">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=Ticket-@Model.MaDon" alt="QR Code" width="100%" />
+                        </div>
+                        <p class="mt-2 small" style="color: #999">Quét mã này tại quầy vé</p>
+                    </div>
+                </div>
+
+                <div class="col-md-8 ps-md-5">
+                    <h2 class="text-white fw-bold mb-4">@(phim?.TenPhim ?? "Thông tin phim không có sẵn")</h2>
+
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="info-label">Rạp Chiếu</div>
+                            <div class="info-value">@rap?.TenCumRap</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-label">Phòng Chiếu</div>
+                            <div class="info-value">@phong?.TenPhong</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-label">Ngày Giờ Chiếu</div>
+                            <div class="info-value text-warning">
+                                <i class="far fa-calendar-alt me-1"></i> @(suatChieu?.GioBatDau?.ToString("dd/MM/yyyy HH:mm"))
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="info-label">Thời gian đặt</div>
+                            <div class="info-value">@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="mb-4">
+                        <div class="info-label mb-2">Ghế Đã Đặt (@Model.ChiTietDonDat.Count)</div>
+                        <div class="d-flex flex-wrap">
+                            @foreach (var ghe in Model.ChiTietDonDat)
+                            {
+                                <div class="seat-badge">
+                                    @ghe.MaGheNavigation.TenGhe
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.DonDatVeDoAns != null && Model.DonDatVeDoAns.Any())
+                    {
+                        <div class="mb-4">
+                            <div class="info-label mb-2">Combo Bắp Nước</div>
+                            <ul class="list-group list-group-flush bg-transparent">
+                                @foreach (var item in Model.DonDatVeDoAns)
+                                {
+                                    <li class="list-group-item bg-transparent text-white border-secondary px-0 d-flex justify-content-between">
+                                        <span>
+                                            <i class="fas fa-popcorn me-2 text-warning"></i>
+                                            @item.MaComboNavigation.MoTa
+                                        </span>
+                                        <span class="fw-bold">x @item.SoLuong</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="divider"></div>
+                    }
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div style="color: #999">Tổng thanh toán</div>
+                        <div class="total-price">
+                            @string.Format("{0:n0}", Model.TongTien) VNĐ
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <a href="@Url.Action("LichSu", "DonDatVe")" class="btn btn-danger">
+                            <i class="fas fa-arrow-left me-2"></i> Quay Lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-3 bg-black text-white-50 small border-top border-secondary">
+            Cảm ơn bạn đã sử dụng dịch vụ. Chúc bạn xem phim vui vẻ!
+        </div>
+    </div>
+</div>

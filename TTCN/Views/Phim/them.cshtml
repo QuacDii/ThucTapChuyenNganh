@@ -10,6 +10,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <div class="container-fluid">
     <div class="card shadow mb-4">
@@ -55,7 +56,24 @@
 
                         <div class="mb-3">
                             <label asp-for="TrailerPhim" class="form-label"></label>
-                            <input asp-for="TrailerPhim" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                            <input type="file" name="fTrailer" class="form-control" accept="video/*" />
+
+                            @if (Model != null && !string.IsNullOrEmpty(Model.TrailerPhim))
+                            {
+                                <div class="mt-2">
+                                    <small class="text-muted">Trailer hiện tại:</small><br />
+                                    @if (Model.TrailerPhim.Contains("trailers/"))
+                                    {
+                                        <video width="320" height="180" controls class="mt-1 border rounded">
+                                            <source src="~/@Model.TrailerPhim" type="video/mp4">
+                                        </video>
+                                    }
+                                    else
+                                    {
+                                        <input type="text" class="form-control form-control-sm mt-1" value="@Model.TrailerPhim" readonly />
+                                    }
+                                </div>
+                            }
                         </div>
                     </div>
 
@@ -138,6 +156,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const config = {
+                locale: "vn",
                 dateFormat: "Y-m-d",   
                 altInput: true,         
                 altFormat: "d/m/Y",     

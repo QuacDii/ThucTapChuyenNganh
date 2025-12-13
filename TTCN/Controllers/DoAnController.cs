@@ -52,13 +52,35 @@ namespace TTCN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult them(DoAn doAn)
+        public IActionResult them(DoAn doAn, IFormFile fDoan)
         {
+            // Bỏ qua validate các trường không nhập trực tiếp
             ModelState.Remove("DonDatVeDoAns");
+            ModelState.Remove("fDoan");
+            ModelState.Remove("HinhAnh");
+
             if (ModelState.IsValid)
             {
-                int maxId = _context.DoAns.Any() ? _context.DoAns.Max(s => s.MaCombo) : 0;
-                doAn.MaCombo = maxId + 1;
+                if (fDoan != null && fDoan.Length > 0)
+                {
+                    // 1. Tạo tên file độc nhất
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(fDoan.FileName);
+
+                    // 2. Xác định thư mục lưu: wwwroot/images/combo
+                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "combo");
+                    if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
+
+                    // 3. Lưu file vật lý
+                    string filePath = Path.Combine(uploadDir, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        fDoan.CopyTo(stream);
+                    }
+
+                    // 4. Lưu đường dẫn vào DB (QUAN TRỌNG: Có dấu / ở đầu)
+                    doAn.HinhAnh = "/images/combo/" + fileName;
+                }
+
                 _context.DoAns.Add(doAn);
                 _context.SaveChanges();
                 TempData["Success"] = "Thêm Combo thành công!";
@@ -70,7 +92,8 @@ namespace TTCN.Controllers
         [HttpGet]
         public IActionResult sua(int id)
         {
-            if (id == null) return NotFound();
+            // ID là số nguyên nên check id == 0 thay vì null
+            if (id == 0) return NotFound();
 
             var doAn = _context.DoAns.Find(id);
             if (doAn == null) return NotFound();
@@ -80,13 +103,52 @@ namespace TTCN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult sua(int id, DoAn doAn)
+        public IActionResult sua(int id, DoAn doAn, IFormFile fDoan)
         {
             ModelState.Remove("DonDatVeDoAns");
+            ModelState.Remove("fDoan");
+            ModelState.Remove("HinhAnh");
+
             if (id != doAn.MaCombo) return NotFound();
 
             if (ModelState.IsValid)
             {
+                if (fDoan != null && fDoan.Length > 0)
+                {
+                    if (!string.IsNullOrEmpty(doAn.HinhAnh))
+                    {
+                        string relativePath = doAn.HinhAnh.TrimStart('/');
+
+                        // Ghép với đường dẫn gốc của ứng dụng
+                        string oldPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath);
+
+                        try
+                        {
+                            if (System.IO.File.Exists(oldPath))
+                            {
+                                System.IO.File.Delete(oldPath);
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                    // --- LƯU ẢNH MỚI ---
+                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(fDoan.FileName);
+                    string uploadDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "combo");
+
+                    if (!Directory.Exists(uploadDir)) Directory.CreateDirectory(uploadDir);
+
+                    string filePath = Path.Combine(uploadDir, fileName);
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        fDoan.CopyTo(stream);
+                    }
+
+                    doAn.HinhAnh = "/images/combo/" + fileName;
+                }
+
                 _context.DoAns.Update(doAn);
                 _context.SaveChanges();
                 TempData["Success"] = "Cập nhật Combo thành công!";
@@ -94,7 +156,6 @@ namespace TTCN.Controllers
             }
             return View(doAn);
         }
-
         [HttpGet]
         public IActionResult Restore(int id)
         {

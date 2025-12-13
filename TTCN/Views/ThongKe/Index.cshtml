@@ -1,0 +1,409 @@
+﻿@model TTCN.Models.ThongKe
+
+@{
+    ViewData["Title"] = "Xem thống Kê";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+
+<style>
+    .clickable-card {
+        cursor: pointer;
+        transition: transform 0.2s;
+        border: 2px solid transparent;
+    }
+
+        .clickable-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .card-active {
+        border-color: #4e73df !important;
+        background-color: #f8f9fc;
+        transform: scale(1.02);
+    }
+</style>
+
+<div class="container-fluid">
+
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800 text-primary">
+            <i class="fas fa-chart-pie text-primary mr-2"></i> Dashboard Thống Kê
+        </h1>
+    </div>
+
+    <div class="card shadow mb-4 border-left-primary">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ Lọc Dữ Liệu</h6>
+        </div>
+        <div class="card-body bg-light">
+            <form method="get" asp-action="Index">
+                <div class="row align-items-end">
+                    <div class="col-md-2 mb-3">
+                        <label class="font-weight-bold small text-muted">Từ ngày</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 px-2"><i class="far fa-calendar-alt text-gray-400"></i></span>
+                            <input type="text" id="tuNgay" name="tuNgay" class="form-control px-2" value="@Model.TuNgay.ToString("yyyy-MM-dd")" placeholder="..." />
+                        </div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label class="font-weight-bold small text-muted">Đến ngày</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 px-2"><i class="far fa-calendar-alt text-gray-400"></i></span>
+                            <input type="text" id="denNgay" name="denNgay" class="form-control px-2" value="@Model.DenNgay.ToString("yyyy-MM-dd")" placeholder="..." />
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="font-weight-bold small text-muted">Thành Phố</label>
+                        <select id="ddlCity" name="chonTP" class="form-control form-select" asp-items="Model.thanhPho">
+                            <option value="">-- Tất cả --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label class="font-weight-bold small text-muted">Cụm Rạp</label>
+                        <select id="ddlCinema" name="chonMaRap" class="form-control form-select" asp-items="Model.rapChieu">
+                            <option value="">-- Tất cả --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <div class="d-flex">
+                            <button type="submit" class="btn btn-primary shadow-sm px-3"><i class="fas fa-filter text-white-50"></i> Lọc</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary border shadow-sm ms-2" title="Tải lại"><i class="fas fa-sync-alt"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl col-md-6 mb-4" onclick="updateChart('doanhThu', this)">
+            <div class="card border-left-primary shadow h-100 py-2 clickable-card card-active">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng Doanh Thu</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TongDoanhThu.ToString("N0") <small>đ</small></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-dollar-sign fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl col-md-6 mb-4" onclick="updateChart('tienVe', this)">
+            <div class="card border-left-danger shadow h-100 py-2 clickable-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Doanh Thu Vé</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(((decimal)ViewBag.DoanhThuVe).ToString("N0")) <small>đ</small></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-ticket-alt fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl col-md-6 mb-4" onclick="updateChart('combo', this)">
+            <div class="card border-left-warning shadow h-100 py-2 clickable-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Doanh Thu Combo</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DoanhThuCombo.ToString("N0") <small>đ</small></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-utensils fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl col-md-6 mb-4" onclick="updateChart('soVe', this)">
+            <div class="card border-left-success shadow h-100 py-2 clickable-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Vé Đã Bán</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoVeBanRa <small>vé</small></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-tags fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl col-md-6 mb-4" onclick="updateChart('donHang', this)">
+            <div class="card border-left-info shadow h-100 py-2 clickable-card">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Đơn Hoàn Tất</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.SoDonHang <small>đơn</small></div>
+                        </div>
+                        <div class="col-auto"><i class="fas fa-file-invoice-dollar fa-2x text-gray-300"></i></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Biểu Đồ Doanh Thu Theo Ngày</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area" style="height: 350px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Tỷ Trọng Theo Rạp</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2" style="height: 250px;">
+                        <canvas id="cinemaPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.TopPhims != null && Model.TopPhims.Any())
+    {
+        <div class="card shadow mb-4">
+            <div class="card-header py-3"><h6 class="m-0 font-weight-bold text-primary">Top Phim Có Doanh Thu Cao Nhất</h6></div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Tên Phim</th>
+                                <th class="text-center">Số Vé</th>
+                                <th class="text-right">Doanh Thu Vé</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var phim in Model.TopPhims)
+                            {
+                                <tr>
+                                    <td class="font-weight-bold text-primary">@phim.TenPhim</td>
+                                    <td class="text-center">@phim.SoVe</td>
+                                    <td class="text-right">@phim.DoanhThu.ToString("N0") đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cấu hình lịch
+        const configFlatpickr = {
+            locale: "vn",
+            dateFormat: "Y-m-d",
+            altInput: true,
+            altFormat: "d/m/Y",
+            maxDate: "today"
+        };
+
+        // 1. Khởi tạo 'Đến ngày' trước và lưu vào biến để điều khiển sau này
+        const fpDenNgay = flatpickr("#denNgay", configFlatpickr);
+
+        // 2. Khởi tạo 'Từ ngày' với sự kiện onChange
+        const fpTuNgay = flatpickr("#tuNgay", {
+            ...configFlatpickr,
+            onChange: function(selectedDates, dateStr, instance) {
+                fpDenNgay.set("minDate", dateStr);
+
+                const currentDenNgay = fpDenNgay.selectedDates[0];
+                if (currentDenNgay && currentDenNgay < selectedDates[0]) {
+                     fpDenNgay.setDate(dateStr); 
+                }
+            }
+        });
+
+        if (fpTuNgay.selectedDates[0]) {
+            fpDenNgay.set("minDate", fpTuNgay.selectedDates[0]);
+        }
+
+        // Xử lý Dropdown Rạp (AJAX)
+        $('#ddlCity').change(function () {
+            var cityName = $(this).val();
+            var ddlCinema = $('#ddlCinema');
+            ddlCinema.empty(); ddlCinema.append('<option value="">-- Đang tải... --</option>');
+            if (cityName) {
+                $.ajax({
+                    url: '/ThongKe/GetCinemasByCity', type: 'GET', data: { cityName: cityName },
+                    success: function (data) {
+                        ddlCinema.empty(); ddlCinema.append('<option value="">-- Tất cả Cụm Rạp --</option>');
+                        $.each(data, function (index, item) { ddlCinema.append('<option value="' + item.id + '">' + item.name + '</option>'); });
+                    }
+                });
+            } else { ddlCinema.empty(); ddlCinema.append('<option value="">-- Chọn thành phố trước --</option>'); }
+        });
+
+        // Khởi tạo biểu đồ
+        initMainChart('doanhThu');
+        initPieChart('doanhThu');
+    });
+
+    // ============================================================
+    // 1. DATA STORE (DỮ LIỆU ĐÃ TÍNH TOÁN)
+    // ============================================================
+
+    // Dữ liệu cho Biểu đồ CỘT/ĐƯỜNG (Theo Ngày)
+    const mainChartStore = {
+        doanhThu: {
+            type: 'line', label: "Tổng Doanh thu (VNĐ)",
+            data: @Html.Raw(Json.Serialize(Model.DataDoanhThuNgay)),
+            color: "#4e73df", title: "Biểu Đồ Đường: Tổng Doanh Thu Theo Ngày", format: "currency"
+        },
+        tienVe: {
+            type: 'bar', label: "Doanh thu Vé (VNĐ)",
+            data: @Html.Raw(Json.Serialize(Model.DataDoanhThuNgay)), // Lưu ý: Nếu muốn chi tiết theo ngày cho Vé thì cần thêm biến Model.DataVeNgay
+            color: "#e74a3b", title: "Biểu Đồ Cột: Doanh Thu Vé Theo Ngày", format: "currency"
+        },
+        combo: {
+            type: 'bar', label: "Doanh thu Combo (VNĐ)",
+            data: @Html.Raw(Json.Serialize(Model.DataComboNgay)),
+            color: "#f6c23e", title: "Biểu Đồ Cột: Doanh Thu Bắp Nước", format: "currency"
+        },
+        soVe: {
+            type: 'bar', label: "Số lượng vé",
+            data: @Html.Raw(Json.Serialize(Model.DataVeBanNgay)),
+            color: "#1cc88a", title: "Biểu Đồ Cột: Số Lượng Vé Bán Ra", format: "number"
+        },
+        donHang: {
+            type: 'bar', label: "Số đơn hàng",
+            data: @Html.Raw(Json.Serialize(Model.DataDonHangNgay)),
+            color: "#36b9cc", title: "Biểu Đồ Cột: Tần Suất Đặt Vé", format: "number"
+        }
+    };
+
+    // Dữ liệu cho Biểu đồ TRÒN (Theo Rạp) - Lấy từ ViewBag mới
+    const pieChartStore = {
+        doanhThu: { label: "Tổng Doanh Thu", data: @Html.Raw(Json.Serialize(ViewBag.PieData_Tong)), title: "Tỷ Trọng Tổng Doanh Thu" },
+        tienVe:   { label: "Doanh Thu Vé",   data: @Html.Raw(Json.Serialize(ViewBag.PieData_Ve)),   title: "Tỷ Trọng Doanh Thu Vé" },
+        combo:    { label: "Doanh Thu Combo",data: @Html.Raw(Json.Serialize(ViewBag.PieData_Combo)),title: "Tỷ Trọng Doanh Thu Combo" },
+        soVe:     { label: "Số Vé",          data: @Html.Raw(Json.Serialize(ViewBag.PieData_SoVe)), title: "Tỷ Trọng Số Lượng Vé" },
+        donHang:  { label: "Số Đơn",         data: @Html.Raw(Json.Serialize(ViewBag.PieData_SoDon)),title: "Tỷ Trọng Số Đơn Hàng" }
+    };
+
+    const mainLabels = @Html.Raw(Json.Serialize(Model.LabelsNgay));
+    const pieLabels = @Html.Raw(Json.Serialize(ViewBag.PieLabels)); // Label tên Rạp
+
+    let myMainChart, myPieChart;
+
+    // ============================================================
+    // 2. HÀM CẬP NHẬT (KHI BẤM VÀO THẺ)
+    // ============================================================
+    function updateChart(type, element) {
+        initMainChart(type); // Vẽ lại biểu đồ chính
+        initPieChart(type);  // Vẽ lại biểu đồ tròn
+
+        // Đổi tiêu đề
+        var titleEl = document.querySelector('.col-xl-8 .card-header h6');
+        if(titleEl) { titleEl.innerText = mainChartStore[type].title; titleEl.className = "m-0 font-weight-bold " + getTextClass(type); }
+
+        var pieTitleEl = document.querySelector('.col-xl-4 .card-header h6');
+        if(pieTitleEl) { pieTitleEl.innerText = pieChartStore[type].title; pieTitleEl.className = "m-0 font-weight-bold " + getTextClass(type); }
+
+        // Highlight thẻ Card
+        document.querySelectorAll('.clickable-card').forEach(el => el.classList.remove('card-active'));
+        if(element.querySelector('.card')) { element.querySelector('.card').classList.add('card-active'); }
+    }
+
+    // ============================================================
+    // 3. HÀM VẼ BIỂU ĐỒ
+    // ============================================================
+    function initMainChart(type) {
+        var ctx = document.getElementById("revenueChart");
+        var config = mainChartStore[type];
+        if (myMainChart) myMainChart.destroy();
+
+        var isLine = config.type === 'line';
+        myMainChart = new Chart(ctx, {
+            type: config.type,
+            data: {
+                labels: mainLabels,
+                datasets: [{
+                    label: config.label, data: config.data,
+                    backgroundColor: hexToRgba(config.color, isLine ? 0.05 : 0.8),
+                    borderColor: config.color, borderWidth: isLine ? 2 : 1, tension: isLine ? 0.3 : 0, fill: true
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { callback: function(val) { return config.format === 'currency' ? val.toLocaleString('vi-VN') : val; } } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    function initPieChart(type) {
+        var ctx = document.getElementById("cinemaPieChart");
+        var config = pieChartStore[type];
+        if (!config.data || config.data.length === 0) return;
+
+        if (myPieChart) myPieChart.destroy();
+
+        myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: pieLabels,
+                datasets: [{
+                    data: config.data,
+                    backgroundColor: ['#4e73df', '#e74a3b', '#f6c23e', '#1cc88a', '#36b9cc', '#858796'], // Màu tương ứng với 5 thẻ
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { boxWidth: 12 } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var val = context.parsed;
+                                var suffix = (type === 'doanhThu' || type === 'tienVe' || type === 'combo') ? ' VNĐ' : (type === 'soVe' ? ' Vé' : ' Đơn');
+                                return context.label + ': ' + val.toLocaleString('vi-VN') + suffix;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function hexToRgba(hex, alpha) {
+        var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    function getTextClass(type) {
+        if(type === 'doanhThu') return 'text-primary';
+        if(type === 'tienVe') return 'text-danger';
+        if(type === 'soVe') return 'text-success';
+        if(type === 'combo') return 'text-warning';
+        return 'text-info';
+    }
+</script>

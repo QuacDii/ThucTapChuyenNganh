@@ -10,7 +10,6 @@
     <hr />
 
     <form asp-action="DangKy" method="post">
-
         <!-- Báo lỗi (Email trùng, OTP sai...) -->
         @if (ViewBag.Error != null)
         {
@@ -62,7 +61,7 @@
         </button>
 
         <div class="text-center mt-3">
-            <span class="text-muted">Đã có tài khoản?</span>
+            <span class="text-white">Đã có tài khoản?</span>
             <a asp-controller="Home" asp-action="Index"> Đăng nhập ngay</a>
         </div>
     </form>

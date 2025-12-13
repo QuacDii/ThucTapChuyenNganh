@@ -28,6 +28,20 @@
         font-size: 12px;
         line-height: 1.42857;
     }
+
+    .poster-thumb {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+    }
+
+        .poster-thumb:hover {
+            transform: scale(1.5);
+            z-index: 10;
+        }
 </style>
 
 <div class="container-fluid">
@@ -115,6 +129,9 @@
                             <th width="10%">
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().MaCombo)
                             </th>
+                            <th style="width: 80px;">
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().HinhAnh)
+                            </th>
                             <th class="text-center" width="40%">
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().MoTa)
                             </th>
@@ -137,7 +154,22 @@
                                         @item.MaCombo
                                     </td>
 
-                                    <td class="font-weight-bold text-primary text-start">
+                                    <td class="text-center">
+                                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                                        {
+                                            var imgSrc = item.HinhAnh.StartsWith("/") ? item.HinhAnh : "/" + item.HinhAnh;
+
+                                            <img src="@imgSrc" alt="Poster" class="poster-thumb"
+                                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/60x90?text=No+Img';" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">No Image</span>
+                                        }
+                                    </td>
+
+
+                                    <td class="font-weight-bold text-primary text-center">
                                         @Html.DisplayFor(modelItem => item.MoTa)
                                     </td>
 

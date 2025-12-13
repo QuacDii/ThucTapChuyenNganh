@@ -1,0 +1,541 @@
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model TTCN.Models.ctPhim
+
+@{
+    ViewData["Title"] = Model.Phim.TenPhim;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Kiểm tra trạng thái đăng nhập
+    bool isUserLoggedIn = !string.IsNullOrEmpty(HttpContextAccessor.HttpContext.Session.GetString("UserEmail"));
+
+    // Kiểm tra xem có file trailer để làm nền không
+    bool hasLocalTrailer = !string.IsNullOrEmpty(Model.Phim.TrailerPhim) && Model.Phim.TrailerPhim.Contains("trailers/");
+}
+
+<style>
+    /* 1. Cấu hình khung chứa Hero */
+    .movie-hero-section {
+        position: relative;
+        overflow: hidden;
+        padding: 80px 0;
+        color: white;
+        min-height: 600px;
+        display: flex;
+        align-items: center;
+        background: #000;
+        @if (!hasLocalTrailer)
+        {
+            <text> background: linear-gradient(to right, #0f0f0f 20%, rgba(0,0,0,0.6)), url('/@Model.Phim.PosterPhim');
+            background-size: cover;
+            background-position: center;
+            </text>
+        }
+    }
+
+    /* 2. Video nền */
+    .hero-bg-video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        object-fit: cover;
+        opacity: 0.6; /* Làm mờ video để chữ nổi bật hơn */
+    }
+
+    /* 3. Lớp phủ gradient để text dễ đọc */
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, #000 30%, transparent 100%), linear-gradient(to top, #000 0%, transparent 50%);
+        z-index: 1;
+    }
+
+    /* 4. Nội dung chính */
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Ảnh Poster nhỏ */
+    .poster-main {
+        width: 100%;
+        max-width: 320px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border: 1px solid rgba(255,255,255,0.1);
+        transition: transform 0.3s;
+    }
+
+        .poster-main:hover {
+            transform: scale(1.02);
+        }
+
+    .btn-booking {
+        background: #e50914;
+        color: white;
+        font-weight: 700;
+        padding: 12px 35px;
+        border-radius: 6px;
+        border: none;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+    }
+
+        .btn-booking:hover {
+            background: #b20710;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    .btn-trailer {
+        background: rgba(255,255,255,0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        font-weight: 600;
+        padding: 12px 30px;
+        border-radius: 6px;
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: all 0.3s;
+    }
+
+        .btn-trailer:hover {
+            background: white;
+            color: black;
+        }
+
+    .rating-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .rate {
+        float: left;
+        height: 46px;
+        padding: 0 10px;
+    }
+
+        .rate:not(:checked) > input {
+            position: absolute;
+            display: none;
+        }
+
+        .rate:not(:checked) > label {
+            float: right;
+            width: 1em;
+            overflow: hidden;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 30px;
+            color: #ccc;
+        }
+
+            .rate:not(:checked) > label:before {
+                content: '★ ';
+            }
+
+        .rate > input:checked ~ label {
+            color: #ffc700;
+        }
+
+        .rate:not(:checked) > label:hover,
+        .rate:not(:checked) > label:hover ~ label {
+            color: #deb217;
+        }
+
+        .rate > input:checked + label:hover,
+        .rate > input:checked + label:hover ~ label,
+        .rate > input:checked ~ label:hover,
+        .rate > input:checked ~ label:hover ~ label,
+        .rate > label:hover ~ input:checked ~ label {
+            color: #c59b08;}
+    textarea::placeholder
+    {
+        color: #b3b3b3 !important; /* Màu xám sáng */
+        opacity: 1; 
+    }
+
+    textarea.form-control {
+        background-color: #222 !important;
+        color: #fff !important;
+    }
+
+    .comment-box::placeholder {
+        color: #acacac !important;
+        opacity: 1;
+    }
+
+    .filter-select {
+        background-color: #333;
+        color: white;
+        border: 1px solid #555;
+        font-size: 0.9rem;
+    }
+
+        .filter-select:focus {
+            background-color: #444;
+            color: white;
+            border-color: #e50914;
+            box-shadow: none;
+</style>
+
+<div class="movie-hero-section">
+
+    @if (hasLocalTrailer)
+    {
+        <video class="hero-bg-video" autoplay muted loop playsinline>
+            <source src="/@Model.Phim.TrailerPhim" type="video/mp4">
+        </video>
+    }
+
+    <div class="hero-overlay"></div>
+
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-md-4 col-lg-3 text-center mb-4 mb-md-0">
+                <img src="/@Model.Phim.PosterPhim" class="poster-main" alt="@Model.Phim.PosterPhim">
+            </div>
+
+            <div class="col-md-8 col-lg-9 ps-lg-5">
+                <h1 class="display-4 fw-bold mb-3" style="text-shadow: 2px 2px 10px black;">@Model.Phim.TenPhim</h1>
+
+                <div class="d-flex align-items-center mb-4 text-white-50">
+                    <span class="badge bg-warning text-dark me-3 fs-6">
+                        <i class="fas fa-star me-1"></i> @Model.DiemTrungBinh.ToString("0.#")
+                    </span>
+                    <span class="me-3"><i class="far fa-clock text-danger"></i> @Model.Phim.ThoiLuong phút</span>
+                    <span class="me-3"><i class="far fa-calendar-alt text-danger"></i> @Model.Phim.NgayPhatHanh.Value.ToString("dd/MM/yyyy")</span>
+                </div>
+
+                <div class="row mb-4 fs-6">
+                    <div class="col-12 mb-2">
+                        <strong class="text-white">Đạo diễn:</strong> <span class="text-white-50">@Model.Phim.DaoDien</span>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <strong class="text-white">Thể loại:</strong>
+                        <span class="text-danger fw-bold">@string.Join(", ", Model.TenTheLoais)</span>
+                    </div>
+                    <div class="col-12 mt-3">
+                        <p class="lead fs-6" style="text-align: justify; opacity: 0.9;">
+                            @(string.IsNullOrEmpty(Model.Phim.MoTa) ? "Đang cập nhật nội dung..." : Model.Phim.MoTa)
+                        </p>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-4">
+                    @if (isUserLoggedIn)
+                    {
+                        <a asp-controller="DatVe" asp-action="Index" asp-route-maPhim="@Model.Phim.MaPhim" class="btn btn-booking shadow-lg">
+                            <i class="fas fa-ticket-alt me-2"></i> ĐẶT VÉ NGAY
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-booking shadow-lg" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-user-lock me-2"></i> ĐĂNG NHẬP ĐỂ ĐẶT VÉ
+                        </button>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Phim.TrailerPhim))
+                    {
+                        if (Model.Phim.TrailerPhim.Contains("trailers/"))
+                        {
+                            
+                        }
+                        <button type="button" class="btn btn-trailer btn-view-trailer" data-trailer="@Model.Phim.TrailerPhim">
+                            <i class="fas fa-play me-2"></i> XEM TRAILER
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-dark py-5">
+    <div class="container">
+        @if (Model.Phim.TrangThai == "Sắp công chiếu")
+        {
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="fas fa-film fa-3x text-muted mb-3"></i>
+                </div>
+                <h4 class="text-white fw-bold">Phim chưa công chiếu</h4>
+                <p class="text-white-50">Chức năng bình luận và đánh giá sẽ được mở sau khi phim được công chiếu.</p>
+            </div>
+        }
+        else
+        {
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary pb-2">
+            <h3 class="fw-bold text-white mb-0 border-start border-4 border-danger ps-3">
+                Đánh Giá (@(Model.DanhSachDanhGia?.Count() ?? 0))
+            </h3>
+
+            <div class="d-flex align-items-center">
+                <label class="text-muted me-2 small">Sắp xếp:</label>
+                <select class="form-select form-select-sm bg-dark text-white border-secondary"
+                        style="width: 160px;" onchange="sortReviewList(this.value)">
+                    <option value="newest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="high_rate">Sao cao nhất</option>
+                    <option value="low_rate">Sao thấp nhất</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="rating-section mb-5">
+            @if (isUserLoggedIn)
+            {
+                <div class="rating-box">
+                    <h5 class="text-white mb-3">Viết đánh giá của bạn</h5>
+                    <form asp-controller="Phim" asp-action="ThemDanhGia" method="post">
+                        <input type="hidden" name="MaPhim" value="@Model.Phim.MaPhim" />
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="text-white-50 me-3">Đánh giá sao:</span>
+                            <div class="rate">
+                                <input type="radio" id="star5_review" name="SoSao" value="5" required />
+                                <label for="star5_review" title="Tuyệt vời">5 stars</label>
+                                <input type="radio" id="star4_review" name="SoSao" value="4" />
+                                <label for="star4_review" title="Rất tốt">4 stars</label>
+                                <input type="radio" id="star3_review" name="SoSao" value="3" />
+                                <label for="star3_review" title="Bình thường">3 stars</label>
+                                <input type="radio" id="star2_review" name="SoSao" value="2" />
+                                <label for="star2_review" title="Tệ">2 stars</label>
+                                <input type="radio" id="star1_review" name="SoSao" value="1" />
+                                <label for="star1_review" title="Rất tệ">1 star</label>
+                            </div>
+                            <span class="ms-2 text-warning fw-bold" id="rating-text"></span>
+                        </div>
+                        <div class="mb-3">
+                            <textarea name="NoiDung" class="form-control bg-dark text-white border-secondary" rows="3" placeholder="Add a comment..."></textarea>
+                        </div>
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="fas fa-paper-plane me-2"></i> Gửi Đánh Giá
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-secondary d-flex align-items-center" role="alert">
+                    <i class="fas fa-info-circle me-2 fs-4"></i>
+                    <div>Bạn cần <a href="#" data-bs-toggle="modal" data-bs-target="#loginModal" class="fw-bold text-decoration-none link-danger">Đăng nhập</a> để viết đánh giá.</div>
+                </div>
+            }
+        </div>
+
+        <div class="list-group list-group-flush" id="reviewContainer">
+            @if (Model.DanhSachDanhGia != null && Model.DanhSachDanhGia.Any())
+            {
+                var userRole = HttpContextAccessor.HttpContext.Session.GetString("UserVaiTro");
+                bool isAdmin = userRole == "Admin";
+
+                foreach (var cmt in Model.DanhSachDanhGia.OrderByDescending(x => x.NgayBL))
+                {
+                    bool isHidden = cmt.TrangThai;
+
+                    string itemClass = isHidden ? "opacity-50 border border-danger bg-black" : "bg-transparent border-bottom border-secondary";
+
+                    <div class="list-group-item @itemClass text-white py-4 review-item"
+                         data-date="@cmt.NgayBL.ToString("dd-MM-yyyy HH:mm:ss")"
+                         data-star="@(cmt.Diem ?? 0)">
+
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0">
+                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold text-white"
+                                     style="width:45px; height:45px; font-size: 1.2rem;">
+                                    @(cmt.MaUsersNavigation.HoTen?.Substring(0, 1).ToUpper() ?? "U")
+                                </div>
+                            </div>
+
+                            <div class="flex-grow-1 ms-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                            <h6 class="fw-bold mb-1 text-danger d-flex align-items-center">
+                                            @cmt.MaUsersNavigation.HoTen
+                                            @if (isHidden)
+                                            {
+                                                <span class="badge bg-danger ms-2" style="font-size: 0.6rem;">ĐÃ BỊ ẨN</span>
+                                            }
+                                        </h6>
+                                        <small class="text-white fst-italic" style="font-size: 0.8rem;">
+                                            <i class="far fa-clock me-1"></i> @cmt.NgayBL.ToString("dd/MM/yyyy HH:mm")
+                                        </small>
+                                    </div>
+
+                                    @if (isAdmin)
+                                    {
+                                        <form asp-controller="Phim" asp-action="anBL" method="post">
+                                            <input type="hidden" name="maPhim" value="@Model.Phim.MaPhim" />
+                                            <input type="hidden" name="maUser" value="@cmt.MaUsers" />
+
+                                            @if (isHidden)
+                                            {
+                                                <button type="submit" class="btn btn-sm btn-outline-success border-0" title="Hiện lại bình luận">
+                                                    <i class="fas fa-eye"></i> Hiện
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="btn btn-sm btn-outline-warning border-0" title="Ẩn bình luận này"
+                                                        onclick="return confirm('Ẩn bình luận này khỏi người dùng?');">
+                                                    <i class="fas fa-eye-slash"></i> Ẩn
+                                                </button>
+                                            }
+                                        </form>
+                                    }
+                                </div>
+
+                                <div class="text-warning small mb-2 mt-1">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= (cmt.Diem ?? 0) /2)
+                                        {
+                                            <i class="fas fa-star"></i>
+                                        }
+                                        else
+                                        {
+
+                                            <i class="far fa-star text-secondary opacity-25"></i>
+                                        }
+                                    }
+                                </div>
+
+                                <p class="mb-0 text-light" style="opacity: 0.9;">@cmt.BinhLuan</p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-5 text-muted opacity-50">
+                    <i class="far fa-comments fa-3x mb-3"></i>
+                    <p>Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+                </div>
+            }
+        </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-black">
+            <div class="modal-header border-0 p-2">
+                <h5 class="modal-title text-white">Trailer</h5>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 text-center" id="trailerModalBody" style="min-height: 400px; background: #000;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // --- 1. LOGIC ĐÁNH GIÁ SAO ---
+        // Biến lưu trạng thái sao vừa chọn
+        var lastSelectedStar = 0;
+
+        document.querySelectorAll('input[name="SoSao"]').forEach((elem) => {
+            // Sử dụng sự kiện 'click' thay vì 'change' để bắt được thao tác nhấn lại vào cái đã chọn
+            elem.addEventListener("click", function(event) {
+                var currentValue = parseInt(this.value);
+
+                // TRƯỜNG HỢP 1: Nếu nhấn vào ngôi sao ĐANG ĐƯỢC CHỌN -> Bỏ chọn
+                if (lastSelectedStar === currentValue) {
+                    this.checked = false; // Bỏ chọn radio button
+                    lastSelectedStar = 0; // Reset biến nhớ về 0
+                    document.getElementById("rating-text").innerText = ""; // Xóa dòng chữ text
+                }
+                // TRƯỜNG HỢP 2: Nếu chọn ngôi sao MỚI -> Cập nhật bình thường
+                else {
+                    lastSelectedStar = currentValue; // Cập nhật biến nhớ
+                    document.getElementById("rating-text").innerText = "(" + currentValue + " sao)";
+                }
+            });
+        });
+
+        // --- 2. LOGIC TRAILER MODAL & KHỞI TẠO ---
+        document.addEventListener("DOMContentLoaded", function() {
+            var trailerModalElement = document.getElementById('trailerModal');
+            var modalBody = document.getElementById('trailerModalBody');
+
+            var trailerModalInfo;
+            if (typeof bootstrap !== 'undefined') {
+                trailerModalInfo = new bootstrap.Modal(trailerModalElement);
+            } else {
+                console.error("Lỗi: Thư viện Bootstrap chưa được load!");
+                return;
+            }
+
+            document.querySelectorAll('.btn-view-trailer').forEach(button => {
+                button.addEventListener('click', function() {
+                    var trailerPath = this.getAttribute('data-trailer');
+
+                    if (!trailerPath || trailerPath.trim() === "") {
+                        alert("Dữ liệu trailer bị trống!");
+                        return;
+                    }
+
+                    var videoUrl = trailerPath;
+                    if (!videoUrl.startsWith('http') && !videoUrl.startsWith('/')) {
+                        videoUrl = '/' + videoUrl;
+                    }
+
+                    var htmlContent = `
+                        <video width="100%" style="max-height: 80vh;" controls autoplay name="media">
+                            <source src="${videoUrl}" type="video/mp4">
+                            Trình duyệt của bạn không hỗ trợ thẻ video.
+                        </video>`;
+
+                    modalBody.innerHTML = htmlContent;
+                    trailerModalInfo.show();
+                });
+            });
+
+            trailerModalElement.addEventListener('hidden.bs.modal', function () {
+                modalBody.innerHTML = '';
+            });
+        });
+
+        // --- 3. LOGIC SẮP XẾP BÌNH LUẬN ---
+        function sortReviewList(criteria) {
+            var container = document.getElementById('reviewContainer');
+            var items = Array.from(container.getElementsByClassName('review-item'));
+
+            items.sort(function(a, b) {
+                var dateA = new Date(a.getAttribute('data-date'));
+                var dateB = new Date(b.getAttribute('data-date'));
+                var starA = parseInt(a.getAttribute('data-star'));
+                var starB = parseInt(b.getAttribute('data-star'));
+
+                if (criteria === 'newest') {
+                    return dateB - dateA;
+                } else if (criteria === 'oldest') {
+                    return dateA - dateB;
+                } else if (criteria === 'high_rate') {
+                    return starB - starA;
+                } else if (criteria === 'low_rate') {
+                    return starA - starB;
+                }
+            });
+
+            container.innerHTML = "";
+            items.forEach(function(item) {
+                container.appendChild(item);
+            });
+        }
+    </script>
+}
