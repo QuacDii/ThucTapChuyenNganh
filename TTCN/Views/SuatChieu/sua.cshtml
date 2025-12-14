@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <div class="container-fluid">
     <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
@@ -103,24 +104,27 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // 1. Lấy dữ liệu Map từ ViewBag (được in ra dưới dạng JSON)
-            var roomMap = @Html.Raw(ViewBag.RoomCinemaJson);
+            // 1. Lấy dữ liệu Map từ ViewBag
+            var roomMap = @Html.Raw(ViewBag.RoomCinemaJson ?? "{}");
 
             var selectPhong = document.getElementById('selectPhong');
             var cinemaInput = document.getElementById('cinemaInput');
 
             // 2. Sự kiện khi đổi phòng -> Cập nhật tên rạp
-            selectPhong.addEventListener('change', function() {
-                var roomId = this.value;
-                if(roomId && roomMap[roomId]) {
-                    cinemaInput.value = roomMap[roomId];
-                } else {
-                    cinemaInput.value = "Không xác định";
-                }
-            });
+            if (selectPhong) {
+                selectPhong.addEventListener('change', function() {
+                    var roomId = this.value;
+                    if(roomId && roomMap[roomId]) {
+                        cinemaInput.value = roomMap[roomId];
+                    } else {
+                        cinemaInput.value = "Không xác định";
+                    }
+                });
+            }
 
-            // --- CÁC LOGIC CŨ (LỊCH CHIẾU, PHIM) GIỮ NGUYÊN ---
+            // --- CẤU HÌNH FLATPICKR ---
             const config = {
+                locale: "vn",
                 enableTime: true,
                 dateFormat: "Y-m-d\\TH:i",
                 altInput: true,
@@ -129,31 +133,38 @@
                 allowInput: false
             };
 
+            // Giờ bắt đầu
             const startPicker = flatpickr("#gioBatDau", {
                 ...config,
                 onChange: function(selectedDates, dateStr, instance) {
+                    // Khi người dùng chọn giờ bằng tay
                     calculateEndTime(selectedDates[0]);
                 }
             });
 
+            // Giờ kết thúc (Chặn nhập tay)
             const endPicker = flatpickr("#gioKetThuc", {
                 ...config,
                 clickOpens: false
             });
 
+            // --- XỬ LÝ LOGIC PHIM ---
             var selectPhim = document.getElementById('selectPhim');
             var rangeHint = document.getElementById('rangeDateHint');
             var currentDuration = 0;
 
+            // Load lần đầu (khi vào trang Sửa)
             var initialPhimId = selectPhim.value;
             if(initialPhimId) {
                 loadPhimInfo(initialPhimId, false);
             }
 
+            // Sự kiện khi ĐỔI PHIM
             selectPhim.addEventListener('change', function () {
                 var phimId = this.value;
                 if (phimId) {
-                    loadPhimInfo(phimId, true);
+                    // QUAN TRỌNG: Truyền 'false' để KHÔNG xóa ngày giờ đã chọn
+                    loadPhimInfo(phimId, false);
                 } else {
                     resetForm();
                 }
@@ -163,18 +174,36 @@
                 fetch('/SuatChieu/getPhim?id=' + phimId)
                     .then(response => response.json())
                     .then(data => {
-                        if (data.success) {
-                            currentDuration = data.thoiLuong || 0;
-                            startPicker.set('minDate', data.ngayPhatHanh);
-                            startPicker.set('maxDate', data.ngayKetThuc);
+                        // Kiểm tra dữ liệu trả về (hỗ trợ cả chữ hoa/thường)
+                        if (data.success || data.MaPhim || data.maPhim) {
 
-                            let d1 = formatDateVN(data.ngayPhatHanh);
-                            let d2 = formatDateVN(data.ngayKetThuc);
-                            rangeHint.innerText = `* Phim chiếu từ ${d1} đến ${d2} (${currentDuration} phút)`;
+                            // 1. Cập nhật thời lượng mới
+                            currentDuration = data.thoiLuong || data.ThoiLuong || 0;
 
+                            // 2. Cập nhật giới hạn ngày (min/max date)
+                            if (data.ngayPhatHanh) startPicker.set('minDate', data.ngayPhatHanh);
+                            if (data.ngayKetThuc) startPicker.set('maxDate', data.ngayKetThuc);
+
+                            // 3. Hiển thị gợi ý
+                            let d1 = formatDateVN(data.ngayPhatHanh || data.NgayPhatHanh);
+                            let d2 = formatDateVN(data.ngayKetThuc || data.NgayKetThuc);
+                            if(rangeHint) {
+                                rangeHint.innerText = `* Phim chiếu từ ${d1} đến ${d2} (${currentDuration} phút)`;
+                            }
+
+                            // 4. Xử lý tính lại giờ
                             if (shouldResetDate) {
+                                // Trường hợp muốn xóa trắng (ví dụ: nút Reset)
                                 startPicker.clear();
                                 endPicker.clear();
+                            } else {
+                                // Trường hợp đổi phim nhưng muốn giữ giờ bắt đầu để tính lại giờ kết thúc
+                                var currentStartDate = startPicker.selectedDates[0];
+
+                                // Nếu đã có giờ bắt đầu -> Tính ngay giờ kết thúc mới
+                                if (currentStartDate) {
+                                    calculateEndTime(currentStartDate);
+                                }
                             }
                         }
                     })
@@ -183,15 +212,18 @@
 
             function calculateEndTime(startDate) {
                 if (startDate && currentDuration > 0) {
+                    // Cộng phút vào giờ bắt đầu
                     var endTimeMs = startDate.getTime() + (currentDuration * 60000);
                     var endTime = new Date(endTimeMs);
+
+                    // Cập nhật vào ô Giờ Kết Thúc
                     endPicker.setDate(endTime);
                 }
             }
 
             function resetForm() {
                 currentDuration = 0;
-                rangeHint.innerText = "";
+                if(rangeHint) rangeHint.innerText = "";
                 startPicker.clear();
                 endPicker.clear();
                 startPicker.set('minDate', null);

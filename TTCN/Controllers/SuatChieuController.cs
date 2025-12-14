@@ -75,7 +75,11 @@ namespace TTCN.Controllers
         [HttpGet]
         public IActionResult them()
         {
-            ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim");
+            var validPhims = _context.Phims
+                .Where(p => p.TrangThai == "Đang công chiếu" || p.TrangThai == "Sắp công chiếu")
+                .ToList();
+
+            ViewBag.MaPhim = new SelectList(validPhims, "MaPhim", "TenPhim");
             ViewBag.ListCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap");
             ViewBag.MaPhong = new SelectList(new List<PhongChieu>(), "MaPhong", "TenPhong");
             return View();
@@ -105,6 +109,7 @@ namespace TTCN.Controllers
 
             if (sc.MaPhim != null)
             {
+
                 var phim = _context.Phims.Find(sc.MaPhim);
                 if (phim != null && sc.GioBatDau.HasValue && phim.NgayPhatHanh.HasValue && phim.NgayKetThuc.HasValue)
                 {
@@ -137,16 +142,16 @@ namespace TTCN.Controllers
                     ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong);
                     return View(sc);
                 }
-
-                int maxId = _context.SuatChieus.Any() ? _context.SuatChieus.Max(s => s.MaSuat) : 0;
-                sc.MaSuat = maxId + 1;
                 _context.Add(sc);
                 _context.SaveChanges();
                 TempData["Success"] = "Thêm Suất chiếu thành công!";
                 return RedirectToAction("Index");
             }
+            var validPhims = _context.Phims
+                .Where(p => p.TrangThai == "Đang công chiếu" || p.TrangThai == "Sắp công chiếu")
+                .ToList();
 
-            ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
+            ViewBag.MaPhim = new SelectList(validPhims, "MaPhim", "TenPhim", sc.MaPhim);
             ViewBag.ListCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap"); 
             ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", sc.MaPhong); 
             return View(sc);

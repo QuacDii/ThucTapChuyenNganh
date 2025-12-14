@@ -1,13 +1,179 @@
 ﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
 @{
     ViewData["Title"] = "Trang Chủ";
 }
 
-<!-- 2. Main Carousel (Phim nổi bật) -->
-<header>
-    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+<style>
+    /* 1. Carousel Hero Section */
+    .carousel-item {
+        height: 600px; /* Chiều cao cố định cho banner */
+        background-color: #000;
+    }
 
-        <!-- Indicators -->
+        .carousel-item img {
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8; /* Làm tối ảnh một chút để chữ nổi bật */
+        }
+
+    .hero-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0)); /* Gradient đen từ dưới lên */
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .carousel-caption {
+        z-index: 2;
+        bottom: 20%;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+    }
+
+        .carousel-caption h5 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+    /* 2. Movie Card Styling (Phim đang chiếu) */
+    .movie-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: transparent !important; /* Trong suốt để hòa vào nền */
+        border: none;
+        overflow: hidden;
+    }
+
+        .movie-card:hover {
+            transform: translateY(-5px); /* Nổi lên khi hover */
+        }
+
+    .card-img-wrapper {
+        position: relative;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+        .card-img-wrapper img {
+            transition: transform 0.5s ease;
+            height: 360px; /* Chiều cao cố định cho poster */
+            width: 100%;
+            object-fit: cover;
+        }
+
+    /* Hiệu ứng zoom ảnh khi hover */
+    .movie-card:hover .card-img-wrapper img {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+
+    /* Icon Play giữa ảnh */
+    .play-icon {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        font-size: 3.5rem;
+        color: white;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        z-index: 10;
+        pointer-events: none;
+    }
+
+    .movie-card:hover .play-icon {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    /* Badge điểm số */
+    .rating-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(229, 9, 20, 0.9); /* Màu đỏ Netflix */
+        color: white;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-weight: bold;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        z-index: 5;
+    }
+
+    /* Tiêu đề & Thông tin phim */
+    .movie-title {
+        color: #fff; /* Chữ trắng */
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-top: 15px;
+        text-decoration: none;
+        display: block;
+        transition: color 0.2s;
+    }
+
+        .movie-title:hover {
+            color: #e50914; /* Hover màu đỏ */
+        }
+
+    .movie-meta {
+        color: #aaa;
+        font-size: 0.85rem;
+    }
+
+    /* Style lại Tabs */
+    .nav-tabs {
+        border-bottom: 2px solid #333;
+    }
+
+        .nav-tabs .nav-link {
+            color: #aaa;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding-bottom: 15px;
+            background: transparent;
+        }
+
+            .nav-tabs .nav-link.active {
+                color: #e50914; /* Màu chữ khi active */
+                background: transparent;
+                border-bottom: 3px solid #e50914;
+            }
+
+            .nav-tabs .nav-link:hover {
+                color: white;
+            }
+
+    /* Nút Đặt vé */
+    .btn-custom-red {
+        background-color: #e50914;
+        color: white;
+        border-radius: 6px;
+        font-weight: 600;
+        text-transform: uppercase;
+        transition: all 0.3s;
+        border: none;
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+        .btn-custom-red:hover {
+            background-color: #b20710;
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
+            color: white;
+            transform: translateY(-2px);
+        }
+</style>
+
+<header>
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
+
         <div class="carousel-indicators">
             @for (int i = 0; i < ViewBag.PhimHot.Count; i++)
             {
@@ -20,122 +186,277 @@
             }
         </div>
 
-        <!-- Slides -->
         <div class="carousel-inner">
             @{
                 int index = 0;
             }
             @foreach (var item in ViewBag.PhimHot)
             {
+                // Xử lý đường dẫn
+                string trailerUrl = item.TrailerPhim;
+                if (!string.IsNullOrEmpty(trailerUrl) && !trailerUrl.StartsWith("/"))
+                {
+                    trailerUrl = "/" + trailerUrl;
+                }
+
+                string posterUrl = item.PosterPhim;
+                if (!string.IsNullOrEmpty(posterUrl) && !posterUrl.StartsWith("/"))
+                {
+                    posterUrl = "/" + posterUrl;
+                }
+
                 <div class="carousel-item @(index == 0 ? "active" : "")">
-                    <img src="@item.PosterPhim" class="d-block w-100" alt="@item.TenPhim">
 
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>@item.TenPhim</h5>
-                        @* <p>@item.MoTa</p> *@
+                    @if (!string.IsNullOrEmpty(item.TrailerPhim))
+                    {
+                        <video class="d-block w-100 h-100 carousel-video"
+                               poster="@posterUrl"
+                               muted loop playsinline autoplay>
+                            <source src="@trailerUrl" type="video/mp4">
+                            <img src="@posterUrl" class="d-block w-100" alt="@item.TenPhim">
+                        </video>
+                    }
+                    else
+                    {
+                        <img src="@posterUrl" class="d-block w-100" alt="@item.TenPhim">
+                    }
 
-                        <a href="javascript:void(0);" class="btn btn-brand"
-                           onclick="openTrailer('@item.TrailerPhim')">
-                            Xem Trailer
-                        </a>
+                    <div class="hero-overlay"></div>
+
+                    <div class="carousel-caption d-none d-md-block text-start" style="left: 10%; bottom: 15%;">
+                        <span class="badge bg-danger mb-2">PHIM HOT</span>
+                        <h5 class="display-3 fw-bold">@item.TenPhim</h5>
+
+                        <div class="mt-4 d-flex gap-3">
+                            <a href="@Url.Action("chiTiet", "Phim", new { id = item.MaPhim })" class="btn btn-custom-red px-4 py-2">
+                                <i class="fa-solid fa-circle-info me-2"></i> Xem chi tiết
+                            </a>
+                            <button type="button" class="btn btn-outline-light px-4 py-2" onclick="toggleMute(this)">
+                                <i class="fas fa-volume-mute me-2"></i> Bật tiếng
+                            </button>
+                        </div>
                     </div>
                 </div>
                 index++;
             }
         </div>
 
-        <!-- Prev & Next -->
         <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
         </button>
-
         <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </button>
-
     </div>
 </header>
 
-
-<!-- 3. Movie List (Danh sách phim) -->
-<main class="container my-5">
-    <!-- Tabs Phim -->
-    <nav class="movie-tabs mb-4">
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="nav-now-showing-tab" data-bs-toggle="tab" data-bs-target="#nav-now-showing" type="button" role="tab" aria-controls="nav-now-showing" aria-selected="true">Phim Đang Chiếu</button>
-            <button class="nav-link" id="nav-coming-soon-tab" data-bs-toggle="tab" data-bs-target="#nav-coming-soon" type="button" role="tab" aria-controls="nav-coming-soon" aria-selected="false">Phim Sắp Chiếu</button>
+<main class="container my-5" style="min-height: 800px;">
+    <nav class="movie-tabs mb-4 d-flex justify-content-center">
+        <div class="nav nav-tabs border-0" id="nav-tab" role="tablist">
+            <button class="nav-link active mx-3" id="nav-now-showing-tab" data-bs-toggle="tab" data-bs-target="#nav-now-showing" type="button" role="tab" aria-selected="true">PHIM ĐANG CHIẾU</button>
+            <button class="nav-link mx-3" id="nav-coming-soon-tab" data-bs-toggle="tab" data-bs-target="#nav-coming-soon" type="button" role="tab" aria-selected="false">PHIM SẮP CHIẾU</button>
         </div>
     </nav>
 
-    <!-- Tab Content -->
     <div class="tab-content" id="nav-tabContent">
-
-        <!-- Tab: Phim Đang Chiếu -->
-        <div class="tab-pane fade show active" id="nav-now-showing" role="tabpanel" aria-labelledby="nav-now-showing-tab">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
-
-                <!-- Hiển thị dữ liệu thật từ Controller -->
+        <div class="tab-pane fade show active" id="nav-now-showing" role="tabpanel">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-4 g-5">
                 @foreach (var item in ViewBag.CongChieu)
                 {
                     <div class="col">
-                        <div class="card movie-card">
+                        <div class="card movie-card h-100">
                             <div class="card-img-wrapper">
-                                <img src="@item.PosterPhim" class="card-img-top" alt="@item.TenPhim">
-                                <span class="rating-badge">@item.DiemTB</span>
+                                <img src="/@item.PosterPhim" class="card-img-top" alt="@item.TenPhim" style="cursor: pointer;" loading="lazy" onclick="openTrailer('@item.TrailerPhim')">
+                                @if (item.DiemTB > 0)
+                                {
+                                    <span class="rating-badge"><i class="fas fa-star me-1 text-warning"></i>@item.DiemTB</span>
+                                }
+
                                 <i class="fas fa-play-circle play-icon"></i>
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">@item.TenPhim</h5>
-                                <span class="card-text">Thể loại: </span><span class="card-text d-block mb-2">
-                                    @string.Join(", ", item.TenTheLoai)
-                                </span>
-                                <p class="card-text"></p>
+
+                            <div class="card-body px-0 pt-3">
+                                <h5 class="card-title text-truncate">
+                                    <a href="@Url.Action("chiTiet", "Phim", new { id = item.MaPhim })" class="movie-title">@item.TenPhim</a>
+                                </h5>
+
+                                <div class="movie-meta mb-3 text-truncate">
+                                    <div class="mb-1">
+                                        <span class="text-white-50">Thể loại:</span>
+                                        <span class="text-light">
+                                            @string.Join(", ", item.TenTheLoai)
+                                        </span>
+                                    </div>
+                                    
+                                    @{
+                                        var mapThoiLuong = ViewBag.ThoiLuongMap as Dictionary<int, int>;
+                                        var ngay = ViewBag.ngayBDC as Dictionary<int, DateTime?>;
+
+                                        var thoiLuong = mapThoiLuong != null && mapThoiLuong.ContainsKey(item.MaPhim)
+                                        ? mapThoiLuong[item.MaPhim] : 0;
+                                        var ngayBD = ngay != null && mapThoiLuong.ContainsKey(item.MaPhim)
+                                        ? ngay[item.MaPhim] : null;
+                                    }
+                                    <div>
+                                        <span class="text-white-50">Thời lượng:</span>
+                                        <span class="text-light">@thoiLuong phút</span>
+                                    </div>
+
+                                    <div>
+                                        <span class="text-white-50">Ngày công chiếu:</span>
+                                        <span class="text-light">@(ngayBD != null ? ngayBD.ToString("dd/MM/yyyy") : "...")</span>
+                                    </div>
+                                </div>
+
                                 <a href="javascript:void(0);"
-                                   class="btn btn-buy-ticket"
+                                   class="btn btn-custom-red w-100 shadow-sm"
                                    onclick="handleBookingClick('@Url.Action("Index", "DatVe", new { maPhim = item.MaPhim })')">
-                                    Đặt vé
+                                    <i class="fas fa-ticket-alt me-2"></i> ĐẶT VÉ
                                 </a>
                             </div>
                         </div>
                     </div>
                 }
-
             </div>
         </div>
 
-        <!-- Tab: Phim Sắp Chiếu -->
-        <div class="tab-pane fade" id="nav-coming-soon" role="tabpanel" aria-labelledby="nav-coming-soon-tab">
-            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4">
-
-                <!-- Hiển thị dữ liệu thật từ Controller -->
+        <div class="tab-pane fade" id="nav-coming-soon" role="tabpanel">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-4 g-5">
                 @foreach (var item in ViewBag.SapChieu)
                 {
                     <div class="col">
-                        <div class="card movie-card">
+                        <div class="card movie-card h-100">
                             <div class="card-img-wrapper">
-                                <img src="@item.PosterPhim" class="card-img-top" alt="@item.TenPhim">
+                                <img src="/@item.PosterPhim" class="card-img-top" style="cursor: pointer;" alt="@item.TenPhim" loading="lazy" onclick="openTrailer('@item.TrailerPhim')">>
+
                                 <i class="fas fa-play-circle play-icon"></i>
+
+                                <div class="position-absolute bottom-0 start-0 w-100 p-2 text-center bg-dark bg-opacity-75 text-white fw-bold">
+                                    Sắp Khởi Chiếu
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <h5 class="card-title">@item.TenPhim</h5>
-                                <span class="card-text">Thể loại: </span><span class="card-text d-block mb-2">
-                                    @string.Join(", ", item.TenTheLoai)
-                                </span>
-                                <p class="card-text"></p>
+
+                            <div class="card-body px-0 pt-3">
+                                <h5 class="card-title text-truncate">
+                                    <a href="@Url.Action("chiTiet", "Phim", new { id = item.MaPhim })" class="movie-title">@item.TenPhim</a>
+                                </h5>
+                                <div class="movie-meta text-truncate">
+                                    <span class="text-white-50">Thể loại:</span>
+                                    <span class="text-light">
+                                        @string.Join(", ", item.TenTheLoai)
+                                    </span>
+                                </div>
+                                <div class="mt-3">
+                                    <a href="@Url.Action("chiTiet", "Phim", new { id = item.MaPhim })" class="btn btn-outline-light w-100">
+                                        Xem Chi Tiết
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 }
-
             </div>
         </div>
     </div>
 </main>
 
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background-color: #000; border: 1px solid #333;">
+            <div class="modal-header border-0 p-2">
+                <h5 class="modal-title text-white">Trailer</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center" style="min-height: 400px; background: black;">
+                <div id="trailerModalBody" class="w-100"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
     <script>
+        // 1. Logic xử lý Video nền Banner (Tự chạy, tắt tiếng)
+        document.addEventListener("DOMContentLoaded", function() {
+            var myCarousel = document.getElementById('heroCarousel');
+
+            // Khi chuyển slide, chỉ phát video của slide đang hiện
+            if(myCarousel) {
+                myCarousel.addEventListener('slid.bs.carousel', function (e) {
+                    document.querySelectorAll('.carousel-video').forEach(vid => {
+                        vid.pause();
+                    });
+                    var activeSlide = e.relatedTarget;
+                    var activeVideo = activeSlide.querySelector('video');
+                    if (activeVideo) {
+                        activeVideo.currentTime = 0;
+                        activeVideo.play();
+                    }
+                });
+            }
+
+            // Xử lý sự kiện đóng Modal Trailer -> Tắt video để không còn tiếng
+            var trailerModalEl = document.getElementById('trailerModal');
+            if (trailerModalEl) {
+                trailerModalEl.addEventListener('hidden.bs.modal', function () {
+                    document.getElementById('trailerModalBody').innerHTML = '';
+                });
+            }
+        });
+
+        // 2. Hàm bật/tắt tiếng cho Video nền Banner
+        function toggleMute(btn) {
+            var activeSlide = document.querySelector('.carousel-item.active');
+            var video = activeSlide.querySelector('video');
+            var icon = btn.querySelector('i');
+
+            if (video) {
+                if (video.muted) {
+                    video.muted = false;
+                    icon.classList.remove('fa-volume-mute');
+                    icon.classList.add('fa-volume-up');
+                    btn.innerHTML = '<i class="fas fa-volume-up me-2"></i> Tắt tiếng';
+                } else {
+                    video.muted = true;
+                    icon.classList.remove('fa-volume-up');
+                    icon.classList.add('fa-volume-mute');
+                    btn.innerHTML = '<i class="fas fa-volume-mute me-2"></i> Bật tiếng';
+                }
+            }
+        }
+
+        // 3. HÀM MỞ POPUP TRAILER
+        function openTrailer(trailerUrl) {
+            if (!trailerUrl || trailerUrl.trim() === "") {
+                alert("Phim này chưa cập nhật trailer!");
+                return;
+            }
+
+            // Xử lý đường dẫn (thêm dấu / nếu thiếu)
+            if (!trailerUrl.startsWith("http") && !trailerUrl.startsWith("/")) {
+                trailerUrl = "/" + trailerUrl;
+            }
+
+            var modalBody = document.getElementById('trailerModalBody');
+
+            // Tạo thẻ video HTML5
+            var videoHtml = `
+                <video width="100%" controls autoplay style="max-height: 80vh; outline: none;">
+                    <source src="${trailerUrl}" type="video/mp4">
+                    Trình duyệt không hỗ trợ video.
+                </video>
+            `;
+
+            modalBody.innerHTML = videoHtml;
+
+            // Hiển thị Modal
+            var myModal = new bootstrap.Modal(document.getElementById('trailerModal'));
+            myModal.show();
+        }
+
+        // 4. Logic xử lý Đặt vé (Check đăng nhập)
         const isUserLoggedIn = @((Context.Session.GetString("UserEmail") != null).ToString().ToLower());
 
         function handleBookingClick(targetUrl) {

@@ -64,12 +64,6 @@ namespace TTCN.Controllers
             }
             if (ModelState.IsValid)
             {
-                int max = 0;
-                if(_context.CumRaps.Any())
-                {
-                    max=_context.CumRaps.Max(c=>c.MaCumRap);
-                }
-                cum.MaCumRap = max + 1;
                 _context.CumRaps.Add(cum);
                 _context.SaveChanges();
 

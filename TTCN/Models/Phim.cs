@@ -30,16 +30,20 @@ namespace TTCN.Models
         [Display(Name = "Thời lượng")]
         public int ThoiLuong { get; set; }
 
-        [Required(ErrorMessage = "Vui lòng chọn ngày phát hành!")]
+        [Required(ErrorMessage = "Vui lòng chọn ngày công chiếu!")]
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Ngày phát hành")]
+        [Display(Name = "Ngày công chiếu")]
         public DateTime? NgayPhatHanh { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập tên đạo diễn!")]
         [StringLength(50, ErrorMessage = "Tên đạo diễn không được quá 50 ký tự.")]
         [Display(Name = "Đạo diễn")]
         public string DaoDien { get; set; } = null!;
+
+        [Display(Name = "Diễn viên")]
+        public string DienVien { get; set; } = null;
+
         [Display(Name = "Poster phim")]
         public string? PosterPhim { get; set; }
         [Display(Name = "Trailer phim")]

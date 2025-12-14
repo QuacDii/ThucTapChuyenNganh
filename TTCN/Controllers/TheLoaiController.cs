@@ -45,9 +45,6 @@ namespace TTCN.Controllers
 
             if (ModelState.IsValid)
             {
-                int max = _context.TheLoais.Any() ? _context.TheLoais.Max(t => t.MaTheLoai) : 0;
-                tl.MaTheLoai = max + 1;
-
                 _context.TheLoais.Add(tl);
                 _context.SaveChanges();
                 TempData["Success"] = "Thêm thể loại thành công!";

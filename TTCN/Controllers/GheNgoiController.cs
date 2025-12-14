@@ -15,7 +15,7 @@ namespace TTCN.Controllers
             _context = context;
         }
 
-        public IActionResult Index(int maCumRap, int maPhong, string search)
+        public IActionResult Index(int maCumRap, int maPhong, string search, string loaiGhe)
         {
             var query = _context.GheNgois
                                 .Include(g => g.MaPhongNavigation)
@@ -34,12 +34,21 @@ namespace TTCN.Controllers
                 query = query.Where(g => g.MaPhong == maPhong);
             }
 
+            //Lọc theo loại ghế
+            if (!string.IsNullOrEmpty(loaiGhe))
+            {
+                query = query.Where(g => g.LoaiGhe == loaiGhe);
+            }
+
+            var danhSachLoaiGhe = _context.GheNgois.Select(g => g.LoaiGhe).Distinct().ToList();
+
             // Tìm kiếm tên ghế
             if (!string.IsNullOrEmpty(search))
             {
                 query = query.Where(g => g.TenGhe.Contains(search) || g.MaGhe.ToString()==search);
             }
-
+            var listLoaiGhe = _context.GheNgois.Select(g => g.LoaiGhe).Distinct().ToList();
+            ViewBag.LoaiGheList = new SelectList(listLoaiGhe, loaiGhe);
 
             // 1. Danh sách Cụm Rạp 
             ViewBag.DsCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap", maCumRap);
@@ -185,8 +194,6 @@ namespace TTCN.Controllers
                 }
                 else
                 {
-                    int maxId = _context.GheNgois.Any() ? _context.GheNgois.Max(s => s.MaGhe) : 0;
-                    gheNgoi.MaGhe = maxId + 1;
                     _context.GheNgois.Add(gheNgoi);
                     _context.SaveChanges();
                     TempData["Success"] = "Thêm ghế thành công!";
@@ -218,9 +225,6 @@ namespace TTCN.Controllers
             // Validate Logic nhập liệu
             char startRow = char.Parse(TuHang);
             char endRow = char.Parse(DenHang);
-            int soHang = endRow - startRow + 1;
-            int soGheMoiHang = DenSo - TuSo + 1;
-            int soGheMuonThem = soHang * soGheMoiHang;
 
             if (startRow > endRow)
                 ModelState.AddModelError("", "Hàng bắt đầu phải nhỏ hơn hoặc bằng hàng kết thúc.");
@@ -228,72 +232,58 @@ namespace TTCN.Controllers
             if (TuSo > DenSo)
                 ModelState.AddModelError("", "Số ghế bắt đầu phải nhỏ hơn hoặc bằng số kết thúc.");
 
-
-
             if (ModelState.IsValid)
             {
-                var phong = _context.PhongChieus.FirstOrDefault(p => p.MaPhong == MaPhong);
-                int soGheHienTai = _context.GheNgois.Count(g => g.MaPhong == MaPhong);
-                int soGheConLai = phong.TongGhe - soGheHienTai;
-                if (soGheMuonThem > soGheConLai)
+                int totalSuccess = 0;
+                int totalDuplicate = 0;
+                var listGheMoi = new List<GheNgoi>(); 
+
+                int currentMaxId = _context.GheNgois.Any() ? _context.GheNgois.Max(s => s.MaGhe) : 0;
+
+                // VÒNG LẶP CHỈ DÙNG ĐỂ TÍNH TOÁN, KHÔNG RETURN
+                for (char r = char.Parse(TuHang); r <= char.Parse(DenHang); r++)
                 {
-                    ModelState.AddModelError(string.Empty, "Phòng không đủ chỗ trống để thêm");
+                    string currentHang = r.ToString();
+                    for (int i = TuSo; i <= DenSo; i++)
+                    {
+                        string tenGhe = currentHang + i;
+
+                        // Kiểm tra trùng
+                        if (!_context.GheNgois.Any(g => g.MaPhong == MaPhong && g.TenGhe == tenGhe))
+                        {
+                            currentMaxId++;
+                            listGheMoi.Add(new GheNgoi
+                            {
+                                MaGhe = currentMaxId,
+                                TenGhe = tenGhe,
+                                HangGhe = currentHang,
+                                MaPhong = MaPhong,
+                                LoaiGhe = LoaiGhe
+                            });
+                            totalSuccess++;
+                        }
+                        else
+                        {
+                            totalDuplicate++;
+                        }
+                    }
+                } 
+
+                if (listGheMoi.Count > 0)
+                {
+                    _context.GheNgois.AddRange(listGheMoi); 
+                    _context.SaveChanges();
+
+                    string msg = $"Đã thêm {totalSuccess} ghế!";
+                    if (totalDuplicate > 0) msg += $" (Bỏ qua {totalDuplicate} ghế trùng).";
+                    TempData["Success"] = msg;
                 }
                 else
                 {
-                    int successCount = 0;   // Đếm số ghế thêm thành công
-                    int duplicateCount = 0; // Đếm số ghế bị trùng
-                    // Vòng lặp Hàng (Ví dụ A -> C)
-                    for (char r = startRow; r <= endRow; r++)
-                    {
-                        string currentHang = r.ToString();
-
-                        // Vòng lặp Số (Ví dụ 1 -> 10)
-                        for (int i = TuSo; i <= DenSo; i++)
-                        {
-                            string tenGhe = currentHang + i; // A1, A2...
-
-                            // Kiểm tra chưa có mới thêm
-                            if (!_context.GheNgois.Any(g => g.MaPhong == MaPhong && g.TenGhe == tenGhe))
-                            {
-                                int maxId = _context.GheNgois.Any() ? _context.GheNgois.Max(s => s.MaGhe) : 0;
-                                var ghe = new GheNgoi
-                                {
-                                    MaGhe = maxId + 1,
-                                    TenGhe = tenGhe,
-                                    HangGhe = currentHang,
-                                    MaPhong = MaPhong,
-                                    LoaiGhe = LoaiGhe
-                                };
-                                _context.GheNgois.Add(ghe);
-                                _context.SaveChanges();
-                                successCount++;
-                            }
-                            else
-                            {
-                                duplicateCount++;
-                            }
-                        }
-                    }
-
-                    if (successCount > 0)
-                    {
-                        _context.SaveChanges();
-
-                        string msg = $"Đã thêm thành công {successCount} ghế {LoaiGhe}.";
-                        if (duplicateCount > 0)
-                        {
-                            msg += $" (Hệ thống đã tự động bỏ qua {duplicateCount} ghế bị trùng tên).";
-                        }
-                        TempData["Success"] = msg;
-                    }
-                    else
-                    {
-                        // Trường hợp không thêm được cái nào (Toàn bộ đều trùng)
-                        TempData["Error"] = $"Không thêm được ghế nào! Tất cả {duplicateCount} ghế trong phạm vi chọn đều đã tồn tại.";
-                    }
-                    return RedirectToAction("Index");
+                    TempData["Error"] = $"Không thêm được ghế nào! {totalDuplicate} ghế đã tồn tại.";
                 }
+
+                return RedirectToAction("Index");
             }
             ViewBag.DsCumRap = new SelectList(_context.CumRaps, "MaCumRap", "TenCumRap");
             ViewBag.MaPhong = new SelectList(_context.PhongChieus, "MaPhong", "TenPhong", MaPhong);

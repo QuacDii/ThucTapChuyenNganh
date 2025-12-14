@@ -1,5 +1,243 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model TTCN.Models.DonDatVe
+
 @{
+    ViewData["Title"] = "Chi Tiết Đơn Đặt Vé";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
+<style>
+    /* Style cho badge loại ghế - Đồng bộ với trang danh sách ghế */
+    .badge-vip {
+        background-color: #f6c23e;
+        color: #fff;
+    }
+
+    .badge-thuong {
+        background-color: #4e73df;
+        color: #fff;
+    }
+
+    .badge-sweetbox {
+        background-color: #e74a3b;
+        color: #fff;
+    }
+
+    .badge-custom-success {
+        background-color: #1cc88a !important; /* Màu xanh lá chuẩn */
+        color: #ffffff !important;
+    }
+
+    .badge-custom-warning {
+        background-color: #f6c23e !important; 
+        color: #333333 !important; 
+    }
+
+    .badge-custom-danger {
+        background-color: #e74a3b !important; 
+        color: #ffffff !important;
+    }
+
+    .badge-custom-secondary {
+        background-color: #858796 !important; 
+        color: #ffffff !important;
+    }
+
+    .status-badge {
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 0.35rem; 
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Chi Tiết Đơn Hàng #@Model.MaDon</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-primary">
+                    <h6 class="m-0 font-weight-bold text-white">Thông tin Suất Chiếu & Ghế Ngồi</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.ChiTietDonDat != null && Model.ChiTietDonDat.Any())
+                    {
+                        var firstItem = Model.ChiTietDonDat.FirstOrDefault();
+                        var suat = firstItem?.MaSuatNavigation;
+                        var phim = suat?.MaPhimNavigation;
+                        var phong = suat?.MaPhongNavigation;
+                        var cumRap = phong?.MaCumRapNavigation;
+
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <h4 class="text-primary font-weight-bold">@phim?.TenPhim</h4>
+                                <p class="mb-1"><i class="fas fa-map-marker-alt text-danger"></i> <strong>Rạp:</strong> @cumRap?.TenCumRap - Phòng: @phong?.TenPhong</p>
+                                <p><i class="far fa-clock text-info"></i> <strong>Suất chiếu:</strong> @suat?.GioBatDau?.ToString("dd/MM/yyyy HH:mm")</p>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered" width="100%" cellspacing="0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th class="text-center">Mã Ghế</th>
+                                        <th class="text-center">Loại Ghế</th>
+                                        <th class="text-center">Giá Vé</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.ChiTietDonDat)
+                                    {
+                                        var loaiGhe = item.MaGheNavigation?.LoaiGhe ?? "Thường";
+                                        var badgeClass = "badge-thuong";
+
+                                        if (loaiGhe == "VIP") { badgeClass = "badge-vip"; }
+                                        else if (loaiGhe == "Sweetbox") { badgeClass = "badge-sweetbox"; }
+
+                                        <tr>
+                                            <td class="font-weight-bold text-center">
+                                                @item.MaGheNavigation?.TenGhe
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge @badgeClass px-2 py-1 shadow-sm" style="font-size: 0.9rem;">
+                                                    @loaiGhe
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                @((suat?.Gia ?? 0).ToString("N0")) VNĐ
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Không tìm thấy thông tin vé.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 bg-success">
+                    <h6 class="m-0 font-weight-bold text-white">Combo Bắp Nước Đã Đặt</h6>
+                </div>
+                <div class="card-body">
+                    @if (Model.DonDatVeDoAns != null && Model.DonDatVeDoAns.Count > 0)
+                    {
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Tên Combo/Món</th>
+                                    <th class="text-center">Số Lượng</th>
+                                    <th class="text-right">Đơn Giá</th>
+                                    <th class="text-right">Thành Tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                    @foreach (var combo in Model.DonDatVeDoAns)
+                                    {
+                                        var donGia = combo.Gia;
+                                        var thanhTien = donGia * combo.SoLuong;
+
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-utensils mr-2 text-warning"></i>
+                                                @combo.MaComboNavigation?.MoTa
+                                            </td>
+                                            <td class="text-center font-weight-bold">
+                                                x @combo.SoLuong
+                                            </td>
+                                            <td class="text-right">
+                                                @donGia.ToString("N0")
+                                            </td>
+                                            <td class="text-right font-weight-bold">
+                                                @thanhTien.ToString("N0") VNĐ
+                                            </td>
+                                        </tr>
+                                    }         
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="text-center py-3 text-gray-500">
+                            Khách hàng không đặt kèm bắp nước.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Thông Tin Thanh Toán</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">Khách hàng:</small>
+                        <h5 class="font-weight-bold">@Model.MaUsersNavigation?.HoTen</h5>
+                        <p class="text-sm text-gray-600">Email: @Model.MaUsersNavigation?.Email</p>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Ngày đặt:</span>
+                        <span class="font-weight-bold">@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="mr-2">Trạng thái:</span>
+
+                        @{
+                            var status = Model.TrangThai ?? "";
+                            string badgeStyle = "background-color: #858796; color: white;"; // Mặc định màu xám
+                            string iconHtml = "";
+
+                            if (!string.IsNullOrEmpty(status))
+                            {
+                                var sLower = status.ToLower();
+
+                                // 1. Trạng thái Thành công (Xanh lá)
+                                if (sLower.Contains("thanh toán") || sLower.Contains("hoàn tất"))
+                                {
+                                    badgeStyle = "background-color: #1cc88a; color: white;";
+                                    iconHtml = "<i class='fas fa-check-circle mr-1'></i>";
+                                }
+                                // 3. Trạng thái Chờ (Vàng)
+                                else
+                                {
+                                    badgeStyle = "background-color: #f6c23e; color: #333;";
+                                    iconHtml = "<i class='fas fa-clock mr-1'></i>";
+                                }
+                            }
+                        }
+
+                        <span class="badge px-3 py-2" style="@badgeStyle font-size: 0.9rem; border: 1px solid rgba(0,0,0,0.1);">
+                            @Html.Raw(iconHtml) @(string.IsNullOrEmpty(status) ? "Chưa cập nhật" : status)
+                        </span>
+                    </div>
+
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="font-weight-bold text-gray-800">TỔNG TIỀN:</h5>
+                        <h4 class="font-weight-bold text-danger">@Model.TongTien.ToString("N0") VNĐ</h4>
+                    </div>
+
+                    @if (Model.TrangThai != "Đã hủy")
+                    {
+                        <hr class="">
+                        <div class="text-center mt-3">
+                            <a asp-action="Index" class="btn btn-secondary shadow-sm px-4">
+                                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Quay lại danh sách
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

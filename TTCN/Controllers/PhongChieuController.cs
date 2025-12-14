@@ -54,8 +54,6 @@ namespace TTCN.Controllers
 
             if (ModelState.IsValid)
             { 
-                int maxId = _context.SuatChieus.Any() ? _context.PhongChieus.Max(s => s.MaPhong) : 0;
-                p.MaPhong = maxId + 1;
                 _context.PhongChieus.Add(p);
                 _context.SaveChanges();
                 TempData["Success"] = "Thêm phòng chiếu thành công!";

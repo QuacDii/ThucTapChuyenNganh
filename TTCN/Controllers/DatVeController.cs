@@ -14,7 +14,6 @@ namespace TTCN.Controllers
             var dlPhim = (from tbPhim in db.Phims
                           join tbPhimTheLoai in db.PhimTheLoais on tbPhim.MaPhim equals tbPhimTheLoai.MaPhim
                           join tbTheLoai in db.TheLoais on tbPhimTheLoai.MaTheLoai equals tbTheLoai.MaTheLoai
-                          join tbUsersPhim in db.UsersPhims on tbPhim.MaPhim equals tbUsersPhim.MaPhim
                           where tbPhim.MaPhim == maPhim
                           select new
                           {

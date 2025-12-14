@@ -32,7 +32,7 @@ namespace TTCN.Models
         public string MatKhau { get; set; } = null!;
 
         [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
-        [Phone(ErrorMessage = "Vui lòng nhập đúng định dạng số điện thoại")]
+        [RegularExpression(@"^0\d{9}$", ErrorMessage = "Định dạng số điện thoại không hợp lệ.")]
         [Display(Name = "Số điện thoại")]
         public string SoDienThoai { get; set; } = null!;
 

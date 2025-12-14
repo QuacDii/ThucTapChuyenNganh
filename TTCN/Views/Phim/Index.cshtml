@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <style>
     .desc-truncate {
@@ -64,10 +65,8 @@
             </a>
         </div>
     <div class="card-body">
-            <form asp-action="Index" method="get" class="mb-4">
+            <form asp-action="Index" method="get" class="mb-5">
                 <div class="d-flex align-items-center flex-wrap">
-
-
                     <div class="input-group me-2" style="width: 200px;">
                         <span class="input-group-text bg-light border-end-0">
                             <i class="fas fa-search text-gray-400"></i>
@@ -181,6 +180,10 @@
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().DaoDien)
                             </th>
 
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().DienVien)
+                            </th>
+
                             <th>Thể loại</th>
                             <th style="width: 80px;">
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().PosterPhim)
@@ -214,7 +217,7 @@
                                         </div>
                                     </td>
 
-                                    <td class="text-center">@item.ThoiLuong</td>
+                                    <td class="text-center">@item.ThoiLuong phút</td>
 
                                     <td class="text-center">
                                         @item.NgayPhatHanh.Value.ToString("dd/MM/yyyy")
@@ -225,6 +228,12 @@
                                     </td>
 
                                     <td>@item.DaoDien</td>
+
+                                    <td>
+                                        <div class="desc-truncate" title="@item.DienVien">
+                                            @(string.IsNullOrEmpty(item.DienVien) ? "---" : item.DienVien)
+                                        </div>
+                                    </td>
 
                                     <td>
                                         @if (item.PhimTheLoais != null && item.PhimTheLoais.Any())
@@ -254,14 +263,15 @@
                                     <td class="text-center">
                                         @if (!string.IsNullOrEmpty(item.TrailerPhim))
                                         {
-                                            string linkTrailer = item.TrailerPhim;
-                                            if (!linkTrailer.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                                            if (item.TrailerPhim.Contains("trailers/"))
                                             {
-                                                linkTrailer = "https://" + linkTrailer;
+                                                <button type="button"
+                                                        class="btn btn-danger btn-circle btn-sm shadow-sm btn-view-trailer"
+                                                        data-trailer="@item.TrailerPhim"
+                                                        title="Xem Trailer">
+                                                    <i class="fas fa-play"></i>
+                                                </button>
                                             }
-                                            <a href="@linkTrailer" target="_blank" class="btn btn-danger btn-circle btn-sm" title="Xem Trailer">
-                                                <i class="fab fa-youtube"></i>
-                                            </a>
                                         }
                                     </td>
 
@@ -303,6 +313,19 @@
                         }
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="trailerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white">Trailer</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 text-center" id="trailerModalBody">
             </div>
         </div>
     </div>
@@ -365,11 +388,49 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             flatpickr("#ngayChieuInput", {
+                locale: "vn",
                 dateFormat: "Y-m-d", 
                 altInput: true,        
                 altFormat: "d/m/Y",    
                 allowInput: true,       
                 disableMobile: "true"   
+            });
+
+            // Lấy Modal và Body của Modal
+            var trailerModal = document.getElementById('trailerModal');
+            var modalBody = document.getElementById('trailerModalBody');
+
+            // Bắt sự kiện khi click vào bất kỳ nút ".btn-view-trailer" nào
+            document.querySelectorAll('.btn-view-trailer').forEach(button => {
+                button.addEventListener('click', function() {
+                    var trailerPath = this.getAttribute('data-trailer');
+                    var htmlContent = '';
+
+                    // LOGIC KIỂM TRA LOẠI VIDEO
+
+                    // 1. Nếu là File Video Upload (chứa chữ "trailers/")
+                    if (trailerPath.includes('trailers/')) {
+                        // Thêm dấu / đầu tiên để trỏ về thư mục root
+                        var videoUrl = trailerPath.startsWith('/') ? trailerPath : '/' + trailerPath;
+
+                        htmlContent = `
+                            <video width="100%" controls autoplay class="rounded">
+                                <source src="${videoUrl}" type="video/mp4">
+                                Trình duyệt của bạn không hỗ trợ thẻ video.
+                            </video>
+                        `;
+                    }
+
+                    // Chèn nội dung vào Modal và hiện lên
+                    modalBody.innerHTML = htmlContent;
+                    var myModal = new bootstrap.Modal(trailerModal);
+                    myModal.show();
+                });
+            });
+
+            // Khi đóng Modal -> Xóa nội dung để video dừng phát
+            trailerModal.addEventListener('hidden.bs.modal', function () {
+                modalBody.innerHTML = '';
             });
         });
     </script>

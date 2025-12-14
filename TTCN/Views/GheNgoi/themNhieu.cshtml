@@ -68,7 +68,7 @@
                                 </div>
                                 <div class="input-group">
                                     <span class="input-group-text">Đến số</span>
-                                    <input type="number" name="DenSo" class="form-control" value="10" min="1" required />
+                                    <input type="number" name="DenSo" class="form-control" value="12" min="1" required />
                                 </div>
                             </div>
                         </div>
@@ -113,35 +113,51 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-              $('#ddlCumRap').change(function () {
-                var cumRapId = $(this).val();
-                var ddlPhong = $('#ddlPhong');
+            // --- 1. BIẾN TOÀN CỤC & SELECTOR ---
+            const $ddlCumRap = $('#ddlCumRap');
+            const $ddlPhong = $('#ddlPhong');
+            const $inputs = $('select[name="TuHang"], select[name="DenHang"], input[name="TuSo"], input[name="DenSo"]');
+            const $btnSubmit = $('button[type="submit"]'); // Nút Lưu
+            const $warningBox = $('#duplicateWarning');
+            const $warningMsg = $('#duplicateMsg');
+            const $lblConLai = $('#lblConLai');
 
-                // Xóa danh sách phòng cũ
-                ddlPhong.empty();
-                ddlPhong.append('<option value="">-- Tất cả Phòng --</option>');
+            // Hàm helper: Khóa/Mở nút submit
+            function toggleSubmit(enable) {
+                $btnSubmit.prop('disabled', !enable);
+            }
+
+            // --- 2. XỬ LÝ CHỌN CỤM RẠP ---
+            $ddlCumRap.change(function () {
+                var cumRapId = $(this).val();
+
+                // Reset dropdown phòng & thông tin ghế
+                $ddlPhong.empty().append('<option value="">-- Tất cả Phòng --</option>');
+                $('#infoGhe, #duplicateWarning').hide();
+                toggleSubmit(false); // Khóa nút khi chưa chọn phòng
 
                 if (cumRapId) {
-                    // Gọi API lấy danh sách phòng mới
                     $.ajax({
                         url: '/GheNgoi/GetPhongByCumRap',
                         type: 'GET',
                         data: { cumRapId: cumRapId },
                         success: function (data) {
                             $.each(data, function (index, item) {
-                                ddlPhong.append('<option value="' + item.id + '">' + item.name + '</option>');
+                                $ddlPhong.append('<option value="' + item.id + '">' + item.name + '</option>');
                             });
                         }
                     });
                 }
             });
-            // 1. Khi đổi PHÒNG -> Gọi API lấy Sức Chứa (GetThongTinGhe)
-            $('#ddlPhong').change(function () {
+
+            // --- 3. XỬ LÝ CHỌN PHÒNG ---
+            $ddlPhong.change(function () {
                 var maPhong = $(this).val();
 
-                // Reset các thông báo
+                // Reset thông báo và giao diện
                 $('#infoGhe').hide();
-                $('#duplicateWarning').hide();
+                $warningBox.hide();
+                toggleSubmit(false);
 
                 if (maPhong) {
                     $.ajax({
@@ -152,19 +168,19 @@
                             if (data.success) {
                                 $('#lblTong').text(data.tongGhe);
                                 $('#lblDaCo').text(data.daCo);
-                                $('#lblConLai').text(data.conLai);
+                                $lblConLai.text(data.conLai);
 
                                 // Logic đổi màu cảnh báo sức chứa
-                                var lblConLai = $('#lblConLai');
-                                if(data.conLai <= 0) {
-                                    lblConLai.parent().removeClass('text-success').addClass('text-danger');
-                                    lblConLai.text("HẾT CHỖ (0)");
+                                if (data.conLai <= 0) {
+                                    $lblConLai.parent().removeClass('text-success').addClass('text-danger');
+                                    $lblConLai.text("HẾT CHỖ (0)");
                                 } else {
-                                    lblConLai.parent().removeClass('text-danger').addClass('text-success');
+                                    $lblConLai.parent().removeClass('text-danger').addClass('text-success');
                                 }
                                 $('#infoGhe').slideDown();
 
-                                // Sau khi đổi phòng, kiểm tra trùng lại ngay lập tức
+                                // Sau khi load xong thông tin phòng, chạy kiểm tra lại ngay lập tức
+                                // (đề phòng người dùng đã nhập sẵn số ghế từ trước)
                                 checkDuplicates();
                             }
                         }
@@ -172,56 +188,70 @@
                 }
             });
 
-            // 2. Hàm kiểm tra Trùng (CheckGheTrung)
+            // --- 4. HÀM KIỂM TRA TRÙNG (LOGIC CHÍNH) ---
             function checkDuplicates() {
-                var maPhong = $('#ddlPhong').val();
+                var maPhong = $ddlPhong.val();
                 var tuHang = $('select[name="TuHang"]').val();
                 var denHang = $('select[name="DenHang"]').val();
                 var tuSo = $('input[name="TuSo"]').val();
                 var denSo = $('input[name="DenSo"]').val();
 
-                if (maPhong && tuHang && denHang && tuSo && denSo) {
-                    $.ajax({
-                        url: '/GheNgoi/CheckGheTrung',
-                        type: 'GET',
-                        data: { maPhong: maPhong, tuHang: tuHang, denHang: denHang, tuSo: tuSo, denSo: denSo },
-                        success: function (data) {
-                           if (data.valid) {
-        var box = $('#duplicateWarning');
-        var msg = $('#duplicateMsg');
-        var btnSubmit = $('button[type="submit"]'); // Lấy nút Lưu để khóa lại nếu lỗi
+                // Nếu chưa nhập đủ thông tin -> Ẩn lỗi, khóa nút và thoát
+                if (!maPhong || !tuHang || !denHang || !tuSo || !denSo) {
+                    $warningBox.hide();
+                    toggleSubmit(false);
+                    return;
+                }
 
-        // 1. Lấy số ghế còn trống hiện tại từ giao diện 
-        var gheConLai = parseInt($('#lblConLai').text()) || 0;
+                $.ajax({
+                    url: '/GheNgoi/CheckGheTrung',
+                    type: 'GET',
+                    data: {
+                        maPhong: maPhong,
+                        tuHang: tuHang,
+                        denHang: denHang,
+                        tuSo: tuSo,
+                        denSo: denSo
+                    },
+                    success: function (data) {
+                        if (data.valid) {
+                            // 1. Lấy số ghế còn trống hiện tại (Parse số từ text)
+                            // Xử lý chuỗi "HẾT CHỖ (0)" hoặc số thường
+                            var textConLai = $lblConLai.text();
+                            var gheConLai = parseInt(textConLai.match(/\d+/)) || 0;
 
-        // 2. Logic kiểm tra chi tiết
-        if (data.validToAdd > gheConLai) {
-            // --- TRƯỜNG HỢP 1: QUÁ SỨC CHỨA (LỖI ĐỎ) ---
-            box.removeClass('alert-warning alert-success').addClass('alert-danger').show();
-            msg.html(`<strong>Không thể thêm:</strong> Bạn định thêm <b>${data.validToAdd}</b> ghế mới, nhưng phòng chỉ còn trống <b>${gheConLai}</b> chỗ.`);
+                            // 2. Logic kiểm tra chi tiết
+                            if (data.validToAdd > gheConLai) {
+                                // --- TRƯỜNG HỢP 1: QUÁ SỨC CHỨA (LỖI ĐỎ) ---
+                                $warningBox.removeClass('alert-warning alert-success').addClass('alert-danger').show();
+                                $warningMsg.html(`<strong>Không thể thêm:</strong> Bạn định thêm <b>${data.validToAdd}</b> ghế mới, nhưng phòng chỉ còn trống <b>${gheConLai}</b> chỗ.`);
 
-            btnSubmit.prop('disabled', true); // Khóa nút Lưu
-        }
-        else if (data.duplicate > 0) {
-            // --- TRƯỜNG HỢP 2: CÓ GHẾ TRÙNG (CẢNH BÁO VÀNG) ---
-            box.removeClass('alert-danger alert-success').addClass('alert-warning').show();
-            msg.html(`<strong>Lưu ý:</strong> Có ${data.duplicate} ghế đã tồn tại. Hệ thống sẽ bỏ qua và chỉ thêm <b>${data.validToAdd}</b> ghế mới.`);
+                                toggleSubmit(false); // Khóa nút
+                            }
+                            else if (data.duplicate > 0) {
+                                // --- TRƯỜNG HỢP 2: CÓ GHẾ TRÙNG (CẢNH BÁO VÀNG) ---
+                                // Vẫn cho phép lưu, nhưng báo hệ thống sẽ bỏ qua ghế trùng
+                                $warningBox.removeClass('alert-danger alert-success').addClass('alert-warning').show();
+                                $warningMsg.html(`<strong>Lưu ý:</strong> Có ${data.duplicate} ghế đã tồn tại. Hệ thống sẽ bỏ qua và chỉ thêm <b>${data.validToAdd}</b> ghế mới.`);
 
-            btnSubmit.prop('disabled', false); // Mở nút Lưu (Vẫn cho phép lưu phần hợp lệ)
-        } else {
-                                    box.hide();
-
-                                    btnSubmit.prop('disabled', false);
-                                }
+                                toggleSubmit(true); // Mở nút
+                            }
+                            else {
+                                // --- TRƯỜNG HỢP 3: HỢP LỆ HOÀN TOÀN (ẨN LỖI) ---
+                                $warningBox.hide();
+                                toggleSubmit(true); // Mở nút
                             }
                         }
-                    });
-                }
+                    },
+                    error: function() {
+                        console.log("Lỗi khi kiểm tra trùng ghế.");
+                    }
+                });
             }
 
-            // Gắn sự kiện kích hoạt hàm checkDuplicates
-            $('select[name="TuHang"], select[name="DenHang"], input[name="TuSo"], input[name="DenSo"]').change(checkDuplicates);
-            $('input[name="TuSo"], input[name="DenSo"]').on('input', checkDuplicates);
+            // --- 5. GẮN SỰ KIỆN ---
+            // Sử dụng 'change' và 'keyup' để bắt sự kiện gõ phím ngay lập tức
+            $inputs.on('change keyup', checkDuplicates);
         });
     </script>
 }

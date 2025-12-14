@@ -9,6 +9,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <div class="container-fluid">
     <div class="card shadow mb-4 border-0">
@@ -42,6 +43,13 @@
                                     <span asp-validation-for="DaoDien" class="text-danger"></span>
                                 </div>
                             </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="DienVien" class="form-label fw-bold"></label>
+                                <input asp-for="DienVien" class="form-control" id="inputDienVienSua" placeholder="Nhập tên các diễn viên..." />
+                                <span asp-validation-for="DienVien" class="text-danger"></span>
+                            </div>
+
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
                                     <label asp-for="ThoiLuong" class="form-label fw-bold"></label>
@@ -137,11 +145,17 @@
 
                         <div class="form-group mb-3">
                             <label asp-for="TrailerPhim" class="form-label fw-bold"></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-danger text-white"><i class="fab fa-youtube"></i></span>
-                                <input asp-for="TrailerPhim" class="form-control" placeholder="Link Youtube..." />
-                            </div>
-                            <span asp-validation-for="TrailerPhim" class="text-danger"></span>
+                            <input type="file" name="fTrailer" id="inputTrailer" class="form-control" accept="video/*" />
+
+                            <div class="mt-2">
+                                <video id="videoPreview" width="100%" height="300" controls class="border rounded bg-black" style="display: none;">
+                                    @if (Model != null && !string.IsNullOrEmpty(Model.TrailerPhim) && Model.TrailerPhim.Contains("trailers/"))
+                                    {
+                                        <source src="/@Model.TrailerPhim" type="video/mp4">
+                                        <script>document.getElementById('videoPreview').style.display = 'block';</script>
+                                    }
+                                </video>
+                            </div>  
                         </div>
 
                         <div class="form-group mb-3">
@@ -175,8 +189,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // 1. Cấu hình Flatpickr
+
+            // --- 1. CẤU HÌNH LỊCH (FLATPICKR) ---
             const config = {
+                locale: "vn",
                 dateFormat: "Y-m-d",
                 altInput: true,
                 altFormat: "d/m/Y",
@@ -186,6 +202,7 @@
             const startPicker = flatpickr("#ngayPhatHanh", {
                 ...config,
                 onChange: function (selectedDates, dateStr, instance) {
+                    // Khi chọn ngày bắt đầu -> Cập nhật ngày tối thiểu cho ngày kết thúc
                     endPicker.set('minDate', dateStr);
                 }
             });
@@ -194,20 +211,60 @@
                 ...config
             });
 
-            // 2. Xử lý Preview ảnh mới khi chọn File
-            const inputPoster = document.getElementById('inputPoster');
-            const imgPreview = document.getElementById('imgPreview');
 
-            inputPoster.addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        imgPreview.src = e.target.result; // Hiển thị ảnh mới chọn
+            // --- 2. XỬ LÝ PREVIEW ẢNH POSTER ---
+            const inputPoster = document.getElementById('inputPoster'); 
+            const imgPreview = document.getElementById('imgPreview');   
+
+            if (inputPoster && imgPreview) {
+                inputPoster.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            imgPreview.src = e.target.result;
+                            imgPreview.style.display = 'block';
+                        }
+                        reader.readAsDataURL(file);
                     }
-                    reader.readAsDataURL(file);
-                }
-            });
+                });
+            }
+
+
+            // --- 3. XỬ LÝ PREVIEW TRAILER VIDEO ---
+            const inputTrailer = document.getElementById('inputTrailer'); 
+            const videoPreview = document.getElementById('videoPreview');
+
+            if (inputTrailer && videoPreview) {
+                inputTrailer.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+
+                    if (file) {
+                        // Kiểm tra dung lượng
+                        const limit = 200 * 1024 * 1024;
+                        if(file.size > limit) {
+                            alert("File quá lớn! Vui lòng chọn video dưới 200MB.");
+                            this.value = ""; // Xóa file đã chọn
+                            return;
+                        }
+
+                        // Tạo URL tạm thời để xem trước video
+                        const videoUrl = URL.createObjectURL(file);
+                        videoPreview.src = videoUrl;
+                        videoPreview.style.display = 'block'; // Hiện khung video
+                        videoPreview.load(); // Load lại player
+                    } else {
+                        videoPreview.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function() {
+            var inputDVSua = document.getElementById('inputDienVienSua');
+            if (inputDVSua && !inputDVSua.value.trim()) {
+                inputDVSua.value = "---";
+            }
         });
     </script>
 }

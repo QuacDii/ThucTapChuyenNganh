@@ -6,54 +6,80 @@
 }
 
 <div class="container-fluid">
-    <div class="card shadow mb-4" style="max-width: 800px; margin: 0 auto;">
+    <div class="card shadow mb-4" style="max-width: 1000px; margin: 0 auto;">
+
         <div class="card-header py-3 bg-white border-bottom-primary">
             <h5 class="m-0 font-weight-bold text-primary">Thêm Combo / Đồ Ăn Mới</h5>
         </div>
+
         <div class="card-body">
-            <form asp-action="them">
+            <form asp-action="them" method="post" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row">
-                    <div class="col-md-12">
-                        <div class="form-group mb-3">
-                            <label asp-for="MoTa" class="control-label font-weight-bold"></label>
-                            <textarea asp-for="MoTa" class="form-control" rows="3" placeholder="Nhập tên combo và chi tiết các món (VD: 1 Bắp + 2 Nước)..."></textarea>
+                    <div class="col-md-8 border-right">
+
+                        <div class="form-group mb-4">
+                            <label asp-for="MoTa" class="control-label font-weight-bold">Tên Combo / Mô tả chi tiết</label>
+                            <textarea asp-for="MoTa" class="form-control" rows="4" placeholder="Ví dụ: Combo Bắp Nước (1 Bắp ngọt + 2 Pepsi 500ml)..."></textarea>
                             <span asp-validation-for="MoTa" class="text-danger"></span>
                         </div>
-                    </div>
-                </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="Gia" class="control-label font-weight-bold"></label>
-                            <div class="input-group">
-                                <input asp-for="Gia" class="form-control" type="number" min="1000" step="1000" placeholder="Nhập giá bán..." />
-                                <span class="input-group-text fw-bold">VNĐ</span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Gia" class="control-label font-weight-bold">Giá bán</label>
+                                    <div class="input-group">
+                                        <input asp-for="Gia" class="form-control" type="number" min="1000" step="1000" placeholder="0" />
+                                        <div class="input-group-append">
+                                            <span class="input-group-text font-weight-bold">VNĐ</span>
+                                        </div>
+                                    </div>
+                                    <span asp-validation-for="Gia" class="text-danger"></span>
+                                </div>
                             </div>
-                            <span asp-validation-for="Gia" class="text-danger"></span>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label class="control-label font-weight-bold d-block">Trạng thái kinh doanh</label>
+                                    <div class="form-check form-switch mt-2 pl-5">
+                                        <input class="form-check-input" type="checkbox" asp-for="TrangThai" id="statusSwitch" checked style="transform: scale(1.3);">
+                                        <label class="form-check-label ml-2" for="statusSwitch">Đang bán</label>
+                                    </div>
+                                    <small class="text-muted mt-2 d-block">Gạt tắt nếu muốn tạm ngưng bán món này.</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label asp-for="TrangThai" class="control-label font-weight-bold d-block">Trạng thái kinh doanh</label>
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" asp-for="TrangThai" id="flexSwitchCheckChecked" checked>
-                                <label class="form-check-label" for="flexSwitchCheckChecked">Đang bán</label>
-                            </div>
-                            <small class="text-muted fst-italic">Nếu tắt, món này sẽ tạm ẩn khỏi menu đặt vé.</small>
+                    <div class="col-md-4 d-flex flex-column align-items-center justify-content-start pt-2">
+                        <label asp-for="HinhAnh" class="control-label font-weight-bold align-self-start">Hình ảnh minh họa</label>
+
+                        <div class="mb-3" style="width: 100%; height: 250px; border: 2px dashed #d1d3e2; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #f8f9fc;">
+                            <img id="previewPoster" src="#" alt="Xem trước ảnh"
+                                 style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+                            <span id="placeholderText" class="text-gray-500 text-center px-3">
+                                <i class="fas fa-image fa-2x mb-2"></i><br>
+                                Chưa chọn ảnh
+                            </span>
                         </div>
+
+                        <div class="w-100">
+                            <input type="file" name="fDoan" class="form-control" id="inputPoster" accept="image/*">
+                            <small class="form-text text-muted text-center mt-2">Định dạng: .jpg, .png (Nên dùng ảnh vuông)</small>
+                        </div>
+                        <span asp-validation-for="HinhAnh" class="text-danger mt-2"></span>
                     </div>
                 </div>
 
-                <div class="text-center mt-4">
+                <hr class="my-4" />
+
+                <div class="text-center">
                     <a asp-action="Index" class="btn btn-secondary px-4 mr-2 shadow-sm">
                         <i class="fas fa-arrow-left mr-1"></i> Quay lại
                     </a>
-                    <button type="submit" class="btn btn-primary px-4 shadow-sm">
-                        <i class="fas fa-save mr-1"></i> Lưu lại
+                    <button type="submit" class="btn btn-primary px-4 shadow-sm font-weight-bold">
+                        <i class="fas fa-save mr-1"></i> Lưu Combo
                     </button>
                 </div>
             </form>
@@ -65,5 +91,39 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        // Script xem trước ảnh
+        document.getElementById('inputPoster').addEventListener('change', function (e) {
+            var file = e.target.files[0];
+            var preview = document.getElementById('previewPoster');
+            var placeholder = document.getElementById('placeholderText');
 
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';     // Hiện ảnh
+                    placeholder.style.display = 'none';  // Ẩn chữ "Chưa chọn ảnh"
+                }
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+                placeholder.style.display = 'block';
+            }
+        });
+
+        // Script đổi text trạng thái (Đang bán / Tạm ngưng)
+        document.getElementById('statusSwitch').addEventListener('change', function() {
+            var label = this.nextElementSibling; // Lấy thẻ label ngay sau input
+            if(this.checked) {
+                label.innerText = "Đang bán";
+                label.classList.remove("text-danger");
+                label.classList.add("text-success"); // Thêm màu xanh nếu muốn
+            } else {
+                label.innerText = "Tạm ngưng";
+                label.classList.add("text-danger"); // Thêm màu đỏ báo hiệu dừng
+                label.classList.remove("text-success");
+            }
+        });
+    </script>
 }

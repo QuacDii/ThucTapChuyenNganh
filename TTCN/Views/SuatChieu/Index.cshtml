@@ -7,6 +7,7 @@
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
 
 <style>
     .table thead th {
@@ -259,6 +260,7 @@
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         flatpickr("#ngayChieuInput", {
+            locale: "vn",    
             dateFormat: "Y-m-d",    // Định dạng giá trị gửi về Server
             altInput: true,         // Bật chế độ hiển thị khác cho người dùng
             altFormat: "d/m/Y",     // Hiển thị dạng ngày/tháng/năm 
