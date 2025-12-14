@@ -209,6 +209,7 @@ namespace TTCN.Controllers
                 p.NgayPhatHanh = ph.NgayPhatHanh;
                 p.NgayKetThuc = ph.NgayKetThuc;
                 p.DaoDien = ph.DaoDien;
+                p.DienVien = ph.DienVien;
 
                 if (thayDoiThoiLuong)
                 {

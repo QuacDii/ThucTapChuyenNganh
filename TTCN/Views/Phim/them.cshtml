@@ -85,6 +85,12 @@
                         </div>
 
                         <div class="mb-3">
+                            <label asp-for="DienVien" class="form-label">Diễn viên</label>
+                            <input asp-for="DienVien" class="form-control" id="inputDienVien" placeholder="Nhập tên các diễn viên...">
+                            <span asp-validation-for="DienVien" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
                             <label asp-for="ThoiLuong" class="control-label font-weight-bold"></label>
                             <div class="input-group">
                                 <input asp-for="ThoiLuong" class="form-control" />
@@ -189,6 +195,13 @@
                 reader.readAsDataURL(file);
             } else {
                 preview.style.display = 'none';
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function() {
+            var inputDV = document.getElementById('inputDienVien');
+            if (!inputDV.value.trim()) {
+                inputDV.value = "---";
             }
         });
     </script>

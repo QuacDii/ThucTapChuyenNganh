@@ -204,6 +204,10 @@ namespace TTCN.Models
                     .HasMaxLength(50)
                     .HasColumnName("daoDien");
 
+                entity.Property(e => e.DienVien)
+                    .HasMaxLength(255)
+                    .HasColumnName("dienVien");
+
                 entity.Property(e => e.MoTa)
                     .HasMaxLength(255)
                     .HasColumnName("moTa");

@@ -180,6 +180,10 @@
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().DaoDien)
                             </th>
 
+                            <th>
+                                @Html.DisplayNameFor(model => model.FirstOrDefault().DienVien)
+                            </th>
+
                             <th>Thể loại</th>
                             <th style="width: 80px;">
                                 @Html.DisplayNameFor(model => model.FirstOrDefault().PosterPhim)
@@ -224,6 +228,12 @@
                                     </td>
 
                                     <td>@item.DaoDien</td>
+
+                                    <td>
+                                        <div class="desc-truncate" title="@item.DienVien">
+                                            @(string.IsNullOrEmpty(item.DienVien) ? "---" : item.DienVien)
+                                        </div>
+                                    </td>
 
                                     <td>
                                         @if (item.PhimTheLoais != null && item.PhimTheLoais.Any())

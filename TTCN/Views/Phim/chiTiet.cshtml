@@ -220,6 +220,12 @@
                     <div class="col-12 mb-2">
                         <strong class="text-white">Đạo diễn:</strong> <span class="text-white-50">@Model.Phim.DaoDien</span>
                     </div>
+                    @if (Model.Phim.DienVien != "---")
+                    {
+                        <div class="col-12 mb-2">
+                            <strong class="text-white">Diễn viên:</strong> <span class="text-white-50">@Model.Phim.DienVien</span>
+                        </div>
+                    }
                     <div class="col-12 mb-2">
                         <strong class="text-white">Thể loại:</strong>
                         <span class="text-danger fw-bold">@string.Join(", ", Model.TenTheLoais)</span>

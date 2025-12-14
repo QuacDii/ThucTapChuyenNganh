@@ -40,6 +40,10 @@ namespace TTCN.Models
         [StringLength(50, ErrorMessage = "Tên đạo diễn không được quá 50 ký tự.")]
         [Display(Name = "Đạo diễn")]
         public string DaoDien { get; set; } = null!;
+
+        [Display(Name = "Diễn viên")]
+        public string DienVien { get; set; } = null;
+
         [Display(Name = "Poster phim")]
         public string? PosterPhim { get; set; }
         [Display(Name = "Trailer phim")]

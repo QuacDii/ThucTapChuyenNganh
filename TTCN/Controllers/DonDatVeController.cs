@@ -12,7 +12,7 @@ namespace TTCN.Controllers
         {
             _context = context;
         }
-        public IActionResult Index(int? searchMa, decimal? min, decimal? max, string trangThai, DateTime? ngayDat)
+        public IActionResult Index(string search, decimal? min, decimal? max, string trangThai, DateTime? ngayDat)
         {
             // Cần Include để lấy thông tin Suất chiếu (Phim) và User đặt vé
             var query = _context.DonDatVes
@@ -26,10 +26,10 @@ namespace TTCN.Controllers
                 .Include(u=>u.MaUsersNavigation)// Lấy tên người đặt 
                 .AsQueryable();
 
-            // 2. Lọc theo Mã Đơn 
-            if (searchMa.HasValue)
+            // 2. Lọc theo Tên khách hàng
+            if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(d => d.MaDon == searchMa.Value);
+                query = query.Where(d => d.MaUsersNavigation.HoTen.Contains(search));
             }
 
             // 3. Lọc theo Trạng Thái 
@@ -55,7 +55,7 @@ namespace TTCN.Controllers
                 query = query.Where(d => d.TongTien <= max.Value);
             }
 
-            ViewBag.CurrentMa = searchMa;
+            ViewBag.CurrentSearch = search;
             ViewBag.CurrentStatus = trangThai;
 
             var result = query.OrderByDescending(d => d.NgayDat).ToList();
