@@ -336,6 +336,19 @@
 
 @section Scripts {
     <script>
+        const maDon = '@ViewBag.MaDon';
+            setInterval(() => {
+            if (!maDon) return;
+
+            fetch(`/Payment/CheckOrderStatus?maDon=${maDon}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "Hết hạn") {
+                        alert("⏰ Giao dịch đã hết thời gian giữ ghế!");
+                        window.location.href = "/Home/Index";
+                    }
+                });
+        }, 10000);
         function selectPayment(id) {
             document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('active'));
             const radio = document.getElementById(id);

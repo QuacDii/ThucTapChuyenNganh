@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TTCN.Models
 {
     public class ChiTietDonDat
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MaCt { get; set; }
         public bool TrangThai { get; set; }
         public int? MaGhe { get; set; }

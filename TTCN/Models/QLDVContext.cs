@@ -47,7 +47,6 @@ namespace TTCN.Models
                 entity.ToTable("chiTietDonDat");
 
                 entity.Property(e => e.MaCt)
-                    .ValueGeneratedNever()
                     .HasColumnName("maCT");
 
                 entity.Property(e => e.MaGhe).HasColumnName("maGhe");
@@ -115,6 +114,10 @@ namespace TTCN.Models
                 entity.Property(e => e.TrangThai)
                     .HasMaxLength(5)
                     .HasColumnName("trangThai");
+
+                entity.Property(e => e.HinhAnh)
+                    .HasMaxLength(255)
+                    .HasColumnName("hinhAnh");
             });
 
             modelBuilder.Entity<DonDatVe>(entity =>
@@ -125,7 +128,6 @@ namespace TTCN.Models
                 entity.ToTable("donDatVe");
 
                 entity.Property(e => e.MaDon)
-                    .ValueGeneratedNever()
                     .HasColumnName("maDon");
 
                 entity.Property(e => e.NgayDat)

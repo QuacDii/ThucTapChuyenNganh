@@ -15,7 +15,14 @@ namespace TTCN.Models
         public decimal ComboPrice { get; set; }
         public decimal TotalPrice { get; set; }
         public int MaSuat { get; set; }
+        public string SelectedCombosJson { get; set; }
 
+
+    }
+    public class CheckoutComboModel
+    {
+        public int MaCombo { get; set; }
+        public int SoLuong { get; set; }
     }
 
     public class CheckoutSeatModel
@@ -42,4 +49,5 @@ namespace TTCN.Models
 
     }
 }
+
 

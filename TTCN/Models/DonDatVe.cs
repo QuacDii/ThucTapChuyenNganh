@@ -10,6 +10,7 @@ namespace TTCN.Models
 
         [Key]
         [Display(Name = "Mã đơn đặt")]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int MaDon { get; set; }
 
 
