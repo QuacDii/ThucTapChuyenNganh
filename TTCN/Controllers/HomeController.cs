@@ -43,7 +43,7 @@ namespace TTCN.Controllers
                                      tbPhim.TenPhim,
                                      tbPhim.PosterPhim,
                                      tbPhim.TrailerPhim,
-                                     Diem = (int?)review.Diem ?? 0,
+                                     Diem = review.Diem ?? 0,
                                      tbTheLoai.TenTheLoai
                                  }).ToList();
 
@@ -79,7 +79,7 @@ namespace TTCN.Controllers
             ViewBag.CongChieu = lsCongChieu;
 
             //---------------------------------------------
-            // ⭐ LẤY TOP 3 PHIM HOT (ĐIỂM CAO NHẤT)
+            // ⭐ LẤY TOP 5 PHIM HOT (ĐIỂM CAO NHẤT)
             //---------------------------------------------
 
             lsHot = lsCongChieu
@@ -90,7 +90,7 @@ namespace TTCN.Controllers
 
             if (lsHot.Count == 0)
             {
-                lsHot = lsCongChieu.OrderByDescending(p => p.DiemTB).Take(3).ToList();
+                lsHot = lsCongChieu.OrderByDescending(p => p.DiemTB).Take(5).ToList();
             }
 
             ViewBag.PhimHot = lsHot;

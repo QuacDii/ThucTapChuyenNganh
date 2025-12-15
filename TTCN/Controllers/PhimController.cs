@@ -434,13 +434,13 @@ namespace TTCN.Controllers
             var ketQua = query.ToList();
 
             var dictDiem = _context.UsersPhims
-                .Where(u => u.Diem != null) 
-                .GroupBy(g => g.MaPhim)  
+                .Where(u => u.Diem != null && u.TrangThai == false) 
+                .GroupBy(g => g.MaPhim)
                 .Select(g => new {
                     MaPhim = g.Key,
-                    DiemTB = g.Average(u => u.Diem) 
+                    DiemTB = (int)g.Average(u => u.Diem)
                 })
-                .ToDictionary(k => k.MaPhim, v => v.DiemTB); 
+                .ToDictionary(k => k.MaPhim, v => v.DiemTB);
 
             ViewBag.DiemDanhGia = dictDiem;
             ViewBag.TuKhoa = tuKhoa;
@@ -472,7 +472,7 @@ namespace TTCN.Controllers
 
             var danhGias = query.ToList();
 
-            // 4. Đổ dữ liệu vào Model (ctPhim)
+            // 4. Đổ dữ liệu vào Model 
             var model = new TTCN.Models.ctPhim
             {
                 Phim = phim,
@@ -490,7 +490,7 @@ namespace TTCN.Controllers
 
             if (commentHopLe.Any())
             {
-                model.DiemTrungBinh = commentHopLe.Average(x => x.Diem.Value);
+                model.DiemTrungBinh = (int)commentHopLe.Average(x => x.Diem.Value);
             }
             else
             {
@@ -521,18 +521,34 @@ namespace TTCN.Controllers
                 return RedirectToAction("chiTiet", new { id = MaPhim });
             }
             // 2. Lưu đánh giá vào Database
-            var danhGiaMoi = new UsersPhim
-            {
-                MaPhim = MaPhim,
-                MaUsers = user.MaUsers, 
-                Diem = SoSao * 2,
-                BinhLuan = NoiDung,
-                NgayBL = DateTime.Now,
-                TrangThai = false
-            };
+            var danhGiaCu = _context.UsersPhims
+         .FirstOrDefault(x => x.MaPhim == MaPhim && x.MaUsers == user.MaUsers);
 
-            _context.UsersPhims.Add(danhGiaMoi);
-            _context.SaveChanges();
+            if (danhGiaCu != null)
+            {
+                danhGiaCu.Diem = SoSao * 2;
+                danhGiaCu.BinhLuan = NoiDung;
+                danhGiaCu.NgayBL = DateTime.Now;
+                // Mở lại bình luận nếu trước đó bị ẩn 
+                danhGiaCu.TrangThai = false;
+
+            }
+            else
+            {
+                // TRƯỜNG HỢP CHƯA CÓ: Thêm mới hoàn toàn
+                var danhGiaMoi = new UsersPhim
+                {
+                    MaPhim = MaPhim,
+                    MaUsers = user.MaUsers,
+                    Diem = SoSao * 2,
+                    BinhLuan = NoiDung,
+                    NgayBL = DateTime.Now,
+                    TrangThai = false
+                };
+                _context.UsersPhims.Add(danhGiaMoi);
+            }
+
+            _context.SaveChanges(); // Lưu thay đổi (dù là Sửa hay Thêm)
 
             return RedirectToAction("chiTiet", new { id = MaPhim });
         }
@@ -544,7 +560,7 @@ namespace TTCN.Controllers
             if (HttpContext.Session.GetString("UserVaiTro") != "Admin")
                 return RedirectToAction("chiTiet", new { id = maPhim });
 
-            //2.Tìm bình luận dựa 
+            //2.Tìm bình luận
             var comment = _context.UsersPhims.FirstOrDefault(x => x.MaPhim == maPhim && x.MaUsers == maUser);
 
             if(comment != null)
@@ -554,7 +570,7 @@ namespace TTCN.Controllers
 
                 _context.SaveChanges();
             }
-            return RedirectToAction("chiTiet", new { id = maPhim });
+            return RedirectToAction("chiTiet", "Phim", new { id = maPhim }, "reviewContainer");
         }
     }
 }
