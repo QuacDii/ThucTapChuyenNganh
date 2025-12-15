@@ -41,6 +41,7 @@ namespace TTCN.Controllers
                 return Json(new { success = false, message = "Email hoặc mật khẩu không chính xác." });
             }
 
+            HttpContext.Session.SetInt32("UserId", user.MaUsers);
             HttpContext.Session.SetString("UserEmail", user.Email);
             HttpContext.Session.SetString("UserHoTen", user.HoTen);
             HttpContext.Session.SetString("UserVaiTro", user.VaiTro);

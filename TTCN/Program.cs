@@ -22,6 +22,8 @@ var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<QLDVContext>(options =>
     options.UseSqlServer(connection));
 
+builder.Services.AddHostedService<TTCN.Services.AutoCancelOrderService>();
+
 // 2. THÊM DỊCH VỤ SESSION
 builder.Services.AddDistributedMemoryCache(); 
 builder.Services.AddSession(options =>

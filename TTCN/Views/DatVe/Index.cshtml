@@ -14,6 +14,206 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="~/css/site3.css" rel="stylesheet" />
+    <style>
+        .combo-item-card {
+            background-color: #f8f9fa;
+            transition: all 0.2s;
+        }
+        .combo-item-card:hover {
+            background-color: #e9ecef;
+            border-color: #dee2e6 !important;
+        }
+            /* Mặc định: combo CHƯA chọn */
+            .combo-item-card label {
+                color: #212529; /* đen bootstrap */
+                opacity: 1;
+            }
+
+            /* Khi checkbox được chọn */
+            .combo-item-card input[type="checkbox"]:checked + label {
+                color: #198754; /* xanh */
+                font-weight: 600;
+            }
+
+        #combo-list-container {
+            scrollbar-width: thin;
+        }
+        #combo-list-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #combo-list-container::-webkit-scrollbar-thumb {
+            background-color: #6c757d;
+            border-radius: 3px;
+        }
+        /* ===== CHECKBOX COMBO – TRẠNG THÁI CHƯA CHỌN ===== */
+        .combo-check {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            /* CHƯA CHỌN */
+            background-color: #ffffff;
+            border: 2px solid #6c757d; /* xám đậm – dễ thấy */
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+            /* Hover khi chưa chọn */
+            .combo-check:hover {
+                border-color: #198754;
+                background-color: #f0fdf4; /* xanh rất nhạt */
+                box-shadow: 0 0 0 3px rgba(25,135,84,0.15);
+            }
+
+            /* ===== KHI CHECK ===== */
+            .combo-check:checked {
+                background-color: #198754;
+                border-color: #198754;
+            }
+
+                /* Dấu tick to – rõ */
+                .combo-check:checked::before {
+                    transform: scale(1.25);
+                }
+
+        /* ===== LABEL ===== */
+        .combo-item-card label {
+            color: #212529; /* chữ rõ khi chưa chọn */
+            opacity: 1;
+        }
+
+        /* Label khi đã chọn */
+        .combo-item-card input[type="checkbox"]:checked + label {
+            color: #198754;
+            font-weight: 700;
+        }
+
+        /* ===== CARD COMBO NỔI BẬT ===== */
+        .combo-item-card {
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+            .combo-item-card:hover {
+                background-color: #eef1f4;
+                border-color: #ced4da !important;
+            }
+
+            /* Khi combo được chọn */
+            .combo-item-card:has(.combo-check:checked) {
+                background-color: #e9f7ef;
+                border-color: #198754 !important;
+                box-shadow: 0 4px 14px rgba(25,135,84,0.25);
+            }
+        
+        /* ===== HÌNH ẢNH COMBO ===== */
+        .combo-image-wrapper {
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+        }
+        
+        .combo-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            transition: all 0.2s ease;
+        }
+        
+        .combo-item-card:hover .combo-image {
+            border-color: #198754;
+            transform: scale(1.05);
+        }
+        
+        .combo-item-card:has(.combo-check:checked) .combo-image {
+            border-color: #198754;
+            box-shadow: 0 2px 8px rgba(25,135,84,0.3);
+        }
+        
+        .combo-image-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #ced4da;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 24px;
+        }
+        
+        .combo-item-card:has(.combo-check:checked) .combo-image-placeholder {
+            border-color: #198754;
+            background: linear-gradient(135deg, #e9f7ef 0%, #d1f2eb 100%);
+            color: #198754;
+        }
+        
+        /* ===== THÔNG TIN COMBO ===== */
+        .combo-name {
+            font-size: 15px;
+            line-height: 1.4;
+            display: block;
+            margin-bottom: 4px;
+        }
+        
+        .combo-price-wrapper {
+            margin-top: 4px;
+        }
+        /* ===== WRAPPER ===== */
+            /* Label "Số lượng" */
+            .qty-wrapper label {
+                font-size: 14px;
+                font-weight: 600;
+                color: #198754;
+                margin-bottom: 0;
+            }
+
+            /* ===== INPUT GROUP ===== */
+            .qty-wrapper .input-group {
+                width: 120px;
+                border-radius: 999px;
+                overflow: hidden;
+                background: #ffffff;
+                border: 1px solid #198754;
+            }
+
+            /* ===== BUTTON +/- ===== */
+            .qty-wrapper .btn {
+                width: 34px;
+                height: 34px;
+                padding: 0;
+                border: none;
+                background: #e9f7ef;
+                color: #198754;
+                font-size: 18px;
+                font-weight: 700;
+                transition: all 0.15s ease;
+            }
+
+                .qty-wrapper .btn:hover {
+                    background: #198754;
+                    color: #ffffff;
+                }
+
+            /* ===== INPUT SỐ ===== */
+            .qty-wrapper .combo-qty-input {
+                border: none;
+                text-align: center;
+                font-weight: 700;
+                font-size: 15px;
+                color: #212529;
+                background: transparent;
+                pointer-events: none; /* chỉ dùng nút +/- */
+            }
+
+        /* ===== KHI COMBO ĐƯỢC CHỌN ===== */
+        .combo-item-card:has(.combo-check:checked) .qty-wrapper {
+            background: #e9f7ef;
+            border-color: #198754;
+        }
+    </style>
 </head>
 <body>
 
@@ -186,13 +386,61 @@
 
                     <div class="mb-3">
                         <h5>Chọn Combo</h5>
-                        <select class="form-select" id="combo-select">
-                            <option value="0">Không chọn combo</option>
-                            @foreach (var item in ViewBag.doAn as SelectList)
+                        <div id="combo-list-container" style="max-height: 400px; overflow-y: auto;">
+                            @if (ViewBag.doAn != null)
                             {
-                                <option value="@item.Value" data-text="@item.Text">@item.Text</option>
+                                @foreach (var combo in ViewBag.doAn as IEnumerable<TTCN.Models.DoAn>)
+                                {
+                                    <div class="combo-item-card mb-2 p-3 border rounded" data-combo-id="@combo.MaCombo" data-combo-price="@combo.Gia">
+                                        <div class="d-flex align-items-start">
+                                            <!-- Checkbox -->
+                                            <input type="checkbox"
+                                                   class="form-check-input me-3 mt-2 combo-checkbox combo-check"
+                                                   id="combo-@combo.MaCombo" 
+                                                   data-combo-id="@combo.MaCombo"
+                                                   data-combo-text="@combo.MoTa"
+                                                   data-combo-price="@combo.Gia">
+                                            
+                                            <!-- Hình ảnh combo -->
+                                            <div class="combo-image-wrapper me-3 flex-shrink-0">
+                                                @if (!string.IsNullOrEmpty(combo.HinhAnh))
+                                                {
+                                                    <img src="@combo.HinhAnh" alt="@combo.MoTa" class="combo-image" onerror="this.src='https://via.placeholder.com/80x80?text=Combo'">
+                                                }
+                                                else
+                                                {
+                                                    <div class="combo-image-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                }
+                                            </div>
+                                            
+                                            <!-- Thông tin combo -->
+                                            <div class="flex-grow-1">
+                                                <label class="form-check-label mb-1 d-block" for="combo-@combo.MaCombo">
+                                                    <strong class="combo-name">@combo.MoTa</strong>
+                                                </label>
+                                                <div class="combo-price-wrapper">
+                                                    <span class="text-danger fw-bold">@combo.Gia.ToString("#,##0")đ</span>
+                                                </div>
+                                                
+                                                <!-- Số lượng -->
+                                                <div class="combo-quantity-control mt-2 qty-wrapper" style="display: none;">
+                                                    <label class="small me-2">Số lượng:</label>
+                                                    <div class="input-group input-group-sm" style="width: 130px;">
+                                                        <button class="btn btn-outline-secondary combo-qty-decrease" type="button" data-combo-id="@combo.MaCombo">-</button>
+                                                        <input type="number" class="form-control text-center combo-qty-input" 
+                                                               data-combo-id="@combo.MaCombo"
+                                                               value="1" min="1" max="10">
+                                                        <button class="btn btn-outline-secondary combo-qty-increase" type="button" data-combo-id="@combo.MaCombo">+</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             }
-                        </select>
+                        </div>
                     </div>
 
                     <hr>
@@ -211,6 +459,8 @@
                         <input type="hidden" name="SelectedSeatsJson" id="payment-seats-json" />
                         <input type="hidden" name="ComboText" id="payment-combo-text" />
                         <input type="hidden" name="ComboPrice" id="payment-combo-price" />
+                        <input type="hidden" name="ComboQuantity" id="payment-combo-quantity" />
+                        <input type="hidden" name="SelectedCombosJson" id="payment-combos-json" />
                         <input type="hidden" name="TotalPrice" id="payment-total-price" />
                         <input type="hidden" name="MaSuat" id="payment-masuat" />
                         <button type="button" class="btn btn-checkout w-100" id="btn-checkout">
@@ -230,7 +480,7 @@
         let currentMaSuat = 0;
         let currentSelectedDate = null;
         let currentTotalPrice = 0;
-        let currentComboPrice = 0;
+        let selectedCombos = []; // Mảng các combo đã chọn: {maCombo, text, price, quantity}
         let summaryInfo = {
             movie: document.getElementById('payment-movie-name')?.value || '',
             cinema: 'Chưa chọn',
@@ -423,7 +673,6 @@
             setInputValue('payment-date', summaryInfo.date);
             setInputValue('payment-time', summaryInfo.time);
             setInputValue('payment-total-price', currentTotalPrice);
-            setInputValue('payment-combo-price', currentComboPrice);
             const seatsPayload = selectedSeats.map(s => ({
                 name: s.name,
                 price: s.price,
@@ -431,13 +680,23 @@
             }));
             setInputValue('payment-seats-json', JSON.stringify(seatsPayload));
 
-            const comboSelectEl = document.getElementById('combo-select');
-            if (comboSelectEl && currentComboPrice > 0) {
-                const selectedOption = comboSelectEl.options[comboSelectEl.selectedIndex];
-                const comboText = selectedOption.getAttribute('data-text') || selectedOption.text;
-                setInputValue('payment-combo-text', comboText);
+            // Gửi danh sách combo đã chọn dưới dạng JSON
+            const combosPayload = selectedCombos.map(c => ({
+                maCombo: c.maCombo,
+                soLuong: c.quantity
+            }));
+            setInputValue('payment-combos-json', JSON.stringify(combosPayload));
+            
+            // Giữ lại các field cũ để tương thích (có thể để trống hoặc lấy combo đầu tiên)
+            if (selectedCombos.length > 0) {
+                const firstCombo = selectedCombos[0];
+                setInputValue('payment-combo-text', firstCombo.text);
+                setInputValue('payment-combo-price', firstCombo.price * firstCombo.quantity);
+                setInputValue('payment-combo-quantity', firstCombo.quantity);
             } else {
                 setInputValue('payment-combo-text', '');
+                setInputValue('payment-combo-price', 0);
+                setInputValue('payment-combo-quantity', 0);
             }
         }
 
@@ -445,7 +704,6 @@
             const listEl = document.getElementById('selected-seats-list');
             const countEl = document.getElementById('seat-count');
             const totalEl = document.getElementById('total-price');
-            const comboSelectEl = document.getElementById('combo-select');
             const comboListEl = document.getElementById('selected-combo-list');
             const btnCheckout = document.querySelector('.btn-checkout');
             if (!listEl || !countEl || !totalEl) return;
@@ -463,23 +721,25 @@
                         </li>`;
                 });
             // Hiển thị combo đã chọn và tính vào tổng
-            const comboVal = comboSelectEl ? parseInt(comboSelectEl.value, 10) || 0 : 0;
-            currentComboPrice = comboVal;
+            let comboTotalPrice = 0;
             if (comboListEl) {
                 comboListEl.innerHTML = '';
-                if (comboVal > 0 && comboSelectEl) {
-                    const selectedOption = comboSelectEl.options[comboSelectEl.selectedIndex];
-                    const comboText = selectedOption.getAttribute('data-text') || selectedOption.text;
-                    comboListEl.innerHTML += `
-                        <li class="d-flex justify-content-between mb-2 text-white">
-                            <span>${comboText}</span>
-                            <strong>${comboVal.toLocaleString('vi-VN')}đ</strong>
-                        </li>`;
+                if (selectedCombos.length > 0) {
+                    selectedCombos.forEach(combo => {
+                        const itemTotal = combo.price * combo.quantity;
+                        comboTotalPrice += itemTotal;
+                        comboListEl.innerHTML += `
+                            <li class="d-flex justify-content-between mb-2 text-white">
+                                <span>${combo.text} x${combo.quantity}</span>
+                                <strong>${itemTotal.toLocaleString('vi-VN')}đ</strong>
+                            </li>`;
+                    });
                 } else {
                     comboListEl.innerHTML = '<li class="text-muted">Chưa chọn combo</li>';
                 }
             }
-            total += comboVal;
+            
+            total += comboTotalPrice;
             currentTotalPrice = total;
 
             const seatCount = getSelectedSeatCount();
@@ -488,6 +748,46 @@
             totalEl.innerText = formattedTotal;
             if (btnCheckout) btnCheckout.disabled = seatCount === 0;
             updateCheckoutHiddenFields();
+        }
+        
+        // Hàm xử lý khi chọn/bỏ chọn combo
+        function toggleCombo(checkbox) {
+            const comboId = parseInt(checkbox.getAttribute('data-combo-id'), 10);
+            const comboText = checkbox.getAttribute('data-combo-text');
+            const comboPrice = parseFloat(checkbox.getAttribute('data-combo-price'));
+            const quantityControl = checkbox.closest('.combo-item-card').querySelector('.combo-quantity-control');
+            const quantityInput = checkbox.closest('.combo-item-card').querySelector('.combo-qty-input');
+            
+            if (checkbox.checked) {
+                // Thêm combo vào danh sách
+                selectedCombos.push({
+                    maCombo: comboId,
+                    text: comboText,
+                    price: comboPrice,
+                    quantity: 1
+                });
+                if (quantityControl) quantityControl.style.display = 'block';
+                if (quantityInput) quantityInput.value = 1;
+            } else {
+                // Xóa combo khỏi danh sách
+                const index = selectedCombos.findIndex(c => c.maCombo === comboId);
+                if (index !== -1) {
+                    selectedCombos.splice(index, 1);
+                }
+                if (quantityControl) quantityControl.style.display = 'none';
+                if (quantityInput) quantityInput.value = 1;
+            }
+            
+            updateCartUI();
+        }
+        
+        // Hàm cập nhật số lượng combo
+        function updateComboQuantity(comboId, newQuantity) {
+            const combo = selectedCombos.find(c => c.maCombo === comboId);
+            if (combo) {
+                combo.quantity = Math.max(1, Math.min(10, parseInt(newQuantity, 10) || 1));
+            }
+            updateCartUI();
         }
 
         function filterCinemaOptions(selectedArea) {
@@ -633,10 +933,65 @@
             document.getElementById("payment-masuat").value = maSuat;
         }
 
-        const comboSelect = document.getElementById('combo-select');
-        if (comboSelect) {
-            comboSelect.addEventListener('change', updateCartUI);
-        }
+        // Xử lý checkbox combo
+        document.querySelectorAll('.combo-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                toggleCombo(this);
+            });
+        });
+        
+        // Xử lý nút tăng/giảm số lượng cho từng combo
+        document.querySelectorAll('.combo-qty-increase').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
+                const quantityInput = document.querySelector(`.combo-qty-input[data-combo-id="${comboId}"]`);
+                if (quantityInput) {
+                    const currentVal = parseInt(quantityInput.value, 10) || 1;
+                    const maxVal = parseInt(quantityInput.max, 10) || 10;
+                    if (currentVal < maxVal) {
+                        quantityInput.value = currentVal + 1;
+                        updateComboQuantity(comboId, quantityInput.value);
+                    }
+                }
+            });
+        });
+        
+        document.querySelectorAll('.combo-qty-decrease').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
+                const quantityInput = document.querySelector(`.combo-qty-input[data-combo-id="${comboId}"]`);
+                if (quantityInput) {
+                    const currentVal = parseInt(quantityInput.value, 10) || 1;
+                    const minVal = parseInt(quantityInput.min, 10) || 1;
+                    if (currentVal > minVal) {
+                        quantityInput.value = currentVal - 1;
+                        updateComboQuantity(comboId, quantityInput.value);
+                    }
+                }
+            });
+        });
+        
+        // Xử lý input số lượng
+        document.querySelectorAll('.combo-qty-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
+                const val = parseInt(this.value, 10) || 1;
+                const minVal = parseInt(this.min, 10) || 1;
+                const maxVal = parseInt(this.max, 10) || 10;
+                if (val < minVal) {
+                    this.value = minVal;
+                } else if (val > maxVal) {
+                    this.value = maxVal;
+                }
+                updateComboQuantity(comboId, this.value);
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.value === '' || parseInt(this.value, 10) < 1) {
+                    this.value = 1;
+                }
+            });
+        });
 
         function updateBookingInfo(roomName, time, ngayChieu) {
             const cinemaSelect = document.getElementById('cinema-select');

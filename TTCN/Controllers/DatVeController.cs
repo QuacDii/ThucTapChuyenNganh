@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -71,12 +71,9 @@ namespace TTCN.Controllers
                                       .FirstOrDefault();
             ViewBag.dlSuatChieu = dlSuatChieu;
 
-            var doAnList = db.DoAns.ToList().Select(d => new SelectListItem
-            {
-                Value = d.Gia.ToString(),
-                Text = $"{d.MoTa} - {d.Gia:N0}đ"
-            }).ToList();
-            ViewBag.doAn = new SelectList(doAnList, "Value", "Text");
+            // Truyền danh sách combo đầy đủ để có thể chọn nhiều combo
+            var doAnList = db.DoAns.Where(d => d.TrangThai == true).ToList();
+            ViewBag.doAn = doAnList;
 
             return View();
         }
@@ -105,7 +102,7 @@ namespace TTCN.Controllers
                     g.TenGhe,
                     g.HangGhe,
                     g.LoaiGhe,
-                    GiaGhe = g.LoaiGhe.Equals("VIP", StringComparison.OrdinalIgnoreCase) ? suat.Gia*2 : suat.Gia,
+                    GiaGhe = g.LoaiGhe.Equals("VIP", StringComparison.OrdinalIgnoreCase) ? suat.Gia * 2 : suat.Gia,
                     DaDat = gheDaDat.Contains(g.MaGhe)
                 })
                 .ToList();
