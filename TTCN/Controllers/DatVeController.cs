@@ -9,8 +9,17 @@ namespace TTCN.Controllers
     public class DatVeController : Controller
     {
         QLDVContext db = new QLDVContext();
-        public IActionResult Index(int maPhim)
+        public IActionResult Index(int maPhim, int? maSuat)
         {
+            if(HttpContext.Session.GetInt32("UserId") == null)
+{
+                return RedirectToAction(
+                    "Login",
+                    "Account",
+                    new { returnUrl = Url.Action("Index", "DatVe", new { maPhim }) }
+                );
+            }
+
             var dlPhim = (from tbPhim in db.Phims
                           join tbPhimTheLoai in db.PhimTheLoais on tbPhim.MaPhim equals tbPhimTheLoai.MaPhim
                           join tbTheLoai in db.TheLoais on tbPhimTheLoai.MaTheLoai equals tbTheLoai.MaTheLoai
@@ -74,6 +83,7 @@ namespace TTCN.Controllers
             // Truyền danh sách combo đầy đủ để có thể chọn nhiều combo
             var doAnList = db.DoAns.Where(d => d.TrangThai == true).ToList();
             ViewBag.doAn = doAnList;
+            ViewBag.SelectedMaSuat = maSuat;
 
             return View();
         }

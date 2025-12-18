@@ -1,0 +1,289 @@
+﻿@model LichChieuTheoRap
+@using TTCN.Models
+
+@{
+    ViewData["Title"] = "Lịch chiếu theo rạp";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var ngayChieu = Model.NgayChieu;
+    var tenCumRap = Model.DsCumRap
+        .FirstOrDefault(x => x.MaCumRap == Model.MaCumRap)
+        ?.TenCumRap ?? "Chọn cụm rạp";
+    var currentLabel = tenCumRap;
+    var allRaps = Model.DsCumRap;
+}
+
+<style>
+    .date-tab {
+        min-width: 80px;
+        text-align: center;
+        padding: 10px 12px;
+        cursor: pointer;
+        color: #aaa;
+        border-bottom: 3px solid transparent;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .date-tab.active {
+            color: #4fc3f7;
+            border-bottom-color: #4fc3f7;
+        }
+
+        .date-tab:hover {
+            color: #fff;
+        }
+
+        .date-tab .day {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .date-tab .dow {
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+    .film-block {
+        padding-bottom: 30px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid #333;
+    }
+
+    .showtime-btn {
+        width: 95px;
+        padding: 8px 0;
+        background: #2b2b2b;
+        border-radius: 6px;
+        text-align: center;
+        color: #fff;
+        text-decoration: none;
+        transition: .2s;
+        border: 1px solid #444;
+    }
+
+        .showtime-btn:hover {
+            background: #e50914;
+            border-color: #e50914;
+        }
+
+        .showtime-btn .time {
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .showtime-btn .seat {
+            font-size: 12px;
+            color: #9be7ff;
+        }
+    /* ===== DROPDOWN SUBMENU ===== */
+    .dropdown-submenu {
+        position: relative;
+    }
+
+        .dropdown-submenu > .dropdown-menu {
+            top: 0;
+            left: 100%;
+            margin-left: .1rem;
+            display: none;
+            border-radius: 6px;
+        }
+
+        .dropdown-submenu:hover > .dropdown-menu {
+            display: block;
+        }
+
+    .dropdown-menu {
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+    }
+
+    .dropdown-item {
+        transition: .2s;
+    }
+
+        .dropdown-item:hover {
+            background-color: #e50914;
+            color: #fff;
+        }
+
+</style>
+
+<div class="container py-4 text-white">
+
+    <!-- TITLE -->
+    <h2 class="fw-bold mb-4">
+        <i class="fas fa-calendar-alt text-danger me-2"></i>
+        Lịch Chiếu Theo Rạp
+    </h2>
+
+    <!-- DATE TAB -->
+    @{
+        var startDate = Model.MinDate;
+        var endDate = Model.MaxDate;
+    }
+
+    <div class="d-flex align-items-center gap-3 mb-4 border-bottom border-secondary pb-2">
+
+        <!-- PREV -->
+        <a class="btn btn-sm btn-dark"
+           href="?maCumRap=@Model.MaCumRap&ngay=@Model.NgayChieu.AddDays(-1).ToString("yyyy-MM-dd")"
+           @(Model.NgayChieu <= startDate ? "disabled" : "")>
+            ◀
+        </a>
+
+        <!-- DATE LIST -->
+        <div class="d-flex gap-3 overflow-auto flex-nowrap" style="max-width: 100%;">
+            @for (var d = startDate; d <= endDate; d = d.AddDays(1))
+            {
+                <a class="date-tab @(d.Date == Model.NgayChieu.Date ? "active" : "")"
+                   href="?maCumRap=@Model.MaCumRap&ngay=@d.ToString("yyyy-MM-dd")">
+                    <div class="day">@d.Day</div>
+                    <div class="dow">@d.ToString("ddd")</div>
+                </a>
+            }
+        </div>
+
+        <!-- NEXT -->
+        <a class="btn btn-sm btn-dark"
+           href="?maCumRap=@Model.MaCumRap&ngay=@Model.NgayChieu.AddDays(1).ToString("yyyy-MM-dd")"
+           @(Model.NgayChieu >= endDate ? "disabled" : "")>
+            ▶
+        </a>
+    </div>
+
+
+    <!-- CỤM RẠP -->
+    <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
+
+        <div class="dropdown">
+
+            <button class="btn btn-outline-light dropdown-toggle px-4 py-2"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                @currentLabel
+            </button>
+
+            <ul class="dropdown-menu bg-dark shadow">
+
+                @foreach (var group in allRaps.GroupBy(x => x.ThanhPho))
+                {
+                    <li class="dropdown-submenu">
+
+                        <a class="dropdown-item text-white d-flex justify-content-between align-items-center"
+                           href="#">
+                            @group.Key
+                            <i class="fas fa-chevron-right ms-2" style="font-size: 0.8em;"></i>
+                        </a>
+
+                        <ul class="dropdown-menu bg-dark">
+                            @foreach (var rap in group)
+                            {
+                                <li>
+                                    <a class="dropdown-item text-white"
+                                       href="?maCumRap=@rap.MaCumRap&ngay=@ngayChieu.ToString("yyyy-MM-dd")">
+                                        @rap.TenCumRap
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+
+                    </li>
+                }
+
+            </ul>
+        </div>
+
+    </div>
+
+
+    <!-- CONTENT -->
+    @if (Model.Phims == null || !Model.Phims.Any())
+    {
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-film fa-3x mb-3"></i>
+            <p>Vui lòng chọn cụm rạp để xem lịch chiếu</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var phim in Model.Phims)
+        {
+            <div class="film-block">
+                <div class="row g-4 align-items-start">
+
+                    <!-- POSTER -->
+                    <div class="col-md-2 col-4">
+                        <img src="/@phim.PosterPhim"
+                             class="img-fluid rounded shadow"
+                             alt="@phim.TenPhim" />
+                    </div>
+
+                    <!-- INFO -->
+                    <div class="col-md-10 col-8">
+                        <h4 class="fw-bold text-info mb-1">@phim.TenPhim</h4>
+
+                        <div class="text-muted small mb-3">
+                            @phim.TheLoai • @phim.ThoiLuong phút
+                        </div>
+
+                        <!-- SUẤT CHIẾU -->
+                        <div class="d-flex flex-wrap gap-3">
+                            @foreach (var suat in phim.SuatChieus)
+                            {
+                                <a href="javascript:void(0)"
+                                   class="showtime-btn btn-showtime"
+                                   data-url="@Url.Action("Index", "DatVe", new {
+                                        maPhim = phim.MaPhim,
+                                        maSuat = suat.MaSuat
+                                   })">
+                                    <div class="time">
+                                        @suat.GioBatDau.ToString("HH:mm")
+                                    </div>
+                                    <div class="seat">
+                                        @suat.SoGheTrong ghế trống
+                                    </div>
+                                </a>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const isLoggedIn = @(
+            Context.Session.GetInt32("UserId") != null
+            ? "true"
+            : "false"
+                );
+
+        document.querySelectorAll('.btn-showtime').forEach(btn => {
+            btn.addEventListener('click', function () {
+
+                const targetUrl = this.getAttribute('data-url');
+
+                if (isLoggedIn === "true") {
+                    // ✅ Đã đăng nhập → đi thẳng
+                    window.location.href = targetUrl;
+                } else {
+                    // ❌ Chưa đăng nhập → mở popup
+                    window.desiredRedirectUrl = targetUrl;
+
+                    const loginModal = new bootstrap.Modal(
+                        document.getElementById('loginModal')
+                    );
+                    loginModal.show();
+                }
+            });
+        });
+    });
+</script>
+

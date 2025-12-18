@@ -1097,6 +1097,22 @@
                 btnCheckout.addEventListener('click', handleCheckout);
             }
         });
+
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const preSelectedMaSuat = '@ViewBag.SelectedMaSuat';
+
+            if (preSelectedMaSuat) {
+                // tìm button suất chiếu đúng maSuat
+                const btn = document.querySelector(
+                    `.btn-time-slot[data-suat-id="${preSelectedMaSuat}"]`
+                );
+
+                if (btn) {
+                    btn.click(); // 🔥 TỰ ĐỘNG CHỌN SUẤT
+                }
+            }
+        });
     </script>
 </body>
 </html>
