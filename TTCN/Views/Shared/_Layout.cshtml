@@ -1,5 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
+@using TTCN.Models  @* Thay bằng namespace chứa DbContext của bạn *@
+@inject QLDVContext _context
 
 <!DOCTYPE html>
 <html lang="vi">
@@ -74,6 +76,30 @@
                 border-color: #e50914;
                 color: white;
             }
+
+        .footer-scroll-box {
+            max-height: 200px; 
+            overflow-y: auto; 
+            padding-right: 5px; 
+        }
+
+            .footer-scroll-box::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .footer-scroll-box::-webkit-scrollbar-track {
+                background: #333; 
+                border-radius: 3px;
+            }
+
+            .footer-scroll-box::-webkit-scrollbar-thumb {
+                background: #555; 
+                border-radius: 3px;
+            }
+
+                .footer-scroll-box::-webkit-scrollbar-thumb:hover {
+                    background: #e50914; 
+                }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -100,20 +126,17 @@
                         <a class="nav-link text-uppercase px-3 fw-medium text-nowrap" asp-controller="Phim" asp-action="TimKiem">Phim</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase px-3 fw-medium text-nowrap" href="#">Lịch Chiếu</a>
+                        <a class="nav-link text-uppercase px-3 fw-medium text-nowrap">Lịch Chiếu Theo Rạp</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-uppercase px-3 fw-medium text-nowrap" href="#">Rạp</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-uppercase px-3 fw-medium text-nowrap" href="#">Khuyến Mãi</a>
+                        <a class="nav-link text-uppercase px-3 fw-medium text-nowrap" asp-controller="CumRap" asp-action="DsRap">Cụm Rạp</a>
                     </li>
                 </ul>
 
                 <form asp-controller="Phim" asp-action="TimKiem" class="d-none d-xl-flex mx-auto position-relative" role="search" method="get" style="width: 400px; max-width: 100%;">
                     <div class="input-group w-100">
                         <input class="form-control border-0 bg-dark text-white" type="search" name="tuKhoa" id="keyword"
-                               placeholder="Tìm tên phim, diễn viên..." autocomplete="off"
+                               placeholder="Tìm tên phim..." autocomplete="off"
                                style="border-radius: 20px 0 0 20px; padding-left: 20px;">
                         <button class="btn btn-danger border-0" type="submit" id="btnSearch" style="border-radius: 0 20px 20px 0; padding-left: 15px; padding-right: 15px;">
                             <i class="fas fa-search"></i>
@@ -204,18 +227,37 @@
                 </div>
                 <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 font-weight-bold text-white">Phim</h5>
-                    <p><a href="#" class="footer-link">Phim đang chiếu</a></p>
-                    <p><a href="#" class="footer-link">Phim sắp chiếu</a></p>
+                    <p><a href="/#phim-dang-chieu" class="footer-link">Phim đang chiếu</a></p>
+                    <p><a href="/#phim-sap-chieu" class="footer-link">Phim sắp chiếu</a></p>
                 </div>
                 <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
-                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Thông tin</h5>
-                    <p><a href="#" class="footer-link">Giới thiệu</a></p>
-                    <p><a href="#" class="footer-link">Tuyển dụng</a></p>
-                    <p><a href="#" class="footer-link">Điều khoản</a></p>
+                    <h5 class="text-uppercase mb-4 font-weight-bold text-white">Hệ thống rạp</h5>
+
+                    <div class="footer-scroll-box">
+                        @{
+                            var allRaps = _context.CumRaps.OrderBy(x => x.TenCumRap).ToList();
+                        }
+
+                        @if (allRaps != null && allRaps.Any())
+                        {
+                            foreach (var rap in allRaps)
+                            {
+                                <p class="mb-2">
+                                    <a asp-controller="CumRap"
+                                       asp-action="DsRap"
+                                       asp-route-maCumRap="@rap.MaCumRap"
+                                       class="footer-link"
+                                       style="font-size: 0.9rem;">
+                                        @rap.TenCumRap
+                                    </a>
+                                </p>
+                            }
+                        }
+                    </div>
                 </div>
                 <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                     <h5 class="text-uppercase mb-4 font-weight-bold text-white">Liên hệ</h5>
-                    <p><i class="fas fa-home me-3"></i> 123 Nguyễn Huệ, Q.1, TP.HCM</p>
+                    <p><i class="fas fa-home me-3"></i> 180, Cao Lỗ, Q.8, Tp.Hồ Chí Minh</p>
                     <p><i class="fas fa-envelope me-3"></i> support@cinema.vn</p>
                     <p><i class="fas fa-phone me-3"></i> 1900 1234</p>
                 </div>
@@ -227,10 +269,10 @@
                 </div>
                 <div class="col-md-5 col-lg-4">
                     <div class="text-center text-md-end">
-                        <a href="#" class="footer-link social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="footer-link social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="footer-link social-icon"><i class="fab fa-youtube"></i></a>
-                        <a href="#" class="footer-link social-icon"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/" class="footer-link social-icon"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.instagram.com/" class="footer-link social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.youtube.com/" class="footer-link social-icon"><i class="fab fa-youtube"></i></a>
+                        <a href="https://www.tiktok.com/vi-VN/" class="footer-link social-icon"><i class="fab fa-tiktok"></i></a>
                     </div>
                 </div>
             </div>

@@ -39,7 +39,12 @@ namespace TTCN.Controllers
             {
                 query = query.Where(x => x.ThanhPho == thanhPho);
             }
-            ViewBag.DsThanhPho = getTP(); 
+
+            ViewBag.DsThanhPho = _context.CumRaps
+                            .Select(r => r.ThanhPho)
+                            .Distinct()
+                            .OrderBy(tp => tp)
+                            .ToList();
             ViewBag.CurrentName = search;
             ViewBag.CurrentCity = thanhPho;
 
@@ -58,7 +63,7 @@ namespace TTCN.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult them(CumRap cum)
         {
-            if (_context.CumRaps.Any(x => x.TenCumRap == cum.TenCumRap && x.ThanhPho==cum.ThanhPho))
+            if (_context.CumRaps.Any(x => x.TenCumRap == cum.TenCumRap && x.ThanhPho == cum.ThanhPho))
             {
                 ModelState.AddModelError("", "Cụm rạp này đã tồn tại! Vui lòng chọn tên khác.");
             }
@@ -69,7 +74,7 @@ namespace TTCN.Controllers
 
                 TempData["Success"] = "Thêm Cụm rạp thành công!";
                 return RedirectToAction("Index");
-                
+
             }
             ViewBag.DsThanhPho = getTP();
             return View(cum);
@@ -136,6 +141,81 @@ namespace TTCN.Controllers
                 TempData["Message"] = "Đã xóa cụm rạp!";
             }
             return RedirectToAction(nameof(Index));
+        }
+        [HttpGet]
+        public IActionResult DsRap(string search, string thanhPho, int? maCumRap)
+        {
+            // --- 1. LẤY TOÀN BỘ RẠP (ĐỂ ĐỔ VÀO DROPDOWN) ---
+            var allRaps = _context.CumRaps.OrderBy(x => x.ThanhPho).ThenBy(x => x.TenCumRap).ToList();
+            ViewBag.AllRaps = allRaps;
+
+            // --- 2. XỬ LÝ LOGIC LỌC RẠP ---
+            var query = _context.CumRaps.AsQueryable();
+
+            if (maCumRap.HasValue)
+            {
+                // TH1: Người dùng chọn cụ thể 1 rạp từ menu
+                query = query.Where(x => x.MaCumRap == maCumRap.Value);
+                var selected = allRaps.FirstOrDefault(x => x.MaCumRap == maCumRap);
+                ViewBag.CurrentLabel = selected?.TenCumRap;
+            }
+            else
+            {
+                // TH2: Chưa chọn rạp cụ thể
+
+                // Ưu tiên 1: Nếu đang tìm kiếm
+                if (!string.IsNullOrEmpty(search))
+                {
+                    query = query.Where(x => x.TenCumRap.Contains(search));
+                    ViewBag.CurrentLabel = $"Kết quả tìm kiếm: {search}";
+                }
+                // Ưu tiên 2: Nếu đang lọc theo thành phố
+                else if (!string.IsNullOrEmpty(thanhPho))
+                {
+                    query = query.Where(x => x.ThanhPho == thanhPho);
+                    ViewBag.CurrentLabel = thanhPho;
+                }
+                // Ưu tiên 3: MẶC ĐỊNH -> Chọn rạp đầu tiên
+                else
+                {
+                    var firstRap = allRaps.FirstOrDefault();
+                    if (firstRap != null)
+                    {
+                        // Lọc query theo ID của rạp đầu tiên
+                        query = query.Where(x => x.MaCumRap == firstRap.MaCumRap);
+                        // Hiển thị tên rạp đó lên Label
+                        ViewBag.CurrentLabel = firstRap.TenCumRap;
+                    }
+                    else
+                    {
+                        // Trường hợp database rỗng không có rạp nào
+                        ViewBag.CurrentLabel = "Chưa có dữ liệu rạp";
+                    }
+                }
+            }
+
+            // --- 3. LẤY PHIM HOT ---
+            var dictDiem = _context.UsersPhims
+                .Where(u => u.Diem != null && u.TrangThai == false)
+                .GroupBy(g => g.MaPhim)
+                .Select(g => new {
+                    MaPhim = g.Key,
+                    DiemTB = (int)g.Average(u => u.Diem)
+                })
+                .ToDictionary(k => k.MaPhim, v => v.DiemTB);
+
+            var phimHot = _context.Phims
+                .Where(p => p.TrangThai == "Đang công chiếu")
+                .AsEnumerable() 
+                .Where(p => dictDiem.ContainsKey(p.MaPhim) && dictDiem[p.MaPhim] >= 8)
+                .OrderByDescending(p => dictDiem[p.MaPhim])
+                .Take(5)
+                .ToList();
+
+            ViewBag.DiemDanhGia = dictDiem;
+            ViewBag.PhimHot = phimHot;
+
+            return View(query.ToList());
         }
     }
 }

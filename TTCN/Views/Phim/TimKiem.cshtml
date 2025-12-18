@@ -5,10 +5,33 @@
 @{
     ViewData["Title"] = "Danh sách phim";
     Layout = "~/Views/Shared/_Layout.cshtml";
-
     // Nhận dữ liệu điểm đánh giá từ Controller
-    var mapDiem = ViewBag.DiemDanhGia as Dictionary<int, double?>;
+    var mapDiem = ViewBag.DiemDanhGia as Dictionary<int, int>;
 }
+
+<style>
+    /* CSS sửa lỗi hiển thị tiêu đề */
+    .movie-title {
+        color: #fff;
+        font-weight: 700;
+        font-size: 1.1rem;
+        /* 1. Giảm margin-top để bù lại padding sắp thêm */
+        margin-top: 10px;
+        text-decoration: none;
+        display: block;
+        white-space: nowrap; /* Giữ trên 1 dòng */
+        overflow: hidden; /* Ẩn phần thừa */
+        text-overflow: ellipsis; /* Thêm dấu ... */
+        width: 100%;
+        line-height: 1.5;
+        padding-top: 5px;
+        transition: color 0.2s;
+    }
+
+        .movie-title:hover {
+            color: #e50914;
+        }
+</style>
 
 <div class="container mt-5" style="padding-bottom: 170px; min-height: 600px;">
     <h3 class="mb-4 text-white border-start border-4 border-danger ps-3">
@@ -22,11 +45,11 @@
             {
                 if (phim.TrangThai != "Đã chiếu")
                 {
-                    // Lấy điểm trung bình của phim này (nếu có)
+                    // Lấy điểm trung bình của phim này
                     double diemTB = 0;
                     if (mapDiem != null && mapDiem.ContainsKey(phim.MaPhim))
                     {
-                        diemTB = mapDiem[phim.MaPhim] ?? 0;
+                        diemTB = mapDiem[phim.MaPhim];
                     }
 
                     <div class="col">
@@ -44,7 +67,7 @@
                                 @if (diemTB > 0)
                                 {
                                     <span class="rating-badge">
-                                        <i class="fas fa-star me-1 text-warning"></i>@diemTB.ToString("0.#")
+                                        <i class="fas fa-star me-1 text-warning"></i>@diemTB
                                     </span>
                                 }
 
@@ -57,7 +80,7 @@
                             </div>
 
                             <div class="card-body px-0 pt-3">
-                                <h5 class="card-title text-truncate">
+                                <h5 class="card-title">
                                     <a asp-controller="Phim" asp-action="chiTiet" asp-route-id="@phim.MaPhim" class="movie-title">
                                         @phim.TenPhim
                                     </a>
