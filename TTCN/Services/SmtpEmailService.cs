@@ -1,4 +1,5 @@
-﻿using MailKit.Security;
+using System;
+using MailKit.Security;
 using MimeKit;
 using MailKit.Net.Smtp;
 
@@ -31,7 +32,22 @@ namespace TTCN.Services
 
             // 2. Tạo nội dung email (HTML hoặc Text)
             var bodyBuilder = new BodyBuilder();
+            
+            // Kiểm tra xem message có phải là HTML đầy đủ không
+            bool isFullHtml = message.TrimStart().StartsWith("<!DOCTYPE html", StringComparison.OrdinalIgnoreCase) ||
+                             message.TrimStart().StartsWith("<html", StringComparison.OrdinalIgnoreCase);
+            
+            if (isFullHtml)
+            {
+                // Nếu là HTML đầy đủ, sử dụng trực tiếp
+                bodyBuilder.HtmlBody = message;
+            }
+            else
+            {
+                // Nếu là text thông thường, wrap trong HTML template
             bodyBuilder.HtmlBody = $"<p>Xin chào,</p><p>{message}</p><p>Trân trọng</p>";
+            }
+            
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
             // 3. Gửi email
@@ -59,5 +75,40 @@ namespace TTCN.Services
                 }
             }
         }
+        public async Task SendEmailWithInlineImageAsync(
+    string toEmail,
+    string subject,
+    string htmlBody,
+    byte[] qrImageBytes)
+        {
+            var emailSettings = _configuration.GetSection("EmailSettings");
+            var senderEmail = emailSettings["SenderEmail"];
+            var senderPassword = emailSettings["SenderPassword"];
+            var smtpServer = emailSettings["SmtpServer"];
+            var smtpPort = int.Parse(emailSettings["SmtpPort"]);
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("Hệ thống đặt vé", senderEmail));
+            message.To.Add(MailboxAddress.Parse(toEmail));
+            message.Subject = subject;
+
+            var builder = new BodyBuilder();
+
+            // 👉 add ảnh QR inline
+            var image = builder.LinkedResources.Add("qrcode.png", qrImageBytes);
+            image.ContentId = "qr-code";
+
+            // 👉 HTML dùng cid
+            builder.HtmlBody = htmlBody.Replace("{{QR_IMAGE}}", "cid:qr-code");
+
+            message.Body = builder.ToMessageBody();
+
+            using var client = new SmtpClient();
+            await client.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(senderEmail, senderPassword);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
+        }
+
     }
 }

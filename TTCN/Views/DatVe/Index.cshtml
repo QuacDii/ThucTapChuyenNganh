@@ -619,7 +619,7 @@
                     alert('Bạn chỉ được chọn tối đa 8 ghế.');
                     return;
                 }
-                selectedSeats.push({ id: seatId, name: tenGhe, price: giaGhe, quantity: 1 });
+                selectedSeats.push({ id: seatId,seatIds: [seatId], name: tenGhe, price: giaGhe, quantity: 1 });
                 btn.classList.add('selected');
             } else {
                 selectedSeats.splice(index, 1);
@@ -674,9 +674,9 @@
             setInputValue('payment-time', summaryInfo.time);
             setInputValue('payment-total-price', currentTotalPrice);
             const seatsPayload = selectedSeats.map(s => ({
+                maGhe: (s.seatIds ?? [s.id]).map(x => parseInt(x)),
                 name: s.name,
-                price: s.price,
-                quantity: s.quantity || 1
+                price: s.price
             }));
             setInputValue('payment-seats-json', JSON.stringify(seatsPayload));
 

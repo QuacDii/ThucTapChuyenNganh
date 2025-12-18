@@ -140,27 +140,54 @@ namespace TTCN.Controllers
         [HttpGet]
         public IActionResult chiTietDon(int id)
         {
-            var userEmail = HttpContext.Session.GetString("UserEmail");
-            if (string.IsNullOrEmpty(userEmail)) return RedirectToAction("Index", "Login");
 
-            var donVe = _context.DonDatVes
+            var don = _context.DonDatVes
+                .Include(d => d.MaUsersNavigation)
                 .Include(d => d.ChiTietDonDat)
-                    .ThenInclude(ct => ct.MaGheNavigation) // Lấy tên ghế
-                .Include(d => d.ChiTietDonDat)
-                    .ThenInclude(ct => ct.MaSuatNavigation)
-                    .ThenInclude(s => s.MaPhimNavigation) // Lấy tên phim, poster
+                    .ThenInclude(ct => ct.MaGheNavigation)
                 .Include(d => d.ChiTietDonDat)
                     .ThenInclude(ct => ct.MaSuatNavigation)
-                    .ThenInclude(s => s.MaPhongNavigation)
-                    .ThenInclude(p => p.MaCumRapNavigation) // Lấy tên rạp
+                        .ThenInclude(s => s.MaPhimNavigation)
+                .Include(d => d.ChiTietDonDat)
+                    .ThenInclude(ct => ct.MaSuatNavigation)
+                        .ThenInclude(s => s.MaPhongNavigation)
+                            .ThenInclude(p => p.MaCumRapNavigation)
                 .Include(d => d.DonDatVeDoAns)
-                    .ThenInclude(da => da.MaComboNavigation) // Lấy combo bắp nước
+                    .ThenInclude(d => d.MaComboNavigation)
                 .FirstOrDefault(d => d.MaDon == id);
 
-            if (donVe == null) return NotFound();
+            if (don == null)
+                return NotFound();
+            if (don.TrangThai != "Đã thanh toán")
+                return BadRequest();
 
-            return View(donVe);
+            return View(don);
         }
+
+        //[HttpGet]
+        //public IActionResult chiTietDon(int id)
+        //{
+        //    var userEmail = HttpContext.Session.GetString("UserEmail");
+        //    if (string.IsNullOrEmpty(userEmail)) return RedirectToAction("Index", "Login");
+
+        //    var donVe = _context.DonDatVes
+        //        .Include(d => d.ChiTietDonDat)
+        //            .ThenInclude(ct => ct.MaGheNavigation) // Lấy tên ghế
+        //        .Include(d => d.ChiTietDonDat)
+        //            .ThenInclude(ct => ct.MaSuatNavigation)
+        //            .ThenInclude(s => s.MaPhimNavigation) // Lấy tên phim, poster
+        //        .Include(d => d.ChiTietDonDat)
+        //            .ThenInclude(ct => ct.MaSuatNavigation)
+        //            .ThenInclude(s => s.MaPhongNavigation)
+        //            .ThenInclude(p => p.MaCumRapNavigation) // Lấy tên rạp
+        //        .Include(d => d.DonDatVeDoAns)
+        //            .ThenInclude(da => da.MaComboNavigation) // Lấy combo bắp nước
+        //        .FirstOrDefault(d => d.MaDon == id);
+
+        //    if (donVe == null) return NotFound();
+
+        //    return View(donVe);
+        //}
 
         [HttpGet]
         public IActionResult LichSu()

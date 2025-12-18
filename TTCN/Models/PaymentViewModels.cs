@@ -27,9 +27,10 @@ namespace TTCN.Models
 
     public class CheckoutSeatModel
     {
+        public List<int> MaGhe { get; set; } = new();
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
-        public int Quantity { get; set; } = 1;
+        public int Quantity => MaGhe?.Count ?? 0;
     }
 
     public class PaymentCheckoutViewModel
@@ -43,7 +44,7 @@ namespace TTCN.Models
         public string ComboText { get; set; } = string.Empty;
         public decimal ComboPrice { get; set; }
         public decimal TotalPrice { get; set; }
-        public int SeatCount => Seats?.Sum(s => s.Quantity) ?? 0;
+        public int SeatCount => Seats?.Sum(s => s.MaGhe.Count) ?? 0;
         public int MaSuat { get; set; }
         public int MaUsers { get; set; }
 

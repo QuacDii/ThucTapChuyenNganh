@@ -46,7 +46,7 @@ namespace TTCN.Controllers
             HttpContext.Session.SetString("UserHoTen", user.HoTen);
             HttpContext.Session.SetString("UserVaiTro", user.VaiTro);
 
-            HttpContext.Session.SetInt32("UserID", user.MaUsers);
+            //HttpContext.Session.SetInt32("UserID", user.MaUsers);
             HttpContext.Session.SetString("SessionStartTime", DateTime.UtcNow.ToString("o"));
                 string urlChuyenHuong;
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -266,6 +266,7 @@ namespace TTCN.Controllers
             HttpContext.Session.Remove("RegisterOtpExpiry");
 
             // Tự động đăng nhập
+            HttpContext.Session.SetInt32("UserId", newUser.MaUsers);
             HttpContext.Session.SetString("UserEmail", newUser.Email);
             HttpContext.Session.SetString("UserHoTen", newUser.HoTen);
             HttpContext.Session.SetString("UserVaiTro", newUser.VaiTro);

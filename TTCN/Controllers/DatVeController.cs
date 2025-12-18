@@ -88,7 +88,7 @@ namespace TTCN.Controllers
             if (suat == null) return NotFound();
 
             var gheDaDat = db.ChiTietDonDat
-                .Where(ct => ct.MaSuat == maSuat && ct.TrangThai && ct.MaGhe != null)
+                .Where(ct => ct.MaSuat == maSuat && ct.TrangThai==true && ct.MaGhe != null)
                 .Select(ct => ct.MaGhe.Value)
                 .ToHashSet();
 
