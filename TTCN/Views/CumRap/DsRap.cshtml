@@ -172,7 +172,7 @@
     <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
         <div class="dropdown">
             <button class="btn btn-outline-light dropdown-toggle px-4 py-2" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-map-marker-alt me-2 text-red"></i> @currentLabel
+                <i class="fas fa-map-marker-alt me-2 text-danger"></i> @currentLabel
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 @if (allRaps != null)
@@ -237,8 +237,8 @@
             </div>
             
             <div class="mt-4">
-                <a href="@Url.Action("LichChieu", "SuatChieu", new { maCumRap = rapHienTai.MaCumRap })" class="btn btn-custom-red w-100">
-                    <i class="fas fa-ticket-alt me-2"></i> ĐẶT VÉ NGAY
+                <a href="@Url.Action("TheoRap", "LichChieu", new { maCumRap = rapHienTai.MaCumRap })" class="btn btn-custom-red w-100">
+                    <i class="fas fa-ticket-alt me-2"></i> XEM SUẤT CHIẾU
                 </a>
             </div>
         </div>

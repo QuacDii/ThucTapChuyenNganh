@@ -18,18 +18,21 @@ namespace TTCN.Controllers
             var today = DateTime.Today;
 
             var minDate = today;
-            var maxDate = today.AddDays(14); // fallback
+            var maxDate = today.AddDays(14);
 
-            // nếu đã chọn rạp → lấy ngày theo phim
             if (maCumRap != null)
             {
-                minDate = _context.SuatChieus
-                    .Where(s => s.MaPhongNavigation.MaCumRap == maCumRap)
-                    .Min(s => s.GioBatDau)!.Value.Date;
+                var query = _context.SuatChieus
+                .Where(s => s.MaPhongNavigation.MaCumRap == maCumRap && s.GioBatDau.HasValue);
 
-                maxDate = _context.SuatChieus
-                    .Where(s => s.MaPhongNavigation.MaCumRap == maCumRap)
-                    .Max(s => s.GioBatDau)!.Value.Date;
+                if (query.Any())
+                {
+                    var minVal = query.Min(s => s.GioBatDau);
+                    var maxVal = query.Max(s => s.GioBatDau);
+
+                    if (minVal.HasValue) minDate = minVal.Value.Date;
+                    if (maxVal.HasValue) maxDate = maxVal.Value.Date;
+                }
 
                 if (minDate < today) minDate = today;
             }
