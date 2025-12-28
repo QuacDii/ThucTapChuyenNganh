@@ -112,7 +112,7 @@ namespace TTCN.Controllers
             ViewBag.PieData_SoDon = groupedRap.Select(x => x.SoDon).ToList();                    // Số đơn hàng
 
 
-            // Top Phim (Giữ nguyên logic cũ)
+            // Top Phim
             var topPhimData = _context.ChiTietDonDat
                 .Where(ct => query.Any(d => d.MaDon == ct.MaDon))
                 .GroupBy(ct => ct.MaSuatNavigation.MaPhimNavigation.TenPhim)

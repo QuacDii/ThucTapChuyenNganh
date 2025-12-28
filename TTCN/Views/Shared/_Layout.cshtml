@@ -1,6 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@using TTCN.Models  @* Thay bằng namespace chứa DbContext của bạn *@
+@using TTCN.Models
 @inject QLDVContext _context
 
 <!DOCTYPE html>
@@ -166,7 +166,6 @@
                                      style="width: 40px; height: 40px; background-color: #e50914; font-size: 1.2rem;">
                                     @(HttpContextAccessor.HttpContext.Session.GetString("UserHoTen")?.Substring(0, 1).ToUpper() ?? "U")
                                 </div>
-
                                 <div class="d-none d-lg-block text-start">
                                     <div class="small text-white-50" style="font-size: 0.75rem; line-height: 1;">Xin chào,</div>
                                     <div class="fw-bold text-white text-truncate" style="font-size: 0.95rem; max-width: 150px;">

@@ -224,6 +224,7 @@
 
                                     <td class="text-center">
                                         @if (!item.TrangThai.Contains("Đã hủy") && suatChieu!=null && suatChieu.GioBatDau > DateTime.Now)
+                                        @if (!item.TrangThai.Contains("Đã hủy") && suatChieu != null && suatChieu.GioBatDau > DateTime.Now)
                                         {
                                             <form asp-action="huyDon" asp-route-id="@item.MaDon" method="post"
                                                   onsubmit="return confirm('Bạn có chắc muốn hủy đơn này? Hành động này sẽ trả ghế lại trạng thái trống.');"
