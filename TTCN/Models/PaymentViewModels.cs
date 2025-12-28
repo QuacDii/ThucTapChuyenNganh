@@ -16,13 +16,21 @@ namespace TTCN.Models
         public decimal TotalPrice { get; set; }
         public int MaSuat { get; set; }
         public string SelectedCombosJson { get; set; }
-
+        public int MaPhim { get; set; }
 
     }
     public class CheckoutComboModel
     {
         public int MaCombo { get; set; }
         public int SoLuong { get; set; }
+    }
+    public class CheckoutComboViewModel
+    {
+        public int MaCombo { get; set; }
+        public string TenCombo { get; set; } = string.Empty;
+        public int SoLuong { get; set; }
+        public decimal Gia { get; set; }
+        public decimal ThanhTien => Gia * SoLuong;
     }
 
     public class CheckoutSeatModel
@@ -43,11 +51,14 @@ namespace TTCN.Models
         public List<CheckoutSeatModel> Seats { get; set; } = new();
         public string ComboText { get; set; } = string.Empty;
         public decimal ComboPrice { get; set; }
+        public List<CheckoutComboViewModel> Combos { get; set; } = new();
         public decimal TotalPrice { get; set; }
         public int SeatCount => Seats?.Sum(s => s.MaGhe.Count) ?? 0;
         public int MaSuat { get; set; }
         public int MaUsers { get; set; }
-
+        public string HoTen { get; set; }
+        public string DienThoai { get; set; }
+        public string Email { get; set; }
     }
 }
 

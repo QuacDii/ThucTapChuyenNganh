@@ -1,0 +1,89 @@
+﻿@model DonDatVe
+
+@{
+    Layout = null;
+    var first = Model.ChiTietDonDat.First();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Thông tin vé</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+
+        .ticket {
+            background: white;
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+        }
+
+        .seat {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #4caf50;
+            color: white;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket">
+        <h2>🎟 THÔNG TIN VÉ</h2>
+
+        <div class="row">
+            <span class="label">Mã đơn:</span> #@Model.MaDon
+        </div>
+
+        <div class="row">
+            <span class="label">Mã phim:</span>
+            @first.MaSuatNavigation.MaPhim
+        </div>
+
+        <div class="row">
+            <span class="label">Mã suất:</span>
+            @first.MaSuat
+        </div>
+
+        <div class="row">
+            <span class="label">Mã phòng:</span>
+            @first.MaSuatNavigation.MaPhong
+        </div>
+
+        <div class="row">
+            <span class="label">Ghế:</span><br />
+            @foreach (var ct in Model.ChiTietDonDat)
+            {
+                <span class="seat">@ct.MaGheNavigation.TenGhe</span>
+            }
+        </div>
+
+        <hr />
+
+        <div class="row">
+            <span class="label">Trạng thái:</span>
+            <strong>@Model.TrangThai</strong>
+        </div>
+    </div>
+</body>
+</html>

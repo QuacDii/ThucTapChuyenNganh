@@ -50,17 +50,23 @@ namespace TTCN.Controllers
                 return View(vm);
 
             // ===== 2. Lấy danh sách suất chiếu =====
+            var now = DateTime.Now;
+
             var suatChieus = _context.SuatChieus
                 .Include(s => s.MaPhimNavigation)
                     .ThenInclude(p => p.PhimTheLoais)
                         .ThenInclude(pt => pt.MaTheLoaiNavigation)
                 .Include(s => s.MaPhongNavigation)
-                    .ThenInclude(p => p.GheNgois)          // Tổng ghế phòng
-                .Include(s => s.ChiTietDonDat)           // Ghế đã đặt
+                    .ThenInclude(p => p.GheNgois)
+                .Include(s => s.ChiTietDonDat)
                 .Where(s =>
                     s.MaPhongNavigation.MaCumRap == maCumRap &&
                     s.GioBatDau.HasValue &&
-                    s.GioBatDau.Value.Date == vm.NgayChieu.Date
+                    s.GioBatDau.Value.Date == vm.NgayChieu.Date &&
+                    (
+                        vm.NgayChieu.Date > now.Date ||          // ngày tương lai → lấy hết
+                        s.GioBatDau.Value >= now                 // hôm nay → chỉ suất chưa chiếu
+                    )
                 )
                 .ToList();
 

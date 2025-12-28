@@ -8,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();
+builder.Services.AddSignalR();
+builder.Services.AddHostedService<CleanupExpiredOrdersService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -51,5 +53,6 @@ app.UseRouting();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHub<PaymentHub>("/paymentHub");
 
 app.Run();

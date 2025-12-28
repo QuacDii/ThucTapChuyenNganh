@@ -10,13 +10,11 @@
     body {
         background: #0c0f16;
         color: #e5e7eb;
-        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     .payment-hero {
-        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 25%),
-                    radial-gradient(circle at 80% 0%, rgba(255,255,255,0.06), transparent 25%),
-                    linear-gradient(135deg, #111827 0%, #0b0f1a 50%, #0d111c 100%);
+        background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 25%), radial-gradient(circle at 80% 0%, rgba(255,255,255,0.06), transparent 25%), linear-gradient(135deg, #111827 0%, #0b0f1a 50%, #0d111c 100%);
         border-radius: 18px;
         padding: 24px 28px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.35);
@@ -49,13 +47,11 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     }
 
-    .panel + .panel { margin-top: 18px; }
-
-    .panel h6 {
-        color: #ffffff;
-        margin-bottom: 14px;
-        letter-spacing: 0.2px;
-    }
+        .panel h6 {
+            color: #ffffff;
+            margin-bottom: 14px;
+            letter-spacing: 0.2px;
+        }
 
     .label-muted {
         color: #9ca3af;
@@ -70,35 +66,10 @@
         color: #e5e7eb;
     }
 
-    .input-ghost:focus {
-        border-color: #e50914;
-        box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
-    }
-
-    .pay-option {
-        border: 1px solid rgba(255,255,255,0.08);
-        padding: 14px;
-        border-radius: 14px;
-        background: rgba(255,255,255,0.02);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .pay-option:hover {
-        border-color: rgba(229,9,20,0.35);
-        background: rgba(229,9,20,0.08);
-    }
-
-    .pay-option.active {
-        border-color: #e50914;
-        background: rgba(229,9,20,0.12);
-        box-shadow: 0 12px 24px rgba(229,9,20,0.18);
-    }
-
-    .pay-option input { accent-color: #e50914; }
+        .input-ghost:focus {
+            border-color: #e50914;
+            box-shadow: 0 0 0 3px rgba(229,9,20,0.2);
+        }
 
     .summary-card {
         background: linear-gradient(180deg, #0f1422 0%, #0c101b 100%);
@@ -118,7 +89,10 @@
         color: #d1d5db;
     }
 
-    .summary-row strong { color: #fff; text-align: right; }
+        .summary-row strong {
+            color: #fff;
+            text-align: right;
+        }
 
     .chip {
         background: rgba(255,255,255,0.06);
@@ -149,11 +123,11 @@
         box-shadow: 0 12px 30px rgba(229,9,20,0.35);
     }
 
-    .btn-primary-modern:disabled {
-        background: rgba(255,255,255,0.08);
-        box-shadow: none;
-        color: #9ca3af;
-    }
+        .btn-primary-modern:disabled {
+            background: rgba(255,255,255,0.08);
+            box-shadow: none;
+            color: #9ca3af;
+        }
 
     .btn-ghost {
         color: #9ca3af;
@@ -177,178 +151,256 @@
         font-size: 14px;
     }
 
+
+    .pay-option {
+        border: 1px solid rgba(255,255,255,0.08);
+        padding: 20px 15px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.02);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 12px;
+        height: 100%;
+        position: relative;
+    }
+
+        .pay-option:hover {
+            border-color: rgba(229,9,20,0.35);
+            background: rgba(229,9,20,0.08);
+            transform: translateY(-2px);
+        }
+
+        .pay-option.active {
+            border-color: #e50914;
+            background: rgba(229,9,20,0.12);
+            box-shadow: 0 12px 24px rgba(229,9,20,0.18);
+        }
+
+        .pay-option input {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            accent-color: #e50914;
+            transform: scale(1.2);
+        }
+
+    .pay-icon {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+        margin-bottom: 5px;
+    }
+
+    .pay-icon-font {
+        font-size: 40px;
+        margin-bottom: 5px;
+    }
 </style>
 
 <div class="container-xl py-4">
     <div class="payment-hero d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
         <div>
-            <div class="pill mb-2">
-                <i class="fas fa-ticket-alt"></i>
-                Thanh toán vé phim
-            </div>
+            <div class="pill mb-2"><i class="fas fa-ticket-alt"></i> Thanh toán vé phim</div>
             <h3 class="mb-1" style="color:#fff;">@(!string.IsNullOrWhiteSpace(Model.MovieName) ? Model.MovieName : "Chưa chọn phim")</h3>
             <div class="text-muted small">Kiểm tra thông tin và chọn phương thức thanh toán.</div>
         </div>
         <div class="pill countdown-pill">
-            <i class="fas fa-clock"></i>
-            Thời gian giữ ghế: <span id="countdown" class="fw-bold">05:00</span>
+            <i class="fas fa-clock"></i> Thời gian giữ ghế: <span id="countdown" class="fw-bold">05:00</span>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="panel">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">Thông tin người nhận vé</h6>
-                    <span class="chip"><i class="fas fa-envelope"></i> Vé sẽ gửi qua email</span>
+    <form id="momo-form" asp-action="CreatePaymentMomo" asp-controller="Payment" method="post">
+
+        <input type="hidden" name="OrderId" id="momo-orderid" value="@(ViewBag.OI?.OrderId ?? Guid.NewGuid().ToString())" />
+        <input type="hidden" name="Amount" id="momo-amount" value="@(Model.TotalPrice)" />
+        <input type="hidden" name="FullName" id="momo-fullname" value="Khách hàng" />
+        <input type="hidden" name="OrderInfo" id="momo-orderinfo" value="Thanh toán vé xem phim" />
+        <input type="hidden" name="ExtraData" id="momo-extradata" value="@(ViewBag.OI?.ExtraData ?? "")" />
+
+        <div class="row g-4">
+
+            <div class="col-lg-8">
+
+                <div class="panel mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">Thông tin người nhận vé</h6>
+                        <span class="chip"><i class="fas fa-envelope"></i> Vé sẽ gửi qua email</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="label-muted">Họ và tên</div>
+                            <input class="form-control input-ghost" value="@Model.HoTen" readonly />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="label-muted">Số điện thoại</div>
+                            <input class="form-control input-ghost" value="@Model.DienThoai" readonly />
+                        </div>
+                        <div class="col-md-12">
+                            <div class="label-muted">Email</div>
+                            <input class="form-control input-ghost" value="@Model.Email" readonly />
+                            <div class="text-success small mt-1"><i class="fas fa-check-circle me-1"></i> Vé điện tử sẽ được gửi tới email này.</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="label-muted">Họ và tên</div>
-                        <input class="form-control input-ghost" value="(Bạn có thể cập nhật sau)" readonly />
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="label-muted">Số điện thoại</div>
-                        <input class="form-control input-ghost" value="(Bạn có thể cập nhật sau)" readonly />
-                    </div>
-                    <div class="col-md-12">
-                        <div class="label-muted">Email</div>
-                        <div class="text-success small"><i class="fas fa-check-circle me-1"></i> Vé điện tử sẽ được gửi tới email này.</div>
+
+                <div class="panel">
+                    <h6 class="mb-3">Chọn phương thức thanh toán</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('momo')" id="option-momo">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="momo" value="MoMo">
+                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square.png" class="pay-icon rounded" alt="MoMo">
+                                <div>
+                                    <div class="fw-bold text-white">Ví MoMo</div>
+                                    <div class="text-muted small">Quét mã QR</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('vnpay')" id="option-vnpay">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="vnpay" value="VNPay">
+                                <img src="https://vnpay.vn/assets/images/logo-icon/logo-primary.svg" class="pay-icon" alt="VNPay">
+                                <div>
+                                    <div class="fw-bold text-white">VNPAY-QR</div>
+                                    <div class="text-muted small">ATM Nội địa</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('card')" id="option-card">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="card" value="CreditCard">
+                                <div class="text-primary pay-icon-font"><i class="fab fa-cc-visa"></i></div>
+                                <div>
+                                    <div class="fw-bold text-white">Thẻ quốc tế</div>
+                                    <div class="text-muted small">Visa / Master</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-            <div class="panel">
-                <h6>Chọn phương thức thanh toán</h6>
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <div class="d-flex align-items-center mb-3"><div class="chip"><i class="fas fa-film"></i> Vé của bạn</div></div>
 
-                <div class="pay-option mb-3" onclick="selectPayment('momo')" id="option-momo">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="momo" value="MoMo">
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" width="46" class="rounded" alt="MoMo">
-                    <div>
-                        <div class="fw-bold text-white">Ví MoMo</div>
-                        <div class="text-muted small">Quét mã QR qua ứng dụng MoMo</div>
-                    </div>
-                </div>
+                    <div class="summary-row"><span>Phim</span><strong>@(Model.MovieName ?? "Chưa chọn")</strong></div>
+                    <div class="summary-row"><span>Rạp</span><strong>@(Model.CinemaName ?? "Chưa chọn")</strong></div>
+                    <div class="summary-row"><span>Phòng</span><strong>@(Model.RoomName ?? "Chưa chọn")</strong></div>
+                    <div class="summary-row"><span>Suất chiếu</span><strong>@((string.IsNullOrWhiteSpace(Model.ShowTime)) ? "Chưa chọn" : $"{Model.ShowTime} - {Model.ShowDate}")</strong></div>
 
-                <div class="pay-option mb-3" onclick="selectPayment('vnpay')" id="option-vnpay">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="vnpay" value="VNPay">
-                    <img src="https://vnpay.vn/assets/images/logo-icon/logo-primary.svg" width="90" alt="VNPay">
-                    <div>
-                        <div class="fw-bold text-white">VNPAY-QR</div>
-                        <div class="text-muted small">Hỗ trợ hầu hết ngân hàng nội địa</div>
-                    </div>
-                </div>
-
-                <div class="pay-option" onclick="selectPayment('card')" id="option-card">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="card" value="CreditCard">
-                    <div class="text-primary" style="font-size: 24px; width: 40px; text-align: center;">
-                        <i class="fab fa-cc-visa"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold text-white">Thẻ quốc tế (Visa/Master/JCB)</div>
-                        <div class="text-muted small">Thanh toán an toàn qua cổng bảo mật</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <form id="momo-form" asp-action="CreatePaymentMomo" asp-controller="Payment" method="post">
-                <input type="hidden" name="OrderId" id="momo-orderid" value="@(ViewBag.OI?.OrderId ?? Guid.NewGuid().ToString())" />
-                <input type="hidden" name="Amount" id="momo-amount" value="@(Model.TotalPrice)" />
-                <input type="hidden" name="FullName" id="momo-fullname" value="Khách hàng" />
-                <input type="hidden" name="OrderInfo" id="momo-orderinfo" value="Thanh toán vé xem phim" />
-                <input type="hidden" name="ExtraData" id="momo-extradata" value="@(ViewBag.OI?.ExtraData ?? "")" />
-
-            <div class="summary-card">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="chip"><i class="fas fa-film"></i> Vé của bạn</div>
-                </div>
-                @{
-                    var seatNames = new List<string>();
-                    if (Model.Seats != null)
-                    {
-                        foreach (var seat in Model.Seats)
-                        {
-                            var qty = seat.Quantity <= 0 ? 1 : seat.Quantity;
-                            for (int i = 0; i < qty; i++)
+                    <div class="summary-row align-items-start">
+                        <span style="margin-top:2px;">Ghế</span>
+                        <div style="text-align:right; max-width: 70%;">
+                            @if (Model.Seats != null)
                             {
-                                seatNames.Add(seat.Name);
+                                foreach (var s in Model.Seats)
+                                {
+                                    <div class="seat-chip">@s.Name</div>
+                                }
                             }
-                        }
-                    }
-                }
-
-                <div class="summary-row">
-                    <span>Phim</span>
-                    <strong>@(string.IsNullOrWhiteSpace(Model.MovieName) ? "Chưa chọn" : Model.MovieName)</strong>
-                </div>
-                <div class="summary-row">
-                    <span>Rạp</span>
-                    <strong>@(string.IsNullOrWhiteSpace(Model.CinemaName) ? "Chưa chọn" : Model.CinemaName)</strong>
-                </div>
-                <div class="summary-row">
-                    <span>Phòng</span>
-                    <strong>@(string.IsNullOrWhiteSpace(Model.RoomName) ? "Chưa chọn" : Model.RoomName)</strong>
-                </div>
-                <div class="summary-row">
-                    <span>Suất chiếu</span>
-                    <strong>@((string.IsNullOrWhiteSpace(Model.ShowTime) && string.IsNullOrWhiteSpace(Model.ShowDate)) ? "Chưa chọn" : $"{Model.ShowTime} - {Model.ShowDate}")</strong>
-                </div>
-                <div class="summary-row align-items-start">
-                    <span style="margin-top:2px;">Ghế</span>
-                    <div style="text-align:right; max-width: 70%;">
-                        @foreach (var s in Model.Seats)
-                        {
-                            <div class="seat-chip">@s.Name</div>
-                        }
+                        </div>
                     </div>
 
-                </div>
+                    <div class="summary-row align-items-start mt-2">
+                        <span>Combo</span>
+                        <div style="text-align:right; max-width: 70%;">
+                            @if (Model.Combos != null && Model.Combos.Any())
+                            {
+                                foreach (var c in Model.Combos)
+                                {
+                                    <div class="chip mb-1">
+                                        <strong>@c.TenCombo x @c.SoLuong</strong>
+                                    </div>
 
-                <div class="summary-row mt-2">
-                    <span>Combo</span>
-                    <strong>@((!string.IsNullOrWhiteSpace(Model.ComboText) && Model.ComboPrice > 0) ? $"{Model.ComboText} - {Model.ComboPrice:#,##0} đ" : "Chưa chọn")</strong>
-                </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa chọn</span>
+                            }
+                        </div>
+                    </div>
 
-                <hr style="border-color: rgba(255,255,255,0.08);" />
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Tổng thanh toán</span>
-                    <span class="price-total">@((Model.TotalPrice > 0 ? Model.TotalPrice.ToString("#,##0") + " đ" : "0 đ"))</span>
-                </div>
+                    <hr style="border-color: rgba(255,255,255,0.08);" />
 
-                <button type="submit" name="PayUrl" class="btn btn-primary-modern w-100 mb-2" id="btn-pay-now" @(Model.SeatCount == 0 ? "disabled" : "")>
-                    Thanh toán ngay
-                </button>
-                <a href="javascript:history.back()" class="btn btn-ghost w-100">
-                    Quay lại chọn ghế
-                </a>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Tổng thanh toán</span>
+                        <span class="price-total">@((Model.TotalPrice > 0 ? Model.TotalPrice.ToString("#,##0") + " đ" : "0 đ"))</span>
+                    </div>
 
-                <div class="text-muted small text-center mt-3">
-                    Bằng việc thanh toán, bạn đồng ý với điều khoản sử dụng của chúng tôi.
+                    <button type="button" class="btn btn-primary-modern w-100 mb-2" id="btn-pay-now" @(Model.SeatCount == 0 ? "disabled" : "")>Thanh toán ngay</button>
+                    <button type="button" class="btn btn-ghost w-100" onclick="backToSeat()">Quay lại chọn ghế</button>
+                    <div class="text-muted small text-center mt-3">Bằng việc thanh toán, bạn đồng ý với điều khoản sử dụng.</div>
                 </div>
             </div>
-            </form>
+
         </div>
-    </div>
+    </form>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/microsoft/signalr@6.0.21/dist/browser/signalr.min.js"></script>
+
     <script>
         const maDon = '@ViewBag.MaDon';
-            setInterval(() => {
-            if (!maDon) return;
+        const countdownEl = document.getElementById('countdown');
+        let timer = null;
+        let paymentStarted = false;
 
-            fetch(`/Payment/CheckOrderStatus?maDon=${maDon}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "Hết hạn") {
-                        alert("⏰ Giao dịch đã hết thời gian giữ ghế!");
-                        window.location.href = "/Home/Index";
-                    }
-                });
-        }, 10000);
+        function startCountdown(seconds) {
+            let remain = seconds;
+            if (timer) clearInterval(timer);
+
+            timer = setInterval(() => {
+                if (remain <= 0) {
+                    clearInterval(timer);
+                    alert("⏰ Hết thời gian giữ ghế!");
+                    window.location.href = "/Home/Index";
+                    return;
+                }
+
+                const m = Math.floor(remain / 60);
+                const s = remain % 60;
+                countdownEl.innerText =
+                    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                remain--;
+            }, 1000);
+        }
+
+        // 👉 LẤY THỜI GIAN TỪ SERVER (CHUẨN)
+        fetch(`/Payment/GetRemainingTime?maDon=${maDon}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.expired) {
+                    alert("⏰ Đơn đã hết hạn!");
+                    window.location.href = "/Home/Index";
+                } else {
+                    startCountdown(data.seconds);
+                }
+            });
+
+        function backToSeat() {
+            if (!confirm("Bạn muốn quay lại chọn ghế? Lựa chọn hiện tại sẽ bị xóa.")) return;
+            fetch('/Payment/BackToSeatAjax', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(res => res.json()).then(data => {
+                if (data.success && data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert("Không thể quay lại trang chọn ghế.");
+                }
+            });
+        }
+
         function selectPayment(id) {
             document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('active'));
             const radio = document.getElementById(id);
@@ -358,50 +410,26 @@
             }
         }
 
-        let time = 300;
-        const countdownEl = document.getElementById('countdown');
-        const timer = setInterval(() => {
-            const minutes = Math.floor(time / 60);
-            let seconds = time % 60;
-            seconds = seconds < 10 ? '0' + seconds : seconds;
-            countdownEl.innerHTML = `0${minutes}:${seconds}`;
-            time--;
-            if (time < 0) {
-                clearInterval(timer);
-                alert("Hết thời gian giữ ghế. Vui lòng đặt lại!");
-                window.location.href = "/Home/Index";
-            }
-        }, 1000);
-
         function submitPayment() {
             const selected = document.querySelector('input[name="PaymentMethod"]:checked');
             if (!selected) {
                 alert("Vui lòng chọn phương thức thanh toán.");
                 return;
             }
-
             if (selected.value !== "MoMo") {
                 alert("Hiện tại chỉ hỗ trợ thanh toán qua MoMo.");
                 return;
             }
-
-            const seatsText = `@string.Join(", ", Model.Seats?.Select(s => s.Name) ?? new List<string>())`;
-            const info = `Phim: @(Model.MovieName) | Rạp: @(Model.CinemaName) | Phòng: @(Model.RoomName) | Suất: @(Model.ShowTime) - @(Model.ShowDate) | Ghế: ${seatsText}`;
-            document.getElementById('momo-orderinfo').value = info;
-            document.getElementById('momo-amount').value = '@(Model.TotalPrice)';
-            document.getElementById('momo-fullname').value = 'Khách hàng';
-
+            paymentStarted = true;
             document.getElementById('momo-form').submit();
         }
-        
-        // Đảm bảo ExtraData được set
-        if (document.getElementById("momo-extradata") && '@(ViewBag.OI?.ExtraData)' && !document.getElementById("momo-extradata").value) {
-            document.getElementById("momo-extradata").value = '@(ViewBag.OI?.ExtraData ?? "")';
-        }
 
-        const payNowBtn = document.getElementById('btn-pay-now');
-        if (payNowBtn) {
-            payNowBtn.addEventListener('click', submitPayment);
-        }
+        document.getElementById('btn-pay-now')?.addEventListener('click', submitPayment);
+
+        // 👉 Thoát tab = hủy giữ ghế
+        window.addEventListener("beforeunload", function () {
+            if (paymentStarted) return;
+            navigator.sendBeacon("/Payment/CancelHold");
+        });
     </script>
 }

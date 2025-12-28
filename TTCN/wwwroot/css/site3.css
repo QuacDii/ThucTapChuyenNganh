@@ -1,14 +1,13 @@
 ﻿:root {
     --brand-red: #E50914;
-    --brand-dark: #141414; 
-    --bg-color: #1a1d21; 
-    --card-bg: #212529; 
-    --border-color: #373b3e;                       
-    --seat-standard: #4a4e53; 
-    --seat-vip: #d4af37; 
+    --brand-dark: #141414;
+    --bg-color: #1a1d21;
+    --card-bg: #212529;
+    --border-color: #373b3e;
+    --seat-standard: #4a4e53;
+    --seat-vip: #ffc107; /* Đã đổi sang màu Vàng tươi hơn */
     --seat-selected: #E50914;
     --seat-occupied: #2c2f33;
-
     --text-muted: #adb5bd;
     --text-light: #e9ecef;
 }
@@ -17,7 +16,7 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-light);
-    overflow-x: hidden;  
+    overflow-x: hidden;
 }
 
 /* =========================================
@@ -286,13 +285,21 @@ body {
         color: #fff;
     }
 
-    /* Loại 2: Ghế VIP */
+    /* Loại 2: Ghế VIP (ĐÃ SỬA: Nền Vàng - Chữ Trắng) */
     .seat.vip {
-        background-color: var(--seat-vip);
-        color: #000;
-        border-bottom-color: #b8962e;
-        box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        background-color: var(--seat-vip); /* Màu vàng */
+        color: #ffffff !important; /* Bắt buộc chữ trắng */
+        border-bottom-color: #d39e00; /* Viền dưới đậm hơn nền chút để tạo khối 3D */
+        box-shadow: 0 0 10px rgba(255, 193, 7, 0.4);
+        /* TEXT-SHADOW QUAN TRỌNG: Giúp chữ trắng đọc được trên nền vàng */
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     }
+
+        /* Hiệu ứng hover riêng cho ghế VIP */
+        .seat.vip:not(.occupied):hover {
+            background-color: #ffca2c; /* Sáng hơn một chút khi di chuột */
+            transform: translateY(-3px);
+        }
 
     /* Loại 3: Sweetbox (ghế đôi) */
     .seat.sweetbox {
@@ -312,6 +319,7 @@ body {
         transform: scale(1.2);
         box-shadow: 0 0 15px rgba(229, 9, 20, 0.6);
         z-index: 10;
+        text-shadow: none; /* Bỏ bóng chữ nếu ghế VIP được chọn chuyển sang màu đỏ */
     }
 
     /* Loại 5: Ghế Đã Bán */
@@ -330,11 +338,31 @@ body {
             opacity: 0.5;
         }
 
-    /* Hiệu ứng Hover (Chỉ ghế chưa bán) */
-    .seat:not(.occupied):hover {
-        filter: brightness(1.2);
-        transform: translateY(-3px);
+    /* Loại 6: Ghế đang giữ (Holding) - Từ code JS trước */
+    .seat.holding {
+        background-color: #fd7e14; /* Cam */
+        color: #fff;
+        background-image: linear-gradient(45deg,rgba(255,255,255,.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.2) 75%,transparent 75%,transparent);
+        background-size: 10px 10px;
+        animation: stripe-move 1s linear infinite;
+        cursor: not-allowed;
     }
+
+@keyframes stripe-move {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 10px 10px;
+    }
+}
+
+/* Hiệu ứng Hover chung (Chỉ ghế chưa bán) */
+.seat:not(.occupied):hover {
+    filter: brightness(1.2);
+    transform: translateY(-3px);
+}
 
 /* Chú thích (Legend) */
 .legend {

@@ -7,87 +7,74 @@
     <title>Đặt Vé</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="~/css/site3.css" rel="stylesheet" />
+
     <style>
         .combo-item-card {
             background-color: #f8f9fa;
             transition: all 0.2s;
         }
-        .combo-item-card:hover {
-            background-color: #e9ecef;
-            border-color: #dee2e6 !important;
-        }
-            /* Mặc định: combo CHƯA chọn */
+
+            .combo-item-card:hover {
+                background-color: #e9ecef;
+                border-color: #dee2e6 !important;
+            }
+
             .combo-item-card label {
-                color: #212529; /* đen bootstrap */
+                color: #212529;
                 opacity: 1;
             }
 
-            /* Khi checkbox được chọn */
             .combo-item-card input[type="checkbox"]:checked + label {
-                color: #198754; /* xanh */
+                color: #198754;
                 font-weight: 600;
             }
 
         #combo-list-container {
             scrollbar-width: thin;
         }
-        #combo-list-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        #combo-list-container::-webkit-scrollbar-thumb {
-            background-color: #6c757d;
-            border-radius: 3px;
-        }
-        /* ===== CHECKBOX COMBO – TRẠNG THÁI CHƯA CHỌN ===== */
+
+            #combo-list-container::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            #combo-list-container::-webkit-scrollbar-thumb {
+                background-color: #6c757d;
+                border-radius: 3px;
+            }
+
         .combo-check {
             width: 22px;
             height: 22px;
             cursor: pointer;
-            /* CHƯA CHỌN */
             background-color: #ffffff;
-            border: 2px solid #6c757d; /* xám đậm – dễ thấy */
+            border: 2px solid #6c757d;
             border-radius: 6px;
             transition: all 0.2s ease;
         }
 
-            /* Hover khi chưa chọn */
             .combo-check:hover {
                 border-color: #198754;
-                background-color: #f0fdf4; /* xanh rất nhạt */
+                background-color: #f0fdf4;
                 box-shadow: 0 0 0 3px rgba(25,135,84,0.15);
             }
 
-            /* ===== KHI CHECK ===== */
             .combo-check:checked {
                 background-color: #198754;
                 border-color: #198754;
             }
 
-                /* Dấu tick to – rõ */
                 .combo-check:checked::before {
                     transform: scale(1.25);
                 }
 
-        /* ===== LABEL ===== */
-        .combo-item-card label {
-            color: #212529; /* chữ rõ khi chưa chọn */
-            opacity: 1;
-        }
-
-        /* Label khi đã chọn */
         .combo-item-card input[type="checkbox"]:checked + label {
             color: #198754;
             font-weight: 700;
         }
 
-        /* ===== CARD COMBO NỔI BẬT ===== */
         .combo-item-card {
             background-color: #f8f9fa;
             transition: all 0.2s ease;
@@ -98,20 +85,18 @@
                 border-color: #ced4da !important;
             }
 
-            /* Khi combo được chọn */
             .combo-item-card:has(.combo-check:checked) {
                 background-color: #e9f7ef;
                 border-color: #198754 !important;
                 box-shadow: 0 4px 14px rgba(25,135,84,0.25);
             }
-        
-        /* ===== HÌNH ẢNH COMBO ===== */
+
         .combo-image-wrapper {
             width: 100px;
             height: 100px;
             flex-shrink: 0;
         }
-        
+
         .combo-image {
             width: 100%;
             height: 100%;
@@ -120,17 +105,17 @@
             border: 2px solid #dee2e6;
             transition: all 0.2s ease;
         }
-        
+
         .combo-item-card:hover .combo-image {
             border-color: #198754;
             transform: scale(1.05);
         }
-        
+
         .combo-item-card:has(.combo-check:checked) .combo-image {
             border-color: #198754;
             box-shadow: 0 2px 8px rgba(25,135,84,0.3);
         }
-        
+
         .combo-image-placeholder {
             width: 100%;
             height: 100%;
@@ -143,76 +128,173 @@
             color: #6c757d;
             font-size: 24px;
         }
-        
+
         .combo-item-card:has(.combo-check:checked) .combo-image-placeholder {
             border-color: #198754;
             background: linear-gradient(135deg, #e9f7ef 0%, #d1f2eb 100%);
             color: #198754;
         }
-        
-        /* ===== THÔNG TIN COMBO ===== */
+
         .combo-name {
             font-size: 15px;
             line-height: 1.4;
             display: block;
             margin-bottom: 4px;
         }
-        
+
         .combo-price-wrapper {
             margin-top: 4px;
         }
-        /* ===== WRAPPER ===== */
-            /* Label "Số lượng" */
-            .qty-wrapper label {
-                font-size: 14px;
-                font-weight: 600;
-                color: #198754;
-                margin-bottom: 0;
+
+        .qty-wrapper label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #198754;
+            margin-bottom: 0;
+        }
+
+        .qty-wrapper .input-group {
+            width: 120px;
+            border-radius: 999px;
+            overflow: hidden;
+            background: #ffffff;
+            border: 1px solid #198754;
+        }
+
+        .qty-wrapper .btn {
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: none;
+            background: #e9f7ef;
+            color: #198754;
+            font-size: 18px;
+            font-weight: 700;
+            transition: all 0.15s ease;
+        }
+
+            .qty-wrapper .btn:hover {
+                background: #198754;
+                color: #ffffff;
             }
 
-            /* ===== INPUT GROUP ===== */
-            .qty-wrapper .input-group {
-                width: 120px;
-                border-radius: 999px;
-                overflow: hidden;
-                background: #ffffff;
-                border: 1px solid #198754;
-            }
+        .qty-wrapper .combo-qty-input {
+            border: none;
+            text-align: center;
+            font-weight: 700;
+            font-size: 15px;
+            color: #212529;
+            background: transparent;
+            pointer-events: none;
+        }
 
-            /* ===== BUTTON +/- ===== */
-            .qty-wrapper .btn {
-                width: 34px;
-                height: 34px;
-                padding: 0;
-                border: none;
-                background: #e9f7ef;
-                color: #198754;
-                font-size: 18px;
-                font-weight: 700;
-                transition: all 0.15s ease;
-            }
-
-                .qty-wrapper .btn:hover {
-                    background: #198754;
-                    color: #ffffff;
-                }
-
-            /* ===== INPUT SỐ ===== */
-            .qty-wrapper .combo-qty-input {
-                border: none;
-                text-align: center;
-                font-weight: 700;
-                font-size: 15px;
-                color: #212529;
-                background: transparent;
-                pointer-events: none; /* chỉ dùng nút +/- */
-            }
-
-        /* ===== KHI COMBO ĐƯỢC CHỌN ===== */
         .combo-item-card:has(.combo-check:checked) .qty-wrapper {
             background: #e9f7ef;
             border-color: #198754;
         }
+
+        .seat {
+            position: relative;
+            transition: all 0.2s;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .seat.holding {
+                background-color: #fd7e14;
+                border: 1px solid #e8590c;
+                color: #fff;
+                cursor: not-allowed;
+                background-image: linear-gradient( 45deg, rgba(255, 255, 255, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0.2) 75%, transparent 75%, transparent );
+                background-size: 10px 10px;
+                animation: stripe-move 1s linear infinite;
+            }
+                .seat.holding::after {
+                    content: "⏳";
+                    position: absolute;
+                    top: -8px;
+                    right: -8px;
+                    font-size: 12px;
+                    background: #fff;
+                    border-radius: 50%;
+                    padding: 1px;
+                    line-height: 1;
+                }
+
+        keyframes stripe-move {
+            0%
+
+        {
+            background-position: 0 0;
+        }
+
+        100% {
+            background-position: 10px 10px;
+        }
+
+        }
+
+
+        .seat.selected {
+            background: #198754 !important;
+            border: 2px solid #fff; 
+            color: #fff !important;
+            transform: scale(1.15); 
+            box-shadow: 0 0 15px rgba(25, 135, 84, 0.8); 
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        .seat.sweetbox.selected {
+            background: linear-gradient(135deg, #20c997, #198754) !important;
+            border-bottom-color: #0f5132;
+            box-shadow: 0 0 15px rgba(32, 201, 151, 0.6);
+        }
+
+        .seat.vip:not(.selected):not(.occupied):not(.holding) {
+            background-color: #c49e46;
+            border: 1px solid #a8863a;
+            color: #000000 !important;
+            font-weight: 700;
+            text-shadow: none;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+            .seat.vip:not(.selected):not(.occupied):not(.holding):hover {
+                background-color: #d4b359;
+                border-color: #c49e46;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                cursor: pointer;
+            }
+
+        .seat.occupied,
+        .seat.vip.occupied,
+        .seat.sweetbox.occupied {
+            background: #212529 !important;
+            border: 1px solid #343a40 !important;
+            color: #495057 !important;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.8) !important;
+            cursor: not-allowed !important;
+            opacity: 1 !important;
+            pointer-events: none; 
+            text-shadow: none !important;
+        }
+
+            .seat.occupied::after,
+            .seat.vip.occupied::after,
+            .seat.sweetbox.occupied::after {
+                content: "×";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%); 
+                font-size: 22px;
+                font-weight: bold;
+                color: #6c757d; 
+                opacity: 0.6;
+            }
     </style>
 </head>
 <body>
@@ -222,8 +304,7 @@
             @foreach (var item in ViewBag.dlPhimDaChon)
             {
                 <h1>@item.TenPhim</h1>
-                <span>@item.ThoiLuong phút</span>
-                <span>| @string.Join(", ", item.TenTheLoai)</span>
+                <span>@item.ThoiLuong phút| @string.Join(", ", item.TenTheLoai)</span>
             }
         </div>
     </header>
@@ -233,9 +314,7 @@
 
             <div class="col-lg-8">
                 @{
-                    // 1. Ép kiểu ViewBag về Model Phim để code hiểu
                     var phim = ViewBag.dlSuatChieu as TTCN.Models.Phim;
-                    // 2. Gom nhóm các suất chiếu theo Cụm Rạp
                     var danhSachRap = phim.SuatChieus
                     .GroupBy(sc => sc.MaPhongNavigation.MaCumRapNavigation)
                     .Select(g => g.Key)
@@ -317,11 +396,11 @@
                                                 @foreach (var suat in phongGroup.OrderBy(s => s.GioBatDau))
                                                 {
                                                     <button class="btn-time-slot"
-                                                            type="button"
                                                             data-date="@suat.GioBatDau.Value.ToString("yyyy-MM-dd")"
-                                                            data-room="@phongGroup.Key.TenPhong"
                                                             data-time="@suat.GioBatDau.Value.ToString("HH:mm")"
+                                                            data-datetime="@suat.GioBatDau.Value.ToString("yyyy-MM-ddTHH:mm:ss")"
                                                             data-suat-id="@suat.MaSuat"
+                                                            data-room="@phongGroup.Key.TenPhong"
                                                             data-display-date="@suat.GioBatDau.Value.ToString("dd/MM/yyyy")"
                                                             onclick="selectShowtime(this)">
                                                         @suat.GioBatDau.Value.ToString("HH:mm")
@@ -340,12 +419,34 @@
                     <div class="screen-text">MÀN HÌNH</div>
                     <div class="screen"></div>
                     <div id="seat-map-container" class="seat-map mt-4"></div>
-                    <div class="legend mt-4">
-                        <div class="legend-item"><div class="seat standard"></div><span>Trống</span></div>
-                        <div class="legend-item"><div class="seat sweetbox"></div><span>Sweetbox</span></div>
-                        <div class="legend-item"><div class="seat selected"></div><span>Đang chọn</span></div>
-                        <div class="legend-item"><div class="seat occupied"></div><span>Đã bán</span></div>
+
+                    <div class="legend mt-4 d-flex justify-content-center flex-wrap gap-3">
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat standard me-2" style="width: 25px; height: 25px; cursor: default;"></div>
+                            <span>Thường</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat vip me-2" style="width: 25px; height: 25px; cursor: default;"></div>
+                            <span>VIP</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat selected me-2" style="width: 25px; height: 25px; cursor: default; transform: none;"></div>
+                            <span>Đang chọn</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat holding me-2" style="width: 25px; height: 25px; cursor: default;"></div>
+                            <span>Đang được giữ</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat occupied me-2" style="width: 25px; height: 25px; cursor: default;"></div>
+                            <span>Đã bán</span>
+                        </div>
+                        <div class="legend-item d-flex align-items-center">
+                            <div class="seat sweetbox me-2" style="width: 40px; height: 25px; cursor: default;"></div>
+                            <span>Sweetbox</span>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -393,15 +494,13 @@
                                 {
                                     <div class="combo-item-card mb-2 p-3 border rounded" data-combo-id="@combo.MaCombo" data-combo-price="@combo.Gia">
                                         <div class="d-flex align-items-start">
-                                            <!-- Checkbox -->
                                             <input type="checkbox"
                                                    class="form-check-input me-3 mt-2 combo-checkbox combo-check"
-                                                   id="combo-@combo.MaCombo" 
+                                                   id="combo-@combo.MaCombo"
                                                    data-combo-id="@combo.MaCombo"
                                                    data-combo-text="@combo.MoTa"
                                                    data-combo-price="@combo.Gia">
-                                            
-                                            <!-- Hình ảnh combo -->
+
                                             <div class="combo-image-wrapper me-3 flex-shrink-0">
                                                 @if (!string.IsNullOrEmpty(combo.HinhAnh))
                                                 {
@@ -414,8 +513,7 @@
                                                     </div>
                                                 }
                                             </div>
-                                            
-                                            <!-- Thông tin combo -->
+
                                             <div class="flex-grow-1">
                                                 <label class="form-check-label mb-1 d-block" for="combo-@combo.MaCombo">
                                                     <strong class="combo-name">@combo.MoTa</strong>
@@ -423,13 +521,12 @@
                                                 <div class="combo-price-wrapper">
                                                     <span class="text-danger fw-bold">@combo.Gia.ToString("#,##0")đ</span>
                                                 </div>
-                                                
-                                                <!-- Số lượng -->
+
                                                 <div class="combo-quantity-control mt-2 qty-wrapper" style="display: none;">
                                                     <label class="small me-2">Số lượng:</label>
                                                     <div class="input-group input-group-sm" style="width: 130px;">
                                                         <button class="btn btn-outline-secondary combo-qty-decrease" type="button" data-combo-id="@combo.MaCombo">-</button>
-                                                        <input type="number" class="form-control text-center combo-qty-input" 
+                                                        <input type="number" class="form-control text-center combo-qty-input"
                                                                data-combo-id="@combo.MaCombo"
                                                                value="1" min="1" max="10">
                                                         <button class="btn btn-outline-secondary combo-qty-increase" type="button" data-combo-id="@combo.MaCombo">+</button>
@@ -451,6 +548,11 @@
                     </div>
 
                     <form id="checkout-form" asp-action="Index" asp-controller="Payment" method="post">
+                        @{
+                            var maPhim = ((IEnumerable<dynamic>)ViewBag.dlPhimDaChon)
+                            ?.FirstOrDefault()?.MaPhim ?? 0;
+                        }
+                        <input type="hidden" name="MaPhim" value="@maPhim" />
                         <input type="hidden" name="MovieName" id="payment-movie-name" value="@(((IEnumerable<dynamic>)ViewBag.dlPhimDaChon)?.FirstOrDefault()?.TenPhim ?? string.Empty)" />
                         <input type="hidden" name="CinemaName" id="payment-cinema" />
                         <input type="hidden" name="RoomName" id="payment-room" />
@@ -473,8 +575,28 @@
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/microsoft/signalr@6.0.21/dist/browser/signalr.min.js"></script>
 
     <script>
+        let paymentHubConnection = null;
+        let isSignalRReady = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            paymentHubConnection = new signalR.HubConnectionBuilder()
+                .withUrl("/paymentHub")
+                .withAutomaticReconnect()
+                .build();
+
+            paymentHubConnection.start()
+                .then(() => {
+                    console.log("✅ SignalR connected");
+                    isSignalRReady = true;
+                    registerSignalREvents();
+                })
+                .catch(err => console.error("❌ SignalR error", err));
+
+        });
         const seatApiUrl = '@Url.Action("GetGheBySuatChieu", "DatVe")';
         let selectedSeats = [];
         let currentMaSuat = 0;
@@ -488,12 +610,22 @@
             date: '',
             time: ''
         };
+        const checkoutDataRaw = @Html.Raw(string.IsNullOrEmpty(ViewBag.CheckoutData) ? "null" : ViewBag.CheckoutData);
+
+        function isFutureShowtime(btn) {
+            const dt = btn.getAttribute('data-datetime');
+            if (!dt) return false;
+
+            const showTime = new Date(dt);
+            const now = new Date();
+
+            return showTime >= now;
+        }
 
         function renderSeatMap(maSuat) {
             currentMaSuat = maSuat;
             selectedSeats = [];
             updateCartUI();
-
 
             const container = document.getElementById('seat-map-container');
             if (!container) return;
@@ -547,9 +679,13 @@
                                 const firstSeat = sortedSeats[i];
                                 const secondSeat = sortedSeats[i + 1];
                                 if (!firstSeat || !secondSeat) continue;
+                                const firstId = firstSeat.maGhe ?? firstSeat.MaGhe;
+                                const secondId = secondSeat.maGhe ?? secondSeat.MaGhe;
 
                                 const seatBtn = document.createElement('button');
                                 seatBtn.className = 'seat sweetbox';
+                                seatBtn.setAttribute('data-maghe', firstId);
+                                seatBtn.setAttribute('data-maghe-pair', `${firstId},${secondId}`);
                                 const firstName = (firstSeat.tenGhe || firstSeat.TenGhe || '').trim();
                                 const secondName = (secondSeat.tenGhe || secondSeat.TenGhe || '').trim();
                                 const sweetboxLabel = `${firstName}-${secondName}`;
@@ -558,10 +694,18 @@
                                 const firstOccupied = firstSeat.daDat ?? firstSeat.DaDat;
                                 const secondOccupied = secondSeat.daDat ?? secondSeat.DaDat;
 
+                                const firstHolding = firstSeat.dangGiu ?? firstSeat.DangGiu;
+                                const secondHolding = secondSeat.dangGiu ?? secondSeat.DangGiu;
+
                                 if (firstOccupied || secondOccupied) {
                                     seatBtn.classList.add('occupied');
                                     seatBtn.disabled = true;
-                                } else {
+                                }
+                                else if (firstHolding || secondHolding) {
+                                    seatBtn.classList.add('holding');
+                                    seatBtn.disabled = true;
+                                }
+                                else {
                                     const firstId = firstSeat.maGhe ?? firstSeat.MaGhe;
                                     const secondId = secondSeat.maGhe ?? secondSeat.MaGhe;
                                     const firstPrice = Number(firstSeat.giaGhe ?? firstSeat.GiaGhe ?? 0);
@@ -580,22 +724,34 @@
                             }
                         } else {
                             sortedSeats.forEach(ghe => {
-                                const seatBtn = document.createElement('button');
-                                seatBtn.className = 'seat';
-                                const tenGhe = (ghe.tenGhe || ghe.TenGhe || '').trim();
-                                seatBtn.innerText = tenGhe;
+                            const maGhe = ghe.maGhe ?? ghe.MaGhe;
+                            const giaGhe = ghe.giaGhe ?? ghe.GiaGhe ?? 0;
+                            const loaiGhe = (ghe.loaiGhe || ghe.LoaiGhe || '').toUpperCase();
 
-                                const daDat = ghe.daDat ?? ghe.DaDat;
-                                if (daDat) {
-                                    seatBtn.classList.add('occupied');
-                                    seatBtn.disabled = true;
-                                } else {
-                                    const loaiGhe = (ghe.loaiGhe || ghe.LoaiGhe || '').toUpperCase();
-                                    seatBtn.classList.add(loaiGhe === 'VIP' ? 'vip' : 'standard');
-                                    const maGhe = ghe.maGhe ?? ghe.MaGhe;
-                                    const giaGhe = ghe.giaGhe ?? ghe.GiaGhe ?? 0;
-                                    seatBtn.addEventListener('click', () => toggleSeat(seatBtn, maGhe, tenGhe, Number(giaGhe)));
-                                }
+                            const seatBtn = document.createElement('button');
+                            seatBtn.className = 'seat';
+
+                            seatBtn.setAttribute('data-maghe', maGhe);
+
+                            const tenGhe = (ghe.tenGhe || ghe.TenGhe || '').trim();
+                            seatBtn.innerText = tenGhe;
+
+                            const daDat = ghe.daDat ?? ghe.DaDat;
+                            const dangGiu = ghe.dangGiu ?? ghe.DangGiu;
+
+                            if (daDat) {
+                                seatBtn.classList.add('occupied');
+                                seatBtn.disabled = true;
+                            }
+                            else if (dangGiu) {
+                                seatBtn.classList.add('holding');
+                                seatBtn.disabled = true;
+                            }else {
+                                seatBtn.classList.add(loaiGhe === 'VIP' ? 'vip' : 'standard');
+                                seatBtn.addEventListener('click', () =>
+                                    toggleSeat(seatBtn, maGhe, tenGhe, Number(giaGhe))
+                                );
+                            }
 
                                 rowDiv.appendChild(seatBtn);
                             });
@@ -603,6 +759,47 @@
 
                         container.appendChild(rowDiv);
                     });
+                            // ==== RESTORE SEAT FROM SESSION ====
+            if (checkoutDataRaw && checkoutDataRaw.Seats) {
+                checkoutDataRaw.Seats.forEach(s => {
+                    const seatIds = s.maGhe.map(x => x.toString());
+                    const label = s.name;
+                    const price = s.price;
+
+                    if (seatIds.length === 1) {
+                        // ghế thường
+                        const btn = [...document.querySelectorAll('.seat')]
+                            .find(b => b.innerText.trim() === label);
+                        if (btn) {
+                            btn.classList.add('selected');
+                            selectedSeats.push({
+                                id: seatIds[0],
+                                seatIds,
+                                name: label,
+                                price,
+                                quantity: 1
+                            });
+                        }
+                    } else {
+                        // sweetbox
+                        const btn = [...document.querySelectorAll('.seat.sweetbox')]
+                            .find(b => b.innerText.trim() === label);
+                        if (btn) {
+                            btn.classList.add('selected');
+                            selectedSeats.push({
+                                id: seatIds.join('_'),
+                                seatIds,
+                                name: label,
+                                price,
+                                quantity: seatIds.length
+                            });
+                        }
+                    }
+                });
+
+                updateCartUI();
+            }
+
                 },
                 error: function () {
                     container.innerHTML = '<p class="text-danger text-center">Lỗi kết nối API.</p>';
@@ -610,7 +807,7 @@
             });
         }
 
-        function toggleSeat(btn, maGhe, tenGhe, giaGhe) {
+          function toggleSeat(btn, maGhe, tenGhe, giaGhe) {
             const seatId = maGhe.toString();
             const index = selectedSeats.findIndex(s => s.id === seatId);
 
@@ -619,17 +816,42 @@
                     alert('Bạn chỉ được chọn tối đa 8 ghế.');
                     return;
                 }
-                selectedSeats.push({ id: seatId,seatIds: [seatId], name: tenGhe, price: giaGhe, quantity: 1 });
+
+                selectedSeats.push({
+                    id: seatId,
+                    seatIds: [seatId],
+                    name: tenGhe,
+                    price: giaGhe,
+                    quantity: 1
+                });
+
                 btn.classList.add('selected');
+
+                if (isSignalRReady) {
+                    paymentHubConnection.invoke(
+                        "HoldSeat",
+                        parseInt(currentMaSuat),
+                        parseInt(seatId)
+                    );
+                }
             } else {
                 selectedSeats.splice(index, 1);
                 btn.classList.remove('selected');
+
+                if (isSignalRReady) {
+                    paymentHubConnection.invoke(
+                        "ReleaseSeat",
+                        parseInt(currentMaSuat),
+                        parseInt(seatId)
+                    );
+                }
             }
 
             updateCartUI();
         }
 
-        function toggleSweetboxSeat(btn, seatIds, label, totalPrice) {
+
+                function toggleSweetboxSeat(btn, seatIds, label, totalPrice) {
             const groupId = seatIds.join('_');
             const index = selectedSeats.findIndex(s => s.id === groupId);
 
@@ -646,14 +868,28 @@
                     quantity: 2,
                     seatIds
                 });
+
                 btn.classList.add('selected');
+
+                if (isSignalRReady) {
+                    seatIds.forEach(id => {
+                        paymentHubConnection.invoke("HoldSeat", currentMaSuat, parseInt(id));
+                    });
+                }
             } else {
                 selectedSeats.splice(index, 1);
                 btn.classList.remove('selected');
+
+                if (isSignalRReady) {
+                    seatIds.forEach(id => {
+                        paymentHubConnection.invoke("ReleaseSeat", currentMaSuat, parseInt(id));
+                    });
+                }
             }
 
             updateCartUI();
         }
+
 
 
         function getSelectedSeatCount() {
@@ -686,7 +922,7 @@
                 soLuong: c.quantity
             }));
             setInputValue('payment-combos-json', JSON.stringify(combosPayload));
-            
+
             // Giữ lại các field cũ để tương thích (có thể để trống hoặc lấy combo đầu tiên)
             if (selectedCombos.length > 0) {
                 const firstCombo = selectedCombos[0];
@@ -738,7 +974,7 @@
                     comboListEl.innerHTML = '<li class="text-muted">Chưa chọn combo</li>';
                 }
             }
-            
+
             total += comboTotalPrice;
             currentTotalPrice = total;
 
@@ -749,7 +985,7 @@
             if (btnCheckout) btnCheckout.disabled = seatCount === 0;
             updateCheckoutHiddenFields();
         }
-        
+
         // Hàm xử lý khi chọn/bỏ chọn combo
         function toggleCombo(checkbox) {
             const comboId = parseInt(checkbox.getAttribute('data-combo-id'), 10);
@@ -757,7 +993,7 @@
             const comboPrice = parseFloat(checkbox.getAttribute('data-combo-price'));
             const quantityControl = checkbox.closest('.combo-item-card').querySelector('.combo-quantity-control');
             const quantityInput = checkbox.closest('.combo-item-card').querySelector('.combo-qty-input');
-            
+
             if (checkbox.checked) {
                 // Thêm combo vào danh sách
                 selectedCombos.push({
@@ -777,10 +1013,33 @@
                 if (quantityControl) quantityControl.style.display = 'none';
                 if (quantityInput) quantityInput.value = 1;
             }
-            
+
             updateCartUI();
         }
-        
+                function restoreCombos() {
+            if (!checkoutDataRaw || !checkoutDataRaw.SelectedCombos) return;
+
+            checkoutDataRaw.SelectedCombos.forEach(c => {
+                const checkbox = document.querySelector(
+                    `.combo-checkbox[data-combo-id="${c.maCombo}"]`
+                );
+                if (!checkbox) return;
+
+                // tick checkbox
+                checkbox.checked = true;
+                toggleCombo(checkbox);
+
+                // set số lượng
+                const qtyInput = document.querySelector(
+                    `.combo-qty-input[data-combo-id="${c.maCombo}"]`
+                );
+                if (qtyInput) {
+                    qtyInput.value = c.soLuong;
+                    updateComboQuantity(c.maCombo, c.soLuong);
+                }
+            });
+        }
+
         // Hàm cập nhật số lượng combo
         function updateComboQuantity(comboId, newQuantity) {
             const combo = selectedCombos.find(c => c.maCombo === comboId);
@@ -887,6 +1146,17 @@
 
                 block.style.display = matchesCinema && matchesArea && visibleRooms.length > 0 ? 'block' : 'none';
             });
+            document.querySelectorAll('.btn-time-slot').forEach(slot => {
+            if (!isFutureShowtime(slot)) {
+                slot.style.display = 'none'; // ❌ Ẩn suất đã chiếu
+                return;
+            }
+
+            const slotDate = slot.getAttribute('data-date');
+            const matchesDate = !currentSelectedDate || slotDate === currentSelectedDate;
+            slot.style.display = matchesDate ? 'inline-block' : 'none';
+        });
+
         }
 
         // --- HÀM SỬA ĐỔI: Sử dụng btnElement (this) và lấy data-attributes ---
@@ -930,6 +1200,7 @@
             btnElement.classList.add('active');
             updateBookingInfo(roomName, time, ngayChieu);
             renderSeatMap(maSuat);
+            setTimeout(() => joinSuatGroup(maSuat), 300);
             document.getElementById("payment-masuat").value = maSuat;
         }
 
@@ -939,7 +1210,7 @@
                 toggleCombo(this);
             });
         });
-        
+
         // Xử lý nút tăng/giảm số lượng cho từng combo
         document.querySelectorAll('.combo-qty-increase').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -955,7 +1226,7 @@
                 }
             });
         });
-        
+
         document.querySelectorAll('.combo-qty-decrease').forEach(btn => {
             btn.addEventListener('click', function() {
                 const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
@@ -970,7 +1241,7 @@
                 }
             });
         });
-        
+
         // Xử lý input số lượng
         document.querySelectorAll('.combo-qty-input').forEach(input => {
             input.addEventListener('change', function() {
@@ -985,7 +1256,7 @@
                 }
                 updateComboQuantity(comboId, this.value);
             });
-            
+
             input.addEventListener('input', function() {
                 if (this.value === '' || parseInt(this.value, 10) < 1) {
                     this.value = 1;
@@ -1084,6 +1355,9 @@
             updateCinemaInfo(false);
             summaryInfo.movie = document.getElementById('payment-movie-name')?.value || '';
             updateCheckoutHiddenFields();
+            if (checkoutDataRaw) {
+                 restoreCombos();
+            }
 
             const firstDate = document.querySelector('.date-btn');
             if (firstDate) {
@@ -1113,6 +1387,62 @@
                 }
             }
         });
+
+        function joinSuatGroup(maSuat) {
+            if (!maSuat) return;
+
+            if (!paymentHubConnection || !isSignalRReady) {
+                console.warn("⏳ SignalR chưa sẵn sàng");
+                return;
+            }
+
+            paymentHubConnection.invoke("JoinShowGroup", parseInt(maSuat))
+                .then(() => console.log("🔔 Joined SUAT_" + maSuat))
+                .catch(err => console.error(err));
+        }
+
+        function registerSignalREvents() {
+
+            paymentHubConnection.on("SeatHeld", function (data) {
+                const maGhe = data.maGhe?.toString();
+
+                document.querySelectorAll('.seat').forEach(btn => {
+                    const single = btn.getAttribute('data-maghe');
+                    const pair = btn.getAttribute('data-maghe-pair');
+
+                    if (single === maGhe || (pair && pair.split(',').includes(maGhe))) {
+                        if (!btn.classList.contains('selected')) {
+                            btn.classList.remove('standard', 'vip');
+                            btn.classList.add('holding');
+                            btn.disabled = true;
+                        }
+                    }
+                });
+            });
+
+            paymentHubConnection.on("SeatReleased", function (data) {
+                const seatBtn = document.querySelector(
+                    `.seat[data-maghe="${data.maGhe}"]`
+                );
+                if (seatBtn && !seatBtn.classList.contains('selected')) {
+                    seatBtn.classList.remove('holding');
+                    seatBtn.disabled = false;
+                    seatBtn.classList.add('standard');
+                }
+            });
+
+            paymentHubConnection.on("SeatSold", function (data) {
+                const seatBtn = document.querySelector(
+                    `.seat[data-maghe="${data.maGhe}"]`
+                );
+                if (seatBtn) {
+                    seatBtn.classList.remove('holding', 'selected');
+                    seatBtn.classList.add('occupied');
+                    seatBtn.disabled = true;
+                }
+            });
+        }
+
     </script>
 </body>
 </html>

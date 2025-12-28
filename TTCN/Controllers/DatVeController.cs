@@ -40,9 +40,14 @@ namespace TTCN.Controllers
                 p.NgayKetThuc
             }).FirstOrDefault();
 
-            DateTime ngayBatDau = (DateTime)(DateTime.Today > ngayPhim.NgayPhatHanh ? DateTime.Today : ngayPhim.NgayPhatHanh);
+            if (ngayPhim == null || ngayPhim.NgayPhatHanh == null || ngayPhim.NgayKetThuc == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
-            int soNgay = (ngayPhim.NgayKetThuc.Value - ngayBatDau).Days;
+            DateTime ngayBatDau =DateTime.Today > ngayPhim.NgayPhatHanh.Value ? DateTime.Today: ngayPhim.NgayPhatHanh.Value;
+
+            int soNgay = (ngayPhim.NgayKetThuc.Value - ngayBatDau).Days + 1;
 
             List<DateTime> listNgay = new List<DateTime>();
             for (int i = 0; i < soNgay; i++)
@@ -73,17 +78,28 @@ namespace TTCN.Controllers
                            };
             ViewBag.dlPhimDaChon = nhomPhim;
 
-            var dlSuatChieu = db.Phims.Where(p => p.MaPhim == maPhim)
-                                      .Include(sc => sc.SuatChieus)
-                                      .ThenInclude(pc => pc.MaPhongNavigation)
-                                      .ThenInclude(cr => cr.MaCumRapNavigation)
-                                      .FirstOrDefault();
+            DateTime now = DateTime.Now;
+
+            var dlSuatChieu = db.Phims
+                .Where(p => p.MaPhim == maPhim)
+                .Include(p => p.SuatChieus.Where(s =>
+                    s.GioBatDau != null &&
+                    s.GioBatDau.Value >= now   // 🔥 CHỈ SUẤT CHƯA CHIẾU
+                ))
+                    .ThenInclude(s => s.MaPhongNavigation)
+                        .ThenInclude(p => p.MaCumRapNavigation)
+                .FirstOrDefault();
+
             ViewBag.dlSuatChieu = dlSuatChieu;
 
             // Truyền danh sách combo đầy đủ để có thể chọn nhiều combo
             var doAnList = db.DoAns.Where(d => d.TrangThai == true).ToList();
             ViewBag.doAn = doAnList;
             ViewBag.SelectedMaSuat = maSuat;
+
+            var checkoutJson = HttpContext.Session.GetString("CheckoutData");
+            ViewBag.CheckoutData = checkoutJson;
+
 
             return View();
         }
@@ -101,6 +117,10 @@ namespace TTCN.Controllers
                 .Where(ct => ct.MaSuat == maSuat && ct.TrangThai==true && ct.MaGhe != null)
                 .Select(ct => ct.MaGhe.Value)
                 .ToHashSet();
+            var gheDangGiu = db.ChiTietDonDat
+                .Where(ct => ct.MaSuat == maSuat && ct.TrangThai == false)
+                .Select(ct => ct.MaGhe.Value)
+                .ToHashSet();
 
             // Map dữ liệu trả về JSON, sắp theo Hàng + Tên ghế
             var data = suat.MaPhongNavigation.GheNgois
@@ -112,11 +132,10 @@ namespace TTCN.Controllers
                     g.TenGhe,
                     g.HangGhe,
                     g.LoaiGhe,
-                    GiaGhe = g.LoaiGhe.Equals("VIP", StringComparison.OrdinalIgnoreCase) ? suat.Gia * 2 : suat.Gia,
-                    DaDat = gheDaDat.Contains(g.MaGhe)
-                })
-                .ToList();
-
+                    GiaGhe = g.LoaiGhe.Equals("VIP", StringComparison.OrdinalIgnoreCase)? suat.Gia * 2: suat.Gia,
+                    DaDat = gheDaDat.Contains(g.MaGhe),
+                    DangGiu = gheDangGiu.Contains(g.MaGhe)
+                });
             return Json(data);
         }
 
