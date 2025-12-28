@@ -207,7 +207,7 @@
         <div>
             <div class="pill mb-2"><i class="fas fa-ticket-alt"></i> Thanh toán vé phim</div>
             <h3 class="mb-1" style="color:#fff;">@(!string.IsNullOrWhiteSpace(Model.MovieName) ? Model.MovieName : "Chưa chọn phim")</h3>
-            <div class="text-muted small">Kiểm tra thông tin và chọn phương thức thanh toán.</div>
+            <div class="text-white-50 small">Kiểm tra thông tin và chọn phương thức thanh toán.</div>
         </div>
         <div class="pill countdown-pill">
             <i class="fas fa-clock"></i> Thời gian giữ ghế: <span id="countdown" class="fw-bold">05:00</span>
@@ -215,7 +215,6 @@
     </div>
 
     <form id="momo-form" asp-action="CreatePaymentMomo" asp-controller="Payment" method="post">
-
         <input type="hidden" name="OrderId" id="momo-orderid" value="@(ViewBag.OI?.OrderId ?? Guid.NewGuid().ToString())" />
         <input type="hidden" name="Amount" id="momo-amount" value="@(Model.TotalPrice)" />
         <input type="hidden" name="FullName" id="momo-fullname" value="Khách hàng" />
@@ -248,39 +247,41 @@
                     </div>
                 </div>
 
-            <div class="panel">
-                <h6>Chọn phương thức thanh toán</h6>
-
-                <div class="pay-option mb-3" onclick="selectPayment('momo')" id="option-momo">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="momo" value="MoMo">
-                    <img src="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png" width="46" class="rounded" alt="MoMo">
-                    <div>
-                        <div class="fw-bold text-white">Ví MoMo</div>
-                        <div class="text-muted small">Quét mã QR qua ứng dụng MoMo</div>
+                <div class="panel">
+                    <h6 class="mb-3">Chọn phương thức thanh toán</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('momo')" id="option-momo">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="momo" value="MoMo">
+                                <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square.png" class="pay-icon rounded" alt="MoMo">
+                                <div>
+                                    <div class="fw-bold text-white">Ví MoMo</div>
+                                    <div class="text-white-50 small">Quét mã QR</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('vnpay')" id="option-vnpay">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="vnpay" value="VNPay">
+                                <img src="https://vnpay.vn/assets/images/logo-icon/logo-primary.svg" class="pay-icon" alt="VNPay">
+                                <div>
+                                    <div class="fw-bold text-white">VNPAY-QR</div>
+                                    <div class="text-white-50 small">ATM Nội địa</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pay-option" onclick="selectPayment('card')" id="option-card">
+                                <input class="form-check-input" type="radio" name="PaymentMethod" id="card" value="CreditCard">
+                                <div class="text-primary pay-icon-font"><i class="fab fa-cc-visa"></i></div>
+                                <div>
+                                    <div class="fw-bold text-white">Thẻ quốc tế</div>
+                                    <div class="text-white-50 small">Visa / Master</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="pay-option mb-3" onclick="selectPayment('vnpay')" id="option-vnpay">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="vnpay" value="VNPay">
-                    <img src="https://vnpay.vn/assets/images/logo-icon/logo-primary.svg" width="90" alt="VNPay">
-                    <div>
-                        <div class="fw-bold text-white">VNPAY-QR</div>
-                        <div class="text-muted small">Hỗ trợ hầu hết ngân hàng nội địa</div>
-                    </div>
-                </div>
-
-                <div class="pay-option" onclick="selectPayment('card')" id="option-card">
-                    <input class="form-check-input" type="radio" name="PaymentMethod" id="card" value="CreditCard">
-                    <div class="text-primary" style="font-size: 24px; width: 40px; text-align: center;">
-                        <i class="fab fa-cc-visa"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold text-white">Thẻ quốc tế (Visa/Master/JCB)</div>
-                        <div class="text-muted small">Thanh toán an toàn qua cổng bảo mật</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
             </div>
 
@@ -321,7 +322,7 @@
                             }
                             else
                             {
-                                <span class="text-muted">Chưa chọn</span>
+                                <span class="text-white-50">Chưa chọn</span>
                             }
                         </div>
                     </div>
@@ -329,111 +330,105 @@
 
                     <hr style="border-color: rgba(255,255,255,0.08);" />
 
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted">Tổng thanh toán</span>
-                    <span class="price-total">@((Model.TotalPrice > 0 ? Model.TotalPrice.ToString("#,##0") + " đ" : "0 đ"))</span>
-                </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-white-50">Tổng thanh toán</span>
+                        <span class="price-total">@((Model.TotalPrice > 0 ? Model.TotalPrice.ToString("#,##0") + " đ" : "0 đ"))</span>
+                    </div>
 
-                <button type="submit" name="PayUrl" class="btn btn-primary-modern w-100 mb-2" id="btn-pay-now" @(Model.SeatCount == 0 ? "disabled" : "")>
-                    Thanh toán ngay
-                </button>
-                <a href="javascript:history.back()" class="btn btn-ghost w-100">
-                    Quay lại chọn ghế
-                </a>
-
-                <div class="text-muted small text-center mt-3">
-                    Bằng việc thanh toán, bạn đồng ý với điều khoản sử dụng của chúng tôi.
+                    <button type="button" class="btn btn-primary-modern w-100 mb-2" id="btn-pay-now" @(Model.SeatCount == 0 ? "disabled" : "")>Thanh toán ngay</button>
+                    <button type="button" class="btn btn-ghost w-100" onclick="backToSeat()">Quay lại chọn ghế</button>
+                    <div class="text-white-50 small text-center mt-3">Bằng việc thanh toán, bạn đồng ý với điều khoản sử dụng.</div>
                 </div>
             </div>
-            </form>
+
         </div>
-    </div>
+    </form>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/microsoft/signalr@6.0.21/dist/browser/signalr.min.js"></script>
 
     <script>
-        const maDon = '@ViewBag.MaDon';
-        const countdownEl = document.getElementById('countdown');
-        let timer = null;
-        let paymentStarted = false;
+                const maDon = '@ViewBag.MaDon';
+                const countdownEl = document.getElementById('countdown');
+                let timer = null;
+                let paymentStarted = false;
 
-        function startCountdown(seconds) {
-            let remain = seconds;
-            if (timer) clearInterval(timer);
+                function startCountdown(seconds) {
+                    let remain = seconds;
+                    if (timer) clearInterval(timer);
 
-            timer = setInterval(() => {
-                if (remain <= 0) {
-                    clearInterval(timer);
-                    alert("⏰ Hết thời gian giữ ghế!");
-                    window.location.href = "/Home/Index";
-                    return;
+                    timer = setInterval(() => {
+                        if (remain <= 0) {
+                            clearInterval(timer);
+                            alert("⏰ Hết thời gian giữ ghế!");
+                            window.location.href = "/Home/Index";
+                            return;
+                        }
+
+                        const m = Math.floor(remain / 60);
+                        const s = remain % 60;
+                        countdownEl.innerText =
+                            `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                        remain--;
+                    }, 1000);
                 }
 
-                const m = Math.floor(remain / 60);
-                const s = remain % 60;
-                countdownEl.innerText =
-                    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                remain--;
-            }, 1000);
-        }
+                // LẤY THỜI GIAN TỪ SERVER 
+                fetch(`/Payment/GetRemainingTime?maDon=${maDon}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.expired) {
+                            alert("⏰ Đơn đã hết hạn!");
+                            window.location.href = "/Home/Index";
+                        } else {
+                            startCountdown(data.seconds);
+                        }
+                    });
 
-        // 👉 LẤY THỜI GIAN TỪ SERVER (CHUẨN)
-        fetch(`/Payment/GetRemainingTime?maDon=${maDon}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.expired) {
-                    alert("⏰ Đơn đã hết hạn!");
-                    window.location.href = "/Home/Index";
-                } else {
-                    startCountdown(data.seconds);
+                function backToSeat() {
+        if (!confirm("Bạn muốn quay lại chọn ghế? Lựa chọn hiện tại sẽ bị xóa.")) return;
+                    fetch('/Payment/BackToSeatAjax', {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    }).then(res => res.json()).then(data => {
+                        if (data.success && data.redirectUrl) {
+                            window.location.href = data.redirectUrl;
+                        } else {
+                            alert("Không thể quay lại trang chọn ghế.");
+                        }
+                    });
                 }
-            });
 
-        function backToSeat() {
-            if (!confirm("Bạn muốn quay lại chọn ghế? Lựa chọn hiện tại sẽ bị xóa.")) return;
-            fetch('/Payment/BackToSeatAjax', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            }).then(res => res.json()).then(data => {
-                if (data.success && data.redirectUrl) {
-                    window.location.href = data.redirectUrl;
-                } else {
-                    alert("Không thể quay lại trang chọn ghế.");
+                function selectPayment(id) {
+                    document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('active'));
+                    const radio = document.getElementById(id);
+                    if (radio) {
+                        radio.checked = true;
+                        radio.closest('.pay-option').classList.add('active');
+                    }
                 }
-            });
-        }
 
-        function selectPayment(id) {
-            document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('active'));
-            const radio = document.getElementById(id);
-            if (radio) {
-                radio.checked = true;
-                radio.closest('.pay-option').classList.add('active');
-            }
-        }
+                function submitPayment() {
+                    const selected = document.querySelector('input[name="PaymentMethod"]:checked');
+                    if (!selected) {
+                        alert("Vui lòng chọn phương thức thanh toán.");
+                        return;
+                    }
+                    if (selected.value !== "MoMo") {
+                        alert("Hiện tại chỉ hỗ trợ thanh toán qua MoMo.");
+                        return;
+                    }
+                    paymentStarted = true;
+                    document.getElementById('momo-form').submit();
+                }
 
-        function submitPayment() {
-            const selected = document.querySelector('input[name="PaymentMethod"]:checked');
-            if (!selected) {
-                alert("Vui lòng chọn phương thức thanh toán.");
-                return;
-            }
-            if (selected.value !== "MoMo") {
-                alert("Hiện tại chỉ hỗ trợ thanh toán qua MoMo.");
-                return;
-            }
-            paymentStarted = true;
-            document.getElementById('momo-form').submit();
-        }
+                document.getElementById('btn-pay-now')?.addEventListener('click', submitPayment);
 
-        document.getElementById('btn-pay-now')?.addEventListener('click', submitPayment);
-
-        // 👉 Thoát tab = hủy giữ ghế
-        window.addEventListener("beforeunload", function () {
-            if (paymentStarted) return;
-            navigator.sendBeacon("/Payment/CancelHold");
-        });
+                // Thoát tab = hủy giữ ghế
+                window.addEventListener("beforeunload", function () {
+                    if (paymentStarted) return;
+                    navigator.sendBeacon("/Payment/CancelHold");
+                });
     </script>
 }
