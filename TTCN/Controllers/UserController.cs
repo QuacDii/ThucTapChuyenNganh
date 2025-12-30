@@ -50,6 +50,11 @@ namespace TTCN.Controllers
         public ActionResult xoa_Post(int id)
         {
             User us = _context.Users.Find(id);
+            var qs=_context.DonDatVes.Any(ddv=>ddv.MaUsers==id);
+            if (qs) {      
+                TempData["Error"] = "Không thể xóa tài khoản này vì có liên quan đến đơn đặt vé!";
+                return RedirectToAction("Index");
+            }
             if (us != null)
             {
                 _context.Users.Remove(us);
