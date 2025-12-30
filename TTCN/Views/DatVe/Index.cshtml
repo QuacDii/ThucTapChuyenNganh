@@ -602,7 +602,7 @@
         let currentMaSuat = 0;
         let currentSelectedDate = null;
         let currentTotalPrice = 0;
-        let selectedCombos = []; // Mảng các combo đã chọn: {maCombo, text, price, quantity}
+        let selectedCombos = [];
         let summaryInfo = {
             movie: document.getElementById('payment-movie-name')?.value || '',
             cinema: 'Chưa chọn',
@@ -759,7 +759,7 @@
 
                         container.appendChild(rowDiv);
                     });
-                            // ==== RESTORE SEAT FROM SESSION ====
+
             if (checkoutDataRaw && checkoutDataRaw.Seats) {
                 checkoutDataRaw.Seats.forEach(s => {
                     const seatIds = s.maGhe.map(x => x.toString());
@@ -767,7 +767,7 @@
                     const price = s.price;
 
                     if (seatIds.length === 1) {
-                        // ghế thường
+
                         const btn = [...document.querySelectorAll('.seat')]
                             .find(b => b.innerText.trim() === label);
                         if (btn) {
@@ -781,7 +781,7 @@
                             });
                         }
                     } else {
-                        // sweetbox
+
                         const btn = [...document.querySelectorAll('.seat.sweetbox')]
                             .find(b => b.innerText.trim() === label);
                         if (btn) {
@@ -916,14 +916,13 @@
             }));
             setInputValue('payment-seats-json', JSON.stringify(seatsPayload));
 
-            // Gửi danh sách combo đã chọn dưới dạng JSON
+
             const combosPayload = selectedCombos.map(c => ({
                 maCombo: c.maCombo,
                 soLuong: c.quantity
             }));
             setInputValue('payment-combos-json', JSON.stringify(combosPayload));
 
-            // Giữ lại các field cũ để tương thích (có thể để trống hoặc lấy combo đầu tiên)
             if (selectedCombos.length > 0) {
                 const firstCombo = selectedCombos[0];
                 setInputValue('payment-combo-text', firstCombo.text);
@@ -956,7 +955,7 @@
                             <strong>${Number(s.price).toLocaleString('vi-VN')}đ</strong>
                         </li>`;
                 });
-            // Hiển thị combo đã chọn và tính vào tổng
+
             let comboTotalPrice = 0;
             if (comboListEl) {
                 comboListEl.innerHTML = '';
@@ -986,7 +985,7 @@
             updateCheckoutHiddenFields();
         }
 
-        // Hàm xử lý khi chọn/bỏ chọn combo
+
         function toggleCombo(checkbox) {
             const comboId = parseInt(checkbox.getAttribute('data-combo-id'), 10);
             const comboText = checkbox.getAttribute('data-combo-text');
@@ -995,7 +994,7 @@
             const quantityInput = checkbox.closest('.combo-item-card').querySelector('.combo-qty-input');
 
             if (checkbox.checked) {
-                // Thêm combo vào danh sách
+
                 selectedCombos.push({
                     maCombo: comboId,
                     text: comboText,
@@ -1005,7 +1004,7 @@
                 if (quantityControl) quantityControl.style.display = 'block';
                 if (quantityInput) quantityInput.value = 1;
             } else {
-                // Xóa combo khỏi danh sách
+
                 const index = selectedCombos.findIndex(c => c.maCombo === comboId);
                 if (index !== -1) {
                     selectedCombos.splice(index, 1);
@@ -1025,11 +1024,11 @@
                 );
                 if (!checkbox) return;
 
-                // tick checkbox
+
                 checkbox.checked = true;
                 toggleCombo(checkbox);
 
-                // set số lượng
+
                 const qtyInput = document.querySelector(
                     `.combo-qty-input[data-combo-id="${c.maCombo}"]`
                 );
@@ -1040,7 +1039,7 @@
             });
         }
 
-        // Hàm cập nhật số lượng combo
+
         function updateComboQuantity(comboId, newQuantity) {
             const combo = selectedCombos.find(c => c.maCombo === comboId);
             if (combo) {
@@ -1148,7 +1147,7 @@
             });
             document.querySelectorAll('.btn-time-slot').forEach(slot => {
             if (!isFutureShowtime(slot)) {
-                slot.style.display = 'none'; // ❌ Ẩn suất đã chiếu
+                slot.style.display = 'none'; 
                 return;
             }
 
@@ -1159,16 +1158,15 @@
 
         }
 
-        // --- HÀM SỬA ĐỔI: Sử dụng btnElement (this) và lấy data-attributes ---
         function selectShowtime(btnElement) {
 
-            // 1. Lấy dữ liệu an toàn từ Data Attribute
+
             const roomName = btnElement.getAttribute('data-room');
             const time = btnElement.getAttribute('data-time');
             const maSuat = btnElement.getAttribute('data-suat-id');
             const ngayChieu = btnElement.getAttribute('data-display-date');
 
-            // 2. Các logic xử lý bên dưới giữ nguyên
+
             const cinemaBlock = btnElement.closest('.cinema-block');
             const blockArea = cinemaBlock ? cinemaBlock.getAttribute('data-area') : '';
             const blockCinemaId = cinemaBlock ? cinemaBlock.getAttribute('data-cinema-id') : '';
@@ -1204,14 +1202,13 @@
             document.getElementById("payment-masuat").value = maSuat;
         }
 
-        // Xử lý checkbox combo
+
         document.querySelectorAll('.combo-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 toggleCombo(this);
             });
         });
 
-        // Xử lý nút tăng/giảm số lượng cho từng combo
         document.querySelectorAll('.combo-qty-increase').forEach(btn => {
             btn.addEventListener('click', function() {
                 const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
@@ -1242,7 +1239,7 @@
             });
         });
 
-        // Xử lý input số lượng
+
         document.querySelectorAll('.combo-qty-input').forEach(input => {
             input.addEventListener('change', function() {
                 const comboId = parseInt(this.getAttribute('data-combo-id'), 10);
@@ -1377,13 +1374,13 @@
             const preSelectedMaSuat = '@ViewBag.SelectedMaSuat';
 
             if (preSelectedMaSuat) {
-                // tìm button suất chiếu đúng maSuat
+
                 const btn = document.querySelector(
                     `.btn-time-slot[data-suat-id="${preSelectedMaSuat}"]`
                 );
 
                 if (btn) {
-                    btn.click(); // 🔥 TỰ ĐỘNG CHỌN SUẤT
+                    btn.click(); 
                 }
             }
         });

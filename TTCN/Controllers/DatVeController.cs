@@ -84,7 +84,7 @@ namespace TTCN.Controllers
                 .Where(p => p.MaPhim == maPhim)
                 .Include(p => p.SuatChieus.Where(s =>
                     s.GioBatDau != null &&
-                    s.GioBatDau.Value >= now   // 🔥 CHỈ SUẤT CHƯA CHIẾU
+                    s.GioBatDau.Value >= now 
                 ))
                     .ThenInclude(s => s.MaPhongNavigation)
                         .ThenInclude(p => p.MaCumRapNavigation)
@@ -92,7 +92,6 @@ namespace TTCN.Controllers
 
             ViewBag.dlSuatChieu = dlSuatChieu;
 
-            // Truyền danh sách combo đầy đủ để có thể chọn nhiều combo
             var doAnList = db.DoAns.Where(d => d.TrangThai == true).ToList();
             ViewBag.doAn = doAnList;
             ViewBag.SelectedMaSuat = maSuat;
@@ -122,7 +121,6 @@ namespace TTCN.Controllers
                 .Select(ct => ct.MaGhe.Value)
                 .ToHashSet();
 
-            // Map dữ liệu trả về JSON, sắp theo Hàng + Tên ghế
             var data = suat.MaPhongNavigation.GheNgois
                 .OrderBy(g => g.HangGhe)
                 .ThenBy(g => g.TenGhe)

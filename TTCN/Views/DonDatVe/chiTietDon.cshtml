@@ -15,12 +15,12 @@
         .Where(x => x.MaGheNavigation != null)
         .Select(x => new
         {
-            TenGhe = x.MaGheNavigation.TenGhe.Trim(), // J9
+            TenGhe = x.MaGheNavigation.TenGhe.Trim(), 
             LoaiGhe = x.MaGheNavigation.LoaiGhe?.ToUpper()
         })
         .ToList();
 
-    // ===== GHẾ THƯỜNG / VIP =====
+
     var normalSeats = seatDetails
         .Where(x => x.LoaiGhe != "SWEETBOX")
         .OrderBy(x => x.TenGhe)
@@ -35,13 +35,13 @@
         .ToList();
 
 
-    // ===== SWEETBOX =====
+
     var sweetBoxGroups = seatDetails
         .Where(x => x.LoaiGhe == "SWEETBOX")
         .Select(x => new
         {
-            Row = x.TenGhe.Substring(0, 1),                // J
-            Number = int.Parse(x.TenGhe.Substring(1)),    // 9,10
+            Row = x.TenGhe.Substring(0, 1),                
+            Number = int.Parse(x.TenGhe.Substring(1)),    
             x.TenGhe
         })
         .GroupBy(x => x.Row)
@@ -55,7 +55,7 @@
                 if (ordered[i + 1].Number == ordered[i].Number + 1)
                 {
                     result.Add($"{ordered[i].TenGhe} - {ordered[i + 1].TenGhe}");
-                    i++; // bỏ qua ghế kế tiếp
+                    i++; 
                 }
             }
             return result;
@@ -126,7 +126,7 @@
         height: 1px;
         background-color: #333;
         margin: 20px 0;
-        border-bottom: 1px dashed #555; /* Đường đứt nét giống vé thật */
+        border-bottom: 1px dashed #555; 
     }
 
     .total-price {
@@ -244,7 +244,7 @@
                     <div class="info-label mb-2">
                         Ghế Đã Đặt (@(standardSeats.Count + vipSeats.Count + sweetBoxGroups.Count))
                     </div>
-                    <!-- LEGEND LOẠI GHẾ -->
+
                     <div class="mb-2 d-flex flex-wrap gap-2">
                         <span class="seat-badge">
                             Thường
@@ -257,7 +257,7 @@
                         </span>
                     </div>
 
-                    <!-- DANH SÁCH GHẾ -->
+
                     <div class="d-flex flex-wrap">
 
                         @foreach (var sb in sweetBoxGroups)

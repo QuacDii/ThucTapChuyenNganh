@@ -51,7 +51,7 @@ namespace TTCN.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(PaymentSelectionRequest request)
         {
-            // Lấy mã user đang đăng nhập
+
             int userId = HttpContext.Session.GetInt32("UserId").Value;
 
             if (request == null) return RedirectToAction("Index", "Home");
@@ -60,8 +60,6 @@ namespace TTCN.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-
-            // Parse ghế
             List<CheckoutSeatModel> seats = new();
             if (!string.IsNullOrWhiteSpace(request.SelectedSeatsJson))
             {
@@ -74,7 +72,7 @@ namespace TTCN.Controllers
                 }
                 catch { }
             }
-            // ========== PARSE COMBO ==========
+
             List<CheckoutComboModel> combos = new();
 
             if (!string.IsNullOrWhiteSpace(request.SelectedCombosJson))
@@ -88,13 +86,13 @@ namespace TTCN.Controllers
                 }
                 catch
                 {
-                    // có thể log nếu cần
+
                 }
             }
 
             var user = _db.Users.FirstOrDefault(u => u.MaUsers == userId);
 
-            // Tạo ViewModel
+
             var checkout = new PaymentCheckoutViewModel
             {
                 MovieName = request.MovieName,
@@ -133,14 +131,14 @@ namespace TTCN.Controllers
                     .Where(x => x != null)
                     .ToList();
             }
-            // ================== KHÓA BACKEND – CHỐNG 2 NGƯỜI TRANH GHẾ ==================
+
             using var tran = await _db.Database.BeginTransactionAsync(
                 System.Data.IsolationLevel.Serializable
             );
 
             try
             {
-                // ===== 1. CHECK GHẾ TRÙNG (LOCK DB) =====
+
                 var selectedSeatIds = seats
                     .SelectMany(s => s.MaGhe)
                     .ToList();
@@ -157,7 +155,6 @@ namespace TTCN.Controllers
                     return BadRequest("Một hoặc nhiều ghế đã được người khác chọn. Vui lòng chọn lại.");
                 }
 
-                // ===== 2. TẠO ĐƠN CHỜ THANH TOÁN =====
                 var don = new DonDatVe
                 {
                     NgayDat = DateTime.Now,
@@ -167,9 +164,9 @@ namespace TTCN.Controllers
                 };            
 
                 _db.DonDatVes.Add(don);
-                await _db.SaveChangesAsync(); // LẤY MaDon
+                await _db.SaveChangesAsync(); 
 
-                // ===== 3. LƯU GHẾ (CHÍNH THỨC GIỮ) =====
+
                 foreach (var seat in seats)
                 {
                     foreach (var maGhe in seat.MaGhe)
@@ -184,28 +181,30 @@ namespace TTCN.Controllers
                     }
                 }
 
-                // ===== 4. LƯU COMBO =====
+
                 foreach (var c in combos)
                 {
                     if (c.SoLuong <= 0) continue;
 
+                    var comboDb = _db.DoAns.FirstOrDefault(x => x.MaCombo == c.MaCombo);
+                    if (comboDb == null) continue;
+
                     _db.DonDatVeDoAns.Add(new DonDatVeDoAn
                     {
                         MaDon = don.MaDon,
-                        MaCombo = c.MaCombo,
-                        SoLuong = c.SoLuong
+                        MaCombo = comboDb.MaCombo,
+                        SoLuong = c.SoLuong,
+                        Gia = comboDb.Gia * c.SoLuong
                     });
                 }
 
-                await _db.SaveChangesAsync();
 
-                // ===== 5. COMMIT – CHỈ 1 USER THẮNG =====
+                await _db.SaveChangesAsync();
                 await tran.CommitAsync();
 
-                // ===== 6. LƯU SESSION =====
+
                 HttpContext.Session.SetInt32("MaDon", don.MaDon);
 
-                // ===== 7. LƯU CHECKOUT DATA (BACK TO SEAT) =====
                 HttpContext.Session.SetString(
                     "CheckoutData",
                     JsonConvert.SerializeObject(new
@@ -241,7 +240,6 @@ namespace TTCN.Controllers
             return View(checkout);
         }
 
-        // =============== BƯỚC 2: TẠO URL THANH TOÁN MOMO ===============
         [HttpPost]
         [Route("CreatePaymentUrl")]
         public async Task<IActionResult> CreatePaymentMomo(OrderInfoModel model)
@@ -265,7 +263,6 @@ namespace TTCN.Controllers
         }
 
 
-        // =============== BƯỚC 3: MOMO CALLBACK ===============
         [HttpGet]
         public async Task<IActionResult> PaymentCallBackAsync()
         {
@@ -303,7 +300,6 @@ namespace TTCN.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Thanh toán thành công
             if (response.ResultCode == 0)
             {
                 don.TrangThai = "Đã thanh toán";
@@ -321,7 +317,6 @@ namespace TTCN.Controllers
                 }
 
 
-                // ================= AUTO LOGIN USER =================
                 var user = _db.Users.FirstOrDefault(u => u.MaUsers == don.MaUsers);
                 if (user != null)
                 {
@@ -331,9 +326,8 @@ namespace TTCN.Controllers
                     HttpContext.Session.SetString("UserVaiTro", user.VaiTro);
                     HttpContext.Session.SetString("SessionStartTime", DateTime.UtcNow.ToString("o"));
                 }
-                // ===================================================
 
-                // Gửi email xác nhận đặt vé
+
                 _ = SendBookingConfirmationEmailAsync(maDon);
 
                 return RedirectToAction(
@@ -343,7 +337,7 @@ namespace TTCN.Controllers
                 );
 
             }
-            else // Thanh toán thất bại
+            else 
             {              
                 foreach (var ct in chiTietList)
                 {
@@ -366,7 +360,6 @@ namespace TTCN.Controllers
         {
             try
             {
-                // Lấy thông tin đơn đặt vé với các navigation properties
                 var don = _db.DonDatVes
                     .Include(d => d.MaUsersNavigation)
                     .Include(d => d.ChiTietDonDat)
@@ -395,7 +388,6 @@ namespace TTCN.Controllers
                     return;
                 }
 
-                // Lấy thông tin suất chiếu đầu tiên (tất cả ghế trong cùng một suất)
                 var firstChiTiet = don.ChiTietDonDat.FirstOrDefault();
                 if (firstChiTiet == null || firstChiTiet.MaSuatNavigation == null)
                 {
@@ -457,9 +449,8 @@ namespace TTCN.Controllers
                 .OrderBy(x => x.Row).ThenBy(x => x.Number)
                 .ToList();
 
-            // 2. Xử lý gộp ghế Sweetbox và tạo danh sách hiển thị cuối cùng
             var finalDisplayList = new List<dynamic>();
-            var processedIndices = new HashSet<int>(); // Đánh dấu các ghế đã xử lý
+            var processedIndices = new HashSet<int>(); 
 
             for (int i = 0; i < rawSeats.Count; i++)
             {
@@ -480,7 +471,7 @@ namespace TTCN.Controllers
                             finalDisplayList.Add(new
                             {
                                 Label = $"{current.TenGhe}-{next.TenGhe} (Sweetbox)",
-                                Color = "#ff6b6b" // Màu hồng/đỏ
+                                Color = "#ff6b6b" 
                             });
 
                             processedIndices.Add(i);     

@@ -6,7 +6,6 @@
 }
 
 <style>
-    /* Style cho badge loại ghế - Đồng bộ với trang danh sách ghế */
     .badge-vip {
         background-color: #f6c23e;
         color: #fff;
@@ -23,7 +22,7 @@
     }
 
     .badge-custom-success {
-        background-color: #1cc88a !important; /* Màu xanh lá chuẩn */
+        background-color: #1cc88a !important; 
         color: #ffffff !important;
     }
 
@@ -194,20 +193,20 @@
 
                         @{
                             var status = Model.TrangThai ?? "";
-                            string badgeStyle = "background-color: #858796; color: white;"; // Mặc định màu xám
+                            string badgeStyle = "background-color: #858796; color: white;"; 
                             string iconHtml = "";
 
                             if (!string.IsNullOrEmpty(status))
                             {
                                 var sLower = status.ToLower();
 
-                                // 1. Trạng thái Thành công (Xanh lá)
+
                                 if (sLower.Contains("thanh toán") || sLower.Contains("hoàn tất"))
                                 {
                                     badgeStyle = "background-color: #1cc88a; color: white;";
                                     iconHtml = "<i class='fas fa-check-circle mr-1'></i>";
                                 }
-                                // 3. Trạng thái Chờ (Vàng)
+
                                 else
                                 {
                                     badgeStyle = "background-color: #f6c23e; color: #333;";

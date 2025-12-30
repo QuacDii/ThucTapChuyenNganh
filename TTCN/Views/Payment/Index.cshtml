@@ -374,7 +374,7 @@
                     }, 1000);
                 }
 
-                // LẤY THỜI GIAN TỪ SERVER 
+                // lấy thời gian từ controller
                 fetch(`/Payment/GetRemainingTime?maDon=${maDon}`)
                     .then(res => res.json())
                     .then(data => {

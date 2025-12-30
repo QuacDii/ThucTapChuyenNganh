@@ -161,13 +161,23 @@ namespace TTCN.Controllers
         public IActionResult sua(int id)
         {
             var sc = _context.SuatChieus
-                .Include(s => s.MaPhongNavigation)          // Lấy thông tin Phòng
-                .ThenInclude(p => p.MaCumRapNavigation) // Lấy tiếp thông tin Cụm Rạp từ Phòng
+                .Include(s => s.MaPhongNavigation)
+                .ThenInclude(p => p.MaCumRapNavigation)
                 .FirstOrDefault(s => s.MaSuat == id);
 
             if (sc == null) return NotFound();
 
+            var now = DateTime.Now;
+
+
+            if (sc.GioBatDau <= now)
+            {
+                TempData["Error"] = "Chỉ được chỉnh sửa các suất chiếu sắp công chiếu!";
+                return RedirectToAction("Index");
+            }
+
             ViewBag.MaPhim = new SelectList(_context.Phims, "MaPhim", "TenPhim", sc.MaPhim);
+
             var currentCumRapId = sc.MaPhongNavigation.MaCumRap;
             var listPhong = _context.PhongChieus
                                     .Where(p => p.MaCumRap == currentCumRapId)
@@ -177,12 +187,13 @@ namespace TTCN.Controllers
 
             var roomMap = listPhong.ToDictionary(
                 k => k.MaPhong,
-                v => v.MaCumRapNavigation?.TenCumRap ?? sc.MaPhongNavigation.MaCumRapNavigation.TenCumRap
+                v => v.MaCumRapNavigation?.TenCumRap
             );
             ViewBag.RoomCinemaJson = System.Text.Json.JsonSerializer.Serialize(roomMap);
 
             return View(sc);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -190,6 +201,18 @@ namespace TTCN.Controllers
         {
             if (id != sc.MaSuat) return NotFound();
 
+            var suatCu = _context.SuatChieus.AsNoTracking()
+                    .FirstOrDefault(s => s.MaSuat == id);
+
+            if (suatCu == null) return NotFound();
+
+            var now = DateTime.Now;
+
+            if (suatCu.GioBatDau <= now)
+            {
+                TempData["Error"] = "Không thể chỉnh sửa suất chiếu đang chiếu hoặc đã chiếu!";
+                return RedirectToAction("Index");
+            }
             ModelState.Remove("MaPhimNavigation");
             ModelState.Remove("MaPhongNavigation");
             ModelState.Remove("DonDatVes");
